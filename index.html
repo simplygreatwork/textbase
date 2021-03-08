@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+		<title>Editor</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato%26display=swap">
+		<link rel="stylesheet" type="text/css" href="styles/main.css">
+		<link rel="stylesheet" type="text/css" href="styles/flex.css">
+		<link rel="stylesheet" type="text/css" href="styles/content.css">
+	</head>
+	<body>
+		<div class="container flex-container">
+			<div class="toolbar"></div>
+			<div class="editor">
+				<div class="content" contentEditable=true></div>
+			</div>
+			<div class="structure">
+				<pre class="structure-html"></pre>
+			</div>
+		</div>
+		<script language="javascript" src="./lib/umbrella.js"></script>
+		<script language="javascript" src="./lib/contents.js"></script>
+		<script type="module" src="source/main.js"></script>
+	</body>
+</html>

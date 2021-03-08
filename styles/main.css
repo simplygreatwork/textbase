@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  padding: 0;
+  height:auto;
+}
+.container {
+	border:0px;
+	box-sizing: border-box;
+	margin: 0 auto;
+	width: 100%;
+	padding: 0px;
+	font-family: 'Lato', sans-serif;
+	height:100vh;
+	max-height:100vh;
+	min-height:100vh;
+	overflow-y:none;
+}
+.editor {
+	width:50%;
+	overflow-y:scroll;
+	padding-left:40px;
+}
+.content {
+	box-sizing: border-box;
+	height: 100%;
+	outline: 0;
+	overflow-y: auto;
+	padding: 10px;
+}
+.toolbar {
+	width:10%;
+	overflow-y:scroll;
+	margin: 10px;
+}
+.toolbar button {
+	display:block;
+	font-weight:600;
+	font-size:90%;
+	width:100%;
+	text-align:left;
+	padding:5px;
+	padding-left:10px;
+}
+button {
+	border:1px solid royalblue;
+	color:royalblue;
+	background:white;
+	padding:8px;
+	padding-top:4px;
+	padding-bottom:4px;
+	margin-top:4px;
+	margin-bottom:4px;
+	margin-right:2px;
+	border-radius:4px;
+}
+button.active {
+	border-right:7px solid royalblue;
+}
+button:focus {
+	outline:0;
+}
+.structure {
+	width:50%;
+	overflow-y:scroll;
+	height:100%;
+}
+.structure-html {
+  white-space: pre-wrap;
+  font-size:100%;
+  tab-size: 2;
+  font-weight:900;
+  color:darkblue;
+  overflow:scroll;
+  padding-left:10px;
+}
+.invalid {
+	border-top:10px solid red;
+}
+pre {
+	padding:10px;
+}
