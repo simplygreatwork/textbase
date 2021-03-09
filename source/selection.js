@@ -7,11 +7,11 @@ const logger = Logger()
 
 export function set_selection(element, options) {
 	
+	let selection = document.getSelection()
+	selection.removeAllRanges()
 	let range = new Range()
 	range.setStart(options.head.container, options.head.offset)
 	range.setEnd(options.tail.container, options.tail.offset)
-	let selection = document.getSelection()
-	selection.removeAllRanges()
 	selection.addRange(range)
 }
 
@@ -39,90 +39,6 @@ export function set_caret(element, options) {
 	let selection = document.getSelection()
 	selection.removeAllRanges()
 	selection.addRange(range)
-}
-
-export function set_selection_by_positions(element, options) {
-	
-	if (options.element) {
-		return
-	} else {
-		let range = new Range()
-		iterate_characters(element, function(char, position, node, index) {
-			if (position === options.head) {
-				range.setStart(node, index)
-			} else if (position === options.tail) {
-				range.setEnd(node, index)
-			}
-		})
-		let selection = document.getSelection()
-		selection.removeAllRanges()
-		selection.addRange(range)
-	}
-}
-
-export function get_selection_by_positions(element) {
-	
-	let result = null
-	let selection = document.getSelection()
-	if (selection && selection.rangeCount > 0) {
-		let range = selection.getRangeAt(0)
-		result = {
-			range: range,
-			head: {
-				container: range.startContainer,
-				offset: range.startOffset
-			},
-			middle: [],
-			tail: {
-				container: range.endContainer,
-				offset: range.endOffset
-			},
-		}
-		iterate_characters(element, function(char, position, node, index) {
-			if (node == range.startContainer && index == range.startOffset) {
-				result.head.position = position
-			}
-			if (node == range.endContainer && index == range.endOffset) {
-				result.tail.position = position
-			}
-			if (result.head.position !== undefined && result.tail.position === undefined) {
-				if (node != range.startContainer && node != range.endContainer) {
-					if (u(node).parent().is('span')) {
-						node = node.parentElement
-					}
-					if (result.middle.indexOf(node) === -1) {
-						result.middle.push(node)
-					}
-				}
-			}
-		})
-		let array = []
-		array.push(result.head.container.parentElement.tagName)
-		array.push(result.head.offset)
-		array.push(result.tail.container.parentElement.tagName)
-		array.push(result.tail.offset)
-		array.push(result.head.container.nodeType == 3)
-		result.string = array.join(':')
-	}
-	return result
-}
-
-export function selection_to_string(selection) {
-	
-	let array = []
-	if (selection.head.container.nodeType == 1) {
-		array.push(selection.head.container.tagName)
-	} else {
-		array.push(selection.head.container.textContent)
-	}
-	array.push(selection.head.offset)
-	if (selection.head.container.nodeType == 1) {
-		array.push(selection.tail.container.tagName)
-	} else {
-		array.push(selection.tail.container.textContent)
-	}
-	array.push(selection.tail.offset)
-	return array.join(':')
 }
 
 export function selection_edge(editor, selection) {
@@ -220,4 +136,82 @@ export function normalize_selection(editor) {
 		selection.range.setEnd(next, 0)
 		editor.emit('selection:did-change', null, editor)
 	}
+}
+
+export function selection_to_string(selection) {
+	
+	let array = []
+	if (selection.head.container.nodeType == 1) {
+		array.push(selection.head.container.tagName)
+	} else {
+		array.push(selection.head.container.textContent)
+	}
+	array.push(selection.head.offset)
+	if (selection.head.container.nodeType == 1) {
+		array.push(selection.tail.container.tagName)
+	} else {
+		array.push(selection.tail.container.textContent)
+	}
+	array.push(selection.tail.offset)
+	return array.join(':')
+}
+
+export function set_selection_by_positions(element, options) {
+	
+	if (options.element) {
+		return
+	} else {
+		let range = new Range()
+		iterate_characters(element, function(char, position, node, index) {
+			if (position === options.head) {
+				range.setStart(node, index)
+			} else if (position === options.tail) {
+				range.setEnd(node, index)
+			}
+		})
+		let selection = document.getSelection()
+		selection.removeAllRanges()
+		selection.addRange(range)
+	}
+}
+
+export function get_selection_by_positions(element) {
+	
+	let result = null
+	let selection = document.getSelection()
+	if (selection && selection.rangeCount > 0) {
+		let range = selection.getRangeAt(0)
+		result = {
+			range: range,
+			head: { container: range.startContainer, offset: range.startOffset },
+			middle: [],
+			tail: { container: range.endContainer, offset: range.endOffset },
+		}
+		iterate_characters(element, function(char, position, node, index) {
+			if (node == range.startContainer && index == range.startOffset) {
+				result.head.position = position
+			}
+			if (node == range.endContainer && index == range.endOffset) {
+				result.tail.position = position
+			}
+			if (result.head.position !== undefined && result.tail.position === undefined) {
+				if (node != range.startContainer && node != range.endContainer) {
+					if (u(node).parent().is('span')) {
+						node = node.parentElement
+					}
+					if (result.middle.indexOf(node) === -1) {
+						result.middle.push(node)
+					}
+				}
+			}
+		})
+		let array = []
+		array.push(result.head.container.parentElement.tagName)
+		array.push(result.head.offset)
+		array.push(result.tail.container.parentElement.tagName)
+		array.push(result.tail.offset)
+		array.push(result.head.container.nodeType == 3)
+		result.string = array.join(':')
+	}
+	return result
 }
