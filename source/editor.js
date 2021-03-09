@@ -147,18 +147,6 @@ export class Editor {
 		this.emit('content:did-change')
 	}
 	
-	insert_content(fragment) {		// todo: paste blocks properly
-		
-		logger('trace').log('insert_content')
-		if (! this.is_editable()) return
-		let selection = get_selection(this.element)
-		selection_edge(this, selection)
-		selection.range.deleteContents()
-		selection.range.insertNode(fragment)
-		// todo: move caret to end of inserted content
-		this.emit('content:did-change')
-	}
-	
 	split_content(limit) {
 		
 		logger('trace').log('split_content')

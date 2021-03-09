@@ -20,16 +20,12 @@ export function get_selection(element) {
 	let selection = document.getSelection()
 	if (selection && selection.rangeCount > 0) {
 		let range = selection.getRangeAt(0)
+		if (! u(range.startContainer).closest(u('.content'))) return null
+		if (! u(range.endContainer).closest(u('.content'))) return null
 		return {
 			range: range,
-			head: {
-				container: range.startContainer,
-				offset: range.startOffset
-			},
-			tail: {
-				container: range.endContainer,
-				offset: range.endOffset
-			}
+			head: { container: range.startContainer, offset: range.startOffset },
+			tail: { container: range.endContainer, offset: range.endOffset }
 		}
 	}
 	return null
@@ -142,6 +138,7 @@ export function selection_edge(editor, selection) {
 	range.setStartBefore(node)
 	range.setEnd(selection.head.container, selection.head.offset)
 	fragment = range.extractContents()
+	let container = fragment.children[0].childNodes[0]
 	range.insertNode(fragment)
 }
 

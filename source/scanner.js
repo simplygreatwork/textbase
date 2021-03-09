@@ -195,19 +195,20 @@ export class Scanner {
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html('<span>&#x200B;</span>')
-		})
+			this.editor.emit('content:did-change')
+		}.bind(this))
 		
 		bus.on('detected:atom', function(data) {
 			logger('scanner').log('detected:atom')
-		})
+		}.bind(this))
 		
 		bus.on('detected:card', function(data) {
 			logger('scanner').log('detected:card')
-		})
+		}.bind(this))
 		
 		bus.on('detected:other', function(data) {
 			logger('scanner').log('detected:other')
-		})
+		}.bind(this))
 	}
 }
 

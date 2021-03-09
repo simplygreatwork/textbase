@@ -21,7 +21,6 @@ export class Toolbar {
 				u(each).removeClass('active')
 			}.bind(this))
 			u('.toolbar').find(`button[data-element=${active_block}]`).addClass('active')
-			console.log('active_formats: ' + JSON.stringify(active_formats))
 			active_formats.forEach(function(format) {
 				u('.toolbar').find(`button[data-format=${format}]`).addClass('active')
 			})
