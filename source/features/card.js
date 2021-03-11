@@ -17,7 +17,7 @@ export function insert_card(editor, card) {
 	node.attr('id', node.attr('id') || Math.random())
 	let type = node.attr('data-card-type')
 	editor.emit(`card-will-enter:${type}`, node)
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	u(parts[0]).after(node)
 	editor.emit(`card-did-enter:${type}`, node)
 }

@@ -10,7 +10,7 @@ const logger = Logger()
 export function toggle_block(editor, type) {
 	
 	logger('trace').log('toggle_block')
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let element = u(`<${type}>`)
 		u(node).children().each(function(each) {
@@ -23,7 +23,7 @@ export function toggle_block(editor, type) {
 
 export function find_active_block(editor, blocks) {
 	
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()
 	let ancestor = node.closest(blocks).first()

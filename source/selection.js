@@ -5,7 +5,7 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export function set_selection(element, options) {
+export function set_selection(editor, options) {
 	
 	let selection = document.getSelection()
 	selection.removeAllRanges()
@@ -15,7 +15,7 @@ export function set_selection(element, options) {
 	selection.addRange(range)
 }
 
-export function get_selection(element) {
+export function get_selection(editor) {
 	
 	let selection = document.getSelection()
 	if (selection && selection.rangeCount > 0) {
@@ -31,7 +31,7 @@ export function get_selection(element) {
 	return null
 }
 
-export function set_caret(element, options) {
+export function set_caret(editor, options) {
 	
 	let range = new Range()
 	range.setStart(options.container, options.offset)
@@ -44,18 +44,21 @@ export function set_caret(element, options) {
 export function selection_edge(editor, selection) {
 	
 	let range, node, fragment
+	let edges = [null, null]
 	range = selection.range.cloneRange()
 	node = u(selection.tail.container).closest(u('span')).first()
 	range.setStart(selection.tail.container, selection.tail.offset)
 	range.setEndAfter(node)
 	fragment = range.extractContents()
+	edges[0] = fragment.children[0]
 	range.insertNode(fragment)
 	node = u(selection.head.container).closest(u('span')).first()
 	range.setStartBefore(node)
 	range.setEnd(selection.head.container, selection.head.offset)
 	fragment = range.extractContents()
-	let container = fragment.children[0].childNodes[0]
+	edges[1] = fragment.children[0]
 	range.insertNode(fragment)
+	return edges
 }
 
 export function selection_each_node(editor, selection, fn) {
@@ -129,7 +132,7 @@ export function get_selection_length(editor, selection) {
 
 export function normalize_selection(editor) {
 	
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	if (selection && selection.range && selection.tail.container.nodeType == 1) {
 		var iterator = text_iterator(editor.element, selection.tail.container)
 		let next = iterator.nextNode()

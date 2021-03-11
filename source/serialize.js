@@ -8,7 +8,7 @@ export function serialize(editor) {
 	
 	logger('trace').log('serialize')
 	let result = []
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	serialize_(selection, u(editor.element), [], result)
 	return result.join('')
 }

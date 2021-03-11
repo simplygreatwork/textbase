@@ -17,7 +17,7 @@ export function insert_atom(editor, atom) {
 	node.attr('id', node.attr('id') || Math.random())
 	let type = node.attr('data-atom-type')
 	editor.emit(`atom-will-enter:${type}`, node)
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	selection.range.insertNode(node.first())
 	editor.emit(`atom-did-enter:${type}`, node)
 }

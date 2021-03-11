@@ -135,11 +135,11 @@ export class Scanner {
 		bus.on('detected:text-node-with-content', function(node) {
 			if (node.nodeValue.length > 1) {
 				if (node.nodeValue && node.nodeValue.indexOf('\u200b') > -1) {
-					let selection = get_selection(this.editor.element)
+					let selection = get_selection(this.editor)
 					let container = selection.head.container
 					let offset = selection.head.offset
 					node.nodeValue = node.nodeValue.split('\u200b').join('')
-					set_selection(this.editor.element, {
+					set_selection(this.editor, {
 						head: { container: container, offset: node.nodeValue.length }, 
 						tail: { container: container, offset: node.nodeValue.length }
 					})
@@ -158,7 +158,7 @@ export class Scanner {
 		
 		bus.on('detected:span-requiring-concatenation', function(element, next_element) {
 			logger('scanner').log('detected:span-requiring-concatenation')
-			let selection = get_selection(this.editor.element)
+			let selection = get_selection(this.editor)
 			if (selection.head.container == next_element.firstChild) {
 				selection.head.container = element.firstChild
 				selection.head.offset = selection.head.offset + element.firstChild.textContent.length
@@ -169,7 +169,7 @@ export class Scanner {
 			}
 			element.firstChild.textContent = element.firstChild.textContent + next_element.firstChild.textContent
 			next_element.remove()
-			set_selection(this.editor.element, {
+			set_selection(this.editor, {
 				head: selection.head, 
 				tail: selection.tail
 			})
@@ -178,13 +178,13 @@ export class Scanner {
 		
 		bus.on('detected:empty-span', function(element) {
 			logger('scanner').log('detected:empty-span')
-			let selection = get_selection(this.editor.element)
+			let selection = get_selection(this.editor)
 			let apply_selection = element.firstChild == selection.head.container
 			var iterator = text_iterator(this.editor.element, element.firstChild)
 			let next = iterator.nextNode()
 			element.remove()
 			if (apply_selection) {
-				set_selection(this.editor.element, {
+				set_selection(this.editor, {
 					head: { container: next, offset: 0 }, 
 					tail: { container: next, offset: 0 }
 				})

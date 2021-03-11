@@ -118,32 +118,41 @@ export class Editor {
 		
 		logger('trace').log('insert_character')
 		if (! this.is_editable()) return
-		let selection = get_selection(this.element)
+		let selection = get_selection(this)
 		if (! selection.range.collapsed) {
 			this.delete_content(selection)
-			selection = get_selection(this.element)
+			selection = get_selection(this)
 		}
 		let node = u(selection.head.container)
-		if (node.is(an_element_node)) {				// after normalize_selection, this might never occur
-			if (! node.is(u('span'))) {
-				if (node.children().length == 0) {
-					let span = u('<span></span>')
-					span.text(key)
-					node.append(span)
-					let text_node = node.children().first().childNodes[0]
-					selection.range.setStart(text_node, 1)
-					selection.range.setEnd(text_node, 1)
-				}
-			}
-		} else if (node.is(a_text_node)) {
-			let text = node.text()
-			let head = text.substring(0, selection.head.offset)
-			let tail = text.substring(selection.tail.offset)
-			text = head + event.key + tail
-			node.text(text.trim())
-			selection.range.setStart(selection.head.container, selection.head.offset + 1)
-			selection.range.setEnd(selection.tail.container, selection.tail.offset + 1)
+		if (! node.is(a_text_node)) throw Error('Expected text node.') 
+		let text = node.text()
+		let head = text.substring(0, selection.head.offset)
+		let tail = text.substring(selection.tail.offset)
+		text = head + event.key + tail
+		node.text(text.trim())
+		selection.range.setStart(selection.head.container, selection.head.offset + 1)
+		selection.range.setEnd(selection.tail.container, selection.tail.offset + 1)
+		this.emit('content:did-change')
+	}
+	
+	insert_string(string) {
+		
+		logger('trace').log('insert_string')
+		if (! this.is_editable()) return
+		let selection = get_selection(this)
+		if (! selection.range.collapsed) {
+			this.delete_content(selection)
+			selection = get_selection(this)
 		}
+		let node = u(selection.head.container)
+		if (! node.is(a_text_node)) throw Error('Expected the selection container to be a text node.') 
+		let text = node.text()
+		let head = text.substring(0, selection.head.offset)
+		let tail = text.substring(selection.tail.offset)
+		text = head + string + tail
+		node.text(text.trim())
+		selection.range.setStart(selection.head.container, selection.head.offset + string.length)
+		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
 		this.emit('content:did-change')
 	}
 	
@@ -151,7 +160,7 @@ export class Editor {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
-		let selection = get_selection(this.element)
+		let selection = get_selection(this)
 		if (! selection.range.collapsed) this.delete_()
 		let range = selection.range.cloneRange()
 		let node = u(selection.head.container).closest(u(limit)).first()
@@ -164,7 +173,7 @@ export class Editor {
 		let b = fragment_b.firstElementChild
 		range.insertNode(b)
 		range.insertNode(a)
-		set_caret(this.element, { container: last, offset: 0 })
+		set_caret(this, { container: last, offset: 0 })
 		this.emit('content:did-change')
 		return [a, b]
 	}
@@ -173,7 +182,7 @@ export class Editor {
 		
 		logger('trace').log('delete')
 		this.shift_caret()
-		let selection = get_selection(this.element)
+		let selection = get_selection(this)
 		if (selection.range.collapsed) {
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
@@ -193,10 +202,10 @@ export class Editor {
 	shift_caret() {
 		
 		try {
-			let selection = get_selection(this.element)
+			let selection = get_selection(this)
 			let position = this.previous_caret_position()
 			if (selection.head.container.parentElement.parentElement == position.container.parentElement.parentElement) {
-				set_caret(this.element, { container: position.container, offset: position.offset })
+				set_caret(this, { container: position.container, offset: position.offset })
 			}
 		} catch (e) {
 			console.error('Exception in shift_caret')
@@ -205,7 +214,7 @@ export class Editor {
 	
 	previous_caret_position() {
 		
-		let head = get_selection(this.element).head
+		let head = get_selection(this).head
 		if (head.offset > 0) {
 			return {
 				container: head.container.parentElement,
@@ -266,7 +275,7 @@ export class Editor {
 					block_.append(each)
 				})
 				block.remove()
-				set_caret(this.element, { container: selectable, offset: selectable.textContent.length })
+				set_caret(this, { container: selectable, offset: selectable.textContent.length })
 				break
 			}
 		}
@@ -286,18 +295,18 @@ export class Editor {
 		let offset = selection.head.offset
 		let contents = selection.range.deleteContents()
 		if (u(div).find('p,li,h1,h2,h3').length) {
-			set_caret(this.element, { container: selection.tail.container, offset: 0 })
-			selection = get_selection(this.element)
+			set_caret(this, { container: selection.tail.container, offset: 0 })
+			selection = get_selection(this)
 			this.delete_block(selection)
 		} else {
-			set_caret(this.element, { container: selection.head.container, offset: offset })
+			set_caret(this, { container: selection.head.container, offset: offset })
 		}
 		this.emit('content:did-delete', fragment)
 	}
 	
 	is_editable() {
 		
-		let selection = get_selection(this.element)
+		let selection = get_selection(this)
 		return u(selection.head.container).parent().first().contentEditable == 'inherit'
 	}
 	

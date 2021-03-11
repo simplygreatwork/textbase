@@ -64,7 +64,7 @@ export class Application {
 		
 		bus.on('selection:did-change', function(editor) {
 			if (this.history.enabled) {
-				selections.push(get_selection(this.editor.element))
+				selections.push(get_selection(this.editor))
 			}
 		}.bind(this))
 		
@@ -77,20 +77,20 @@ export class Application {
 		
 		bus.on('history:did-capture', function(record) {
 			record.selection.before = selection
-			record.selection.after = get_selection(this.editor.element)
+			record.selection.after = get_selection(this.editor)
 		}.bind(this))
 		
 		bus.on('history:did-undo', function(data) {
 			let record = this.history.records[this.history.index]
 			if (record && record.selection && record.selection.before) {
-				set_selection(this.editor.element, record.selection.before)
+				set_selection(this.editor, record.selection.before)
 			}
 		}.bind(this))
 		
 		bus.on('history:did-redo', function(data) {
 			let record = this.history.records[this.history.index + 1]
 			if (record && record.selection && record.selection.after) {
-				set_selection(this.editor.element, record.selection.after)
+				set_selection(this.editor, record.selection.after)
 			}
 		}.bind(this))
 		

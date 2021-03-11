@@ -11,7 +11,7 @@ export function toggle_format(editor, format, data) {
 	
 	logger('trace').log('toggle_format')
 	data = data || {}
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	selection_edge(editor, selection)
 	let add_class = false
 	selection_each_text(editor, selection, function(node, index) {
@@ -36,7 +36,7 @@ export function toggle_format(editor, format, data) {
 export function remove_formats(editor, formats) {
 	
 	logger('trace').log('remove_formats')
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	selection_edge(editor, selection)
 	selection_each_text(editor, selection, function(node) {
 		formats.forEach(function(each) {
@@ -50,7 +50,7 @@ export function find_active_formats(editor) {
 	
 	logger('trace').log('find_active_formats')
 	let result = new Set()
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	selection_each_text(editor, selection, function(each) {
 		result = new Set(...result, Array.from(each.parentNode.classList))
 	})
@@ -59,6 +59,6 @@ export function find_active_formats(editor) {
 
 export function find_applicable_formats(editor) {
 	
-	let selection = get_selection(editor.element)
+	let selection = get_selection(editor)
 	return []
 }

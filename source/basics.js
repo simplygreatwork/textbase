@@ -1,4 +1,7 @@
 
+export let block = 'p,h1,h2,h3,ul,ol,li,blockquote'
+export let inline = 'span,a'
+
 export function node_iterator(element, node, filter) {
 	
 	filter = filter || function(node) {
@@ -33,15 +36,15 @@ export function an_element_node(node) {
 	return node.nodeType === 1
 }
 
-export function a_span_node(node) {
+export function a_span_node(node) {			// fixme
 	return 'span'
 }
 
-export function an_inline_node(node) {
+export function an_inline_node(node) {		// fixme
 	return 'span,a'
 }
 
-export function an_block_node(node) {
+export function an_block_node(node) {		// fixme
 	return 'h1,h2,h3,p,li,blockquote'
 }
 
