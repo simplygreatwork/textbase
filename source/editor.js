@@ -117,22 +117,7 @@ export class Editor {
 	insert_character(key) {
 		
 		logger('trace').log('insert_character')
-		if (! this.is_editable()) return
-		let selection = get_selection(this)
-		if (! selection.range.collapsed) {
-			this.delete_content(selection)
-			selection = get_selection(this)
-		}
-		let node = u(selection.head.container)
-		if (! node.is(a_text_node)) throw Error('Expected text node.') 
-		let text = node.text()
-		let head = text.substring(0, selection.head.offset)
-		let tail = text.substring(selection.tail.offset)
-		text = head + event.key + tail
-		node.text(text.trim())
-		selection.range.setStart(selection.head.container, selection.head.offset + 1)
-		selection.range.setEnd(selection.tail.container, selection.tail.offset + 1)
-		this.emit('content:did-change')
+		this.insert_string(key)
 	}
 	
 	insert_string(string) {
