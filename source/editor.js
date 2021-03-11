@@ -153,12 +153,12 @@ export class Editor {
 		let fragment_a = range.extractContents()
 		range.setEndAfter(node)
 		let fragment_b = range.extractContents()
-		let last = fragment_b.children[0].childNodes[0].childNodes[0]		// fixme: breaks when removing a selection with formatted text
 		let a = fragment_a.firstElementChild
 		let b = fragment_b.firstElementChild
 		range.insertNode(b)
 		range.insertNode(a)
-		set_caret(this, { container: last, offset: 0 })
+		set_caret(this, { container: b, offset: 0 })
+		normalize_selection(this)
 		this.emit('content:did-change')
 		return [a, b]
 	}
