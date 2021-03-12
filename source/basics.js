@@ -1,6 +1,6 @@
 
-export let block = 'p,h1,h2,h3,ul,ol,li,blockquote'
-export let inline = 'span,a'
+export let block_elements = 'p,h1,h2,h3,ul,ol,li,blockquote'
+export let inline_elements = 'span,a'
 
 export function node_iterator(element, node, filter) {
 	

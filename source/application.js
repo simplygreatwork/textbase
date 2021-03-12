@@ -64,7 +64,8 @@ export class Application {
 		
 		bus.on('selection:did-change', function(editor) {
 			if (this.history.enabled) {
-				selections.push(get_selection(this.editor))
+				let selection = get_selection(this.editor)
+				selections.push(selection)
 			}
 		}.bind(this))
 		
@@ -320,7 +321,7 @@ export class Application {
 	
 	configure_cards(bus, editor) {
 		
-		this.toolbar.append(`<button data-action="card">Card</button>`)
+		this.toolbar.append(`<button data-action="card">Card: Sample</button>`)
 		
 		bus.on('action.request.card', function() {
 			insert_card(editor, `
@@ -329,10 +330,12 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('card-will-enter:sample', function(card) {
+			logger('application').log('card-will-enter:sample')
 			card.text('Sample Card')
 		}.bind(this))
 		
 		bus.on('card-did-enter:sample', function(card) {
+			logger('application').log('card-did-enter:sample')
 			window.setTimeout(function() {
 				card.text('Sample Card !!!')
 			}, 1000)
@@ -346,7 +349,35 @@ export class Application {
 			logger('application').log('card-did-exit:sample')
 		}.bind(this))
 		
-		this.toolbar.append(`<button data-action="card-timer">Card Timer</button>`)
+		this.toolbar.append(`<button data-action="card-image">Card: Image</button>`)
+		
+		bus.on('action.request.card-image', function() {
+			insert_card(editor, `
+				<div class="card" data-card-type="image"></div>
+			`)
+		}.bind(this))
+		
+		bus.on('card-will-enter:image', function(card) {
+			logger('application').log('card-will-enter:image')
+			card.text('Image Card')
+		}.bind(this))
+		
+		bus.on('card-did-enter:image', function(card) {
+			logger('application').log('card-did-enter:image')
+			window.setTimeout(function() {
+				card.text('Image Card !!!')
+			}, 1000)
+		}.bind(this))
+		
+		bus.on('card-will-exit:image', function(card) {
+			logger('application').log('card-will-exit:image')
+		}.bind(this))
+		
+		bus.on('card-did-exit:image', function(card) {
+			logger('application').log('card-did-exit:image')
+		}.bind(this))
+		
+		this.toolbar.append(`<button data-action="card-timer">Card: Timer</button>`)
 		
 		bus.on('action.request.card-timer', function() {
 			insert_card(editor, `
@@ -355,10 +386,12 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('card-will-enter:timer', function(card) {
+			logger('application').log('card-will-enter:timer')
 			card.text('Timer Card')
 		}.bind(this))
 		
 		bus.on('card-did-enter:timer', function(card) {
+			logger('application').log('card-did-enter:timer')
 			window.setTimeout(function() {
 				card.text('Timer Card !!!')
 			}, 1000)

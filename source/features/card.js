@@ -16,10 +16,10 @@ export function insert_card(editor, card) {
 	node.attr('contenteditable', 'false')
 	node.attr('id', node.attr('id') || Math.random())
 	let type = node.attr('data-card-type')
-	editor.emit(`card-will-enter:${type}`, node)
+	editor.emit(`card-will-enter`, node)
 	let selection = get_selection(editor)
 	u(parts[0]).after(node)
-	editor.emit(`card-did-enter:${type}`, node)
+	editor.emit(`card-did-enter`, node)
 }
 
 export function can_delete_card(editor, selection) {
@@ -40,6 +40,10 @@ export function delete_card(editor, selection) {
 	var iterator = element_iterator(editor.element, block.first())
 	let previous = iterator.previousNode()
 	if (u(previous).hasClass('card')) {
+		let card = previous
+		let type = u(card).attr('data-card-type')
+		editor.emit(`card-will-exit`, card)
 		u(previous).remove()
+		editor.emit(`card-did-exit`, card)
 	}
 }

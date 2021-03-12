@@ -1,7 +1,7 @@
 
 import { get_selection, set_caret, normalize_selection, selection_edge } from './selection.js'
 import { node_iterator, a_text_node, a_span_node } from './basics.js'
-import { block, inline } from './basics.js'
+import { inline_elements, block_elements } from './basics.js'
 import { sanitize } from './sanitize.js'
 import { Logger } from './logger.js'
 
@@ -72,11 +72,11 @@ export function paste(event, editor) {  	//todo: need to edge selection
 			let each_
 			node.children().each(function(each) {
 				each_ = u(each)
-				if (each_.is(inline)) {
+				if (each_.is(inline_elements)) {
 					u(edges[0]).before(each_)
-				} else if (each_.is(block)) {
+				} else if (each_.is(block_elements)) {
 					if (part == null) {
-						let parts = editor.split_content(block)
+						let parts = editor.split_content(block_elements)
 						part = u(parts[0])
 					}
 					part.after(each_)

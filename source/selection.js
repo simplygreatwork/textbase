@@ -7,6 +7,11 @@ const logger = Logger()
 
 export function set_selection(editor, options) {
 	
+	if (options.tail.container.nodeType == 1) {
+		var iterator = text_iterator(editor.element, options.tail.container)
+		options.tail.container = iterator.nextNode()
+		options.tail.offset = 0
+	}
 	let selection = document.getSelection()
 	selection.removeAllRanges()
 	let range = new Range()
@@ -33,6 +38,10 @@ export function get_selection(editor) {
 
 export function set_caret(editor, options) {
 	
+	if (options.container.nodeType == 1) {
+		var iterator = text_iterator(editor.element, options.container)
+		options.container = iterator.nextNode()
+	}
 	let range = new Range()
 	range.setStart(options.container, options.offset)
 	range.setEnd(options.container, options.offset)

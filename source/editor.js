@@ -84,14 +84,24 @@ export class Editor {
 			}.bind(this))
 		}.bind(this))
 		
-		this.on('card-will-exit', function(each) {
-			let type = u(each).data('card-type')
-			this.emit('card-will-exit:' + type)
+		this.on('card-will-enter', function(card) {
+			let type = u(card).data('card-type')
+			this.emit('card-will-enter:' + type, card)
 		}.bind(this))
 		
-		this.on('card-did-exit', function(each) {
-			let type = u(each).data('card-type')
-			this.emit('card-did-exit:' + type)
+		this.on('card-did-enter', function(card) {
+			let type = u(card).data('card-type')
+			this.emit('card-did-enter:' + type, card)
+		}.bind(this))
+		
+		this.on('card-will-exit', function(card) {
+			let type = u(card).data('card-type')
+			this.emit('card-will-exit:' + type, card)
+		}.bind(this))
+		
+		this.on('card-did-exit', function(card) {
+			let type = u(card).data('card-type')
+			this.emit('card-did-exit:' + type, card)
 		}.bind(this))
 	}
 	
@@ -166,7 +176,6 @@ export class Editor {
 	delete_() {
 		
 		logger('trace').log('delete')
-		this.shift_caret()
 		let selection = get_selection(this)
 		if (selection.range.collapsed) {
 			if (this.can_delete_character(selection)) {
@@ -182,40 +191,6 @@ export class Editor {
 			this.delete_content(selection)
 		}
 		this.emit('content:did-change')
-	}
-	
-	shift_caret() {
-		
-		try {
-			let selection = get_selection(this)
-			let position = this.previous_caret_position()
-			if (selection.head.container.parentElement.parentElement == position.container.parentElement.parentElement) {
-				set_caret(this, { container: position.container, offset: position.offset })
-			}
-		} catch (e) {
-			console.error('Exception in shift_caret')
-		}
-	}
-	
-	previous_caret_position() {
-		
-		let head = get_selection(this).head
-		if (head.offset > 0) {
-			return {
-				container: head.container.parentElement,
-				offset: head.offset - 1
-			}
-		} else {
-			var iterator = text_iterator(this.element, head.container)
-			let previous = iterator.previousNode()
-			if (u(previous).parent().is(u('span'))) {
-				return {
-					container: previous,
-					offset: head.container.textContent.length
-				}
-			}
-		}
-		return null
 	}
 	
 	can_delete_character(selection) {
