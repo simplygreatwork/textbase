@@ -1,6 +1,6 @@
 
 import { get_selection } from '../selection.js'
-import { element_iterator } from '../basics.js'
+import { an_element_node, element_iterator } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -24,6 +24,7 @@ export function insert_atom(editor, atom) {
 
 export function can_delete_atom(editor, selection) {
 	
+	if (selection.head.offset > 0) return false
 	var iterator = element_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	return u(previous).hasClass('atom') ? true : false
@@ -36,4 +37,19 @@ export function delete_atom(editor, selection) {
 	if (u(previous).hasClass('atom')) {
 		u(previous).remove()
 	}
+}
+
+export function watch_atoms(added, removed, bus) {
+	
+	logger('trace').log('watch_atoms')
+	added.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+			bus.emit('atom-did-enter', node)
+		}
+	})
+	removed.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+			bus.emit('atom-did-exit', node)
+		}
+	})
 }

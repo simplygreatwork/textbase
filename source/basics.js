@@ -28,6 +28,19 @@ export function text_iterator(element, node) {
 	})
 }
 
+export function find_previous_block(element, node) {
+	
+	let block = u(node).closest(u(block_elements))
+	var iterator = element_iterator(element, block.first())
+	return iterator.previousNode()
+}
+
+export function find_previous_element(element, node) {
+	
+	var iterator = text_iterator(element, node)
+	return iterator.previousNode().parentElement
+}
+
 export function a_text_node(node) {
 	return node.nodeType === 3
 }

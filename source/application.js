@@ -9,13 +9,13 @@ import { toggle_format, remove_formats, find_active_formats, find_applicable_for
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlink.js'
 import { initialize_clipboard } from './clipboard.js'
-import { insert_card } from './features/card.js'
-import { insert_atom } from './features/atom.js'
+import { insert_card, watch_cards } from './features/card.js'
+import { insert_atom, watch_atoms } from './features/atom.js'
 import { serialize } from './serialize.js'
 import { Scanner } from './scanner.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'application-off', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
+const logger = Logger(['trace', 'application', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
 
 export class Application {
 	
@@ -81,14 +81,14 @@ export class Application {
 			record.selection.after = get_selection(this.editor)
 		}.bind(this))
 		
-		bus.on('history:did-undo', function(data) {
+		bus.on('history:did-undo', function() {
 			let record = this.history.records[this.history.index]
 			if (record && record.selection && record.selection.before) {
 				set_selection(this.editor, record.selection.before)
 			}
 		}.bind(this))
 		
-		bus.on('history:did-redo', function(data) {
+		bus.on('history:did-redo', function() {
 			let record = this.history.records[this.history.index + 1]
 			if (record && record.selection && record.selection.after) {
 				set_selection(this.editor, record.selection.after)
@@ -141,7 +141,7 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
-			editor.delete_()
+			bus.emit('delete-requested', { consumed: false})
 			event.preventDefault()
 			return false
 		}.bind(this))
@@ -292,6 +292,14 @@ export class Application {
 	
 	configure_atoms(bus, editor) {
 		
+		bus.on('history:did-undo', function(added, removed) {
+			watch_atoms(added, removed, bus)
+		}.bind(this))
+		
+		bus.on('history:did-redo', function(added, removed) {
+			watch_atoms(added, removed, bus)
+		}.bind(this))
+		
 		this.toolbar.append(`<button data-action="atom">Atom</button>`)
 		
 		bus.on('action.request.atom', function() {
@@ -320,6 +328,14 @@ export class Application {
 	}
 	
 	configure_cards(bus, editor) {
+		
+		bus.on('history:did-undo', function(added, removed) {
+			watch_cards(added, removed, bus)
+		}.bind(this))
+		
+		bus.on('history:did-redo', function(added, removed) {
+			watch_cards(added, removed, bus)
+		}.bind(this))
 		
 		this.toolbar.append(`<button data-action="card">Card: Sample</button>`)
 		
@@ -353,20 +369,18 @@ export class Application {
 		
 		bus.on('action.request.card-image', function() {
 			insert_card(editor, `
-				<div class="card" data-card-type="image"></div>
+				<div class="card" data-card-type="image">
+					<img style="object-fit:contain;" src="https://www.philosophytalk.org/sites/default/files/styles/large_blog__900x400_/public/graham-holtshausen-fUnfEz3VLv4-unsplash.jpg">
+				</div>
 			`)
 		}.bind(this))
 		
 		bus.on('card-will-enter:image', function(card) {
 			logger('application').log('card-will-enter:image')
-			card.text('Image Card')
 		}.bind(this))
 		
 		bus.on('card-did-enter:image', function(card) {
 			logger('application').log('card-did-enter:image')
-			window.setTimeout(function() {
-				card.text('Image Card !!!')
-			}, 1000)
 		}.bind(this))
 		
 		bus.on('card-will-exit:image', function(card) {

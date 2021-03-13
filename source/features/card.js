@@ -1,12 +1,12 @@
 
 import { get_selection } from '../selection.js'
-import { element_iterator } from '../basics.js'
+import { find_previous_block, find_previous_element, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
 
 export function can_insert_card(editor) {
-	return
+	return true
 }
 
 export function insert_card(editor, card) {
@@ -25,11 +25,12 @@ export function insert_card(editor, card) {
 export function can_delete_card(editor, selection) {
 	
 	logger('trace').log('can_delete_card')
-	let node = selection.head.container
-	let block = u(node).closest(u('p,h1,h2,li'))
-	var iterator = element_iterator(editor.element, block.first())
-	let previous = iterator.previousNode()
-	return u(previous).hasClass('card') ? true : false
+	if (selection.head.offset > 0) return false
+	let previous_element = find_previous_element(editor.element, selection.head.container)
+	if (u(previous_element).is('span')) return false
+	let previous_block = find_previous_block(editor.element, selection.head.container)
+	if (previous_block && u(previous_block).hasClass('card')) return true
+	return false
 }
 
 export function delete_card(editor, selection) {
@@ -46,4 +47,19 @@ export function delete_card(editor, selection) {
 		u(previous).remove()
 		editor.emit(`card-did-exit`, card)
 	}
+}
+
+export function watch_cards(added, removed, bus) {
+	
+	logger('trace').log('watch_cards')
+	added.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.card')) {
+			bus.emit('card-did-enter', u(node))
+		}
+	})
+	removed.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.card')) {
+			bus.emit('card-did-exit', u(node))
+		}
+	})
 }

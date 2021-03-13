@@ -96,10 +96,12 @@ export class History {
 		}
 	}
 	
-	undoRedo(undo, isUndo) {
+	undoRedo(record, isUndo) {
 		
 		this.disable()
-		const mutations = isUndo ? undo.mutations.slice(0).reverse() : undo.mutations
+		let added = []
+		let removed = []
+		const mutations = isUndo ? record.mutations.slice(0).reverse() : record.mutations
 		mutations.forEach((mutation) => {
 			switch (mutation.type) {
 				case 'characterData':
@@ -116,21 +118,28 @@ export class History {
 				case 'childList':
 					const addNodes = isUndo ? mutation.removedNodes : mutation.addedNodes
 					const removeNodes = isUndo ? mutation.addedNodes : mutation.removedNodes
-					Array.from(addNodes).forEach(mutation.nextSibling ? (node) => {
-						mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
-					} : (node) => {
-						mutation.target.appendChild(node)
-					})
+					if (mutation.nextSibling) {
+						Array.from(addNodes).forEach(function(node) {
+							mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
+							added.push(node)
+						})
+					} else {
+						Array.from(addNodes).forEach(function(node) {
+							mutation.target.appendChild(node)
+							added.push(node)
+						})
+					}
 					Array.from(removeNodes).forEach(function(node) {
+						removed.push(node)
 						node.parentNode.removeChild(node)
 					})
 					break
 			}
 		})
 		if (isUndo) {
-			this.bus.emit('history:did-undo')
+			this.bus.emit('history:did-undo', added, removed)
 		} else {
-			this.bus.emit('history:did-redo')
+			this.bus.emit('history:did-redo', added, removed)
 		}
 		this.enable()
 	}

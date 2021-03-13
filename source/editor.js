@@ -1,5 +1,6 @@
 
 import { an_element_node, a_text_node } from './basics.js'
+import { inline_elements, block_elements } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, selection_to_string } from './selection.js'
 import { selection_edge, selection_each_node, selection_each_text, selection_each_block } from './selection.js'
@@ -19,7 +20,7 @@ export class Editor {
 		Object.assign(this, options)
 		this.initialize_content()
 		this.initialize_keymap()
-		this.initialize_events()
+		this.initialize_events(this.bus)
 		this.initialize_selection()
 	}
 	
@@ -70,7 +71,62 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	initialize_events() {
+	initialize_events(bus) {
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (this.can_delete_character(selection)) {
+				this.delete_character(selection)
+				this.emit('content:did-change')
+				event.consumed = true
+			}
+			return
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (this.can_delete_block(selection)) {
+				this.delete_block(selection)
+				this.emit('content:did-change')
+				event.consumed = true
+			}
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (this.can_delete_content(selection)) {
+				this.delete_content(selection)
+				this.emit('content:did-change')
+				event.consumed = true
+			}
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (selection.range.collapsed) {
+				if (can_delete_card(this, selection)) {
+					delete_card(this, selection)
+					this.emit('content:did-change')
+					event.consumed = true
+				}
+			}
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (selection.range.collapsed) {
+				if (can_delete_atom(this, selection)) {
+					delete_atom(this, selection)
+					this.emit('content:did-change')
+					event.consumed = true
+				}
+			}
+		}.bind(this))
 		
 		this.on('content:will-delete', function(fragment) {
 			u(fragment).find('.card').each(function(each) {
@@ -82,6 +138,26 @@ export class Editor {
 			u(fragment).find('.card').each(function(each) {
 				this.emit('card-did-exit', each)
 			}.bind(this))
+		}.bind(this))
+		
+		this.on('atom-will-enter', function(atom) {
+			let type = u(card).data('atom-type')
+			this.emit('atom-will-enter:' + type, atom)
+		}.bind(this))
+		
+		this.on('atom-did-enter', function(atom) {
+			let type = u(atom).data('atom-type')
+			this.emit('atom-did-enter:' + type, atom)
+		}.bind(this))
+		
+		this.on('atom-will-exit', function(atom) {
+			let type = u(atom).data('atom-type')
+			this.emit('atom-will-exit:' + type, atom)
+		}.bind(this))
+		
+		this.on('atom-did-exit', function(atom) {
+			let type = u(atom).data('atom-type')
+			this.emit('atom-did-exit:' + type, atom)
 		}.bind(this))
 		
 		this.on('card-will-enter', function(card) {
@@ -103,6 +179,116 @@ export class Editor {
 			let type = u(card).data('card-type')
 			this.emit('card-did-exit:' + type, card)
 		}.bind(this))
+	}
+	
+	get_previous_block(node, offset) {
+		
+		let iterator = text_iterator(this.element, node)
+		let previous = iterator.previousNode()
+		if (u(node).parent().parent().first() != u(previous).parent().parent().first()) {
+			return previous
+		}
+	}
+	
+	can_delete_character(selection) {
+		
+		let result = false
+		if (selection.range.collapsed) {
+			if ((u(selection.head.container).is(a_text_node)) && (selection.head.offset > 0)) {
+				result = { node: selection.head.container, offset: selection.head.offset }
+			} else {
+				let iterator = text_iterator(this.element, selection.head.container)
+				let previous = iterator.previousNode()
+				if (u(previous).parent().is(inline_elements)) {
+					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
+						result = { node: previous, offset: previous.textContent.length }
+					}
+				}
+			}
+			if (! this.is_editable()) result = false
+		}
+		return result
+	}
+	
+	delete_character(selection) {
+		
+		let position = this.can_delete_character(selection)
+		let node = position.node
+		let offset = position.offset
+		let text = u(node).text()
+		let head = text.substring(0, offset - 1)
+		let tail = text.substring(offset)
+		u(node).text(head + tail)
+		set_caret(this, { container: node, offset: offset - 1})
+	}
+	
+	can_delete_block(selection) {
+		
+		let result = false
+		if (selection.range.collapsed) {
+			if (selection.head.offset > 0) {
+				result = false
+			} else {
+				let iterator = text_iterator(this.element, selection.head.container)
+				let previous = iterator.previousNode()
+				if (u(previous).parent().is(inline_elements)) {
+					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
+						result = false
+					} else {
+						result = { node: u(previous).parent().parent().first() }
+					}
+				}
+			}
+			if (! this.is_editable()) result = false
+		}
+		return result
+	}
+	
+	delete_block(selection) {
+		
+		logger('trace').log('delete_block')
+		let node = selection.head.container
+		let block = u(node).closest(u(blocks))
+		var iterator = text_iterator(this.element, node)
+		let previous
+		while (previous = iterator.previousNode()) {
+			if (previous == this.element) break 
+			let text = u(previous).text()
+			if (text.trim().length > 0) {
+				let block_ = u(previous).closest(u(blocks))
+				let length = block_.children().nodes.length
+				let selectable = block_.children().nodes[length - 1].firstChild
+				block.children().each(function(each) {
+					block_.append(each)
+				})
+				block.remove()
+				set_caret(this, { container: selectable, offset: selectable.textContent.length })
+				break
+			}
+		}
+	}
+	
+	can_delete_content(selection) {
+		return ! selection.range.collapsed
+	}
+	
+	delete_content(selection) {
+		
+		logger('trace').log('delete_content')
+		var fragment = selection.range.cloneContents()
+		var div = document.createElement('div')
+		div.appendChild(fragment.cloneNode(true))
+		this.emit('content:will-delete', fragment)
+		let offset = selection.head.offset
+		let contents = selection.range.deleteContents()
+		if (u(div).find('p,li,h1,h2,h3').length) {
+			set_caret(this, { container: selection.tail.container, offset: 0 })
+			selection = get_selection(this)
+			this.delete_block(selection)
+		} else {
+			set_caret(this, { container: selection.head.container, offset: offset })
+		}
+		this.emit('content:did-delete', fragment)
 	}
 	
 	initialize_selection() {
@@ -171,97 +357,6 @@ export class Editor {
 		normalize_selection(this)
 		this.emit('content:did-change')
 		return [a, b]
-	}
-	
-	delete_() {
-		
-		logger('trace').log('delete')
-		let selection = get_selection(this)
-		if (selection.range.collapsed) {
-			if (this.can_delete_character(selection)) {
-				this.delete_character(selection)
-			} else if (can_delete_card(this, selection)) {
-				delete_card(this, selection)
-			} else if (can_delete_atom(this, selection)) {
-				delete_atom(this, selection)
-			} else if (this.can_delete_block(selection)) {
-				this.delete_block(selection)
-			}
-		} else if (this.can_delete_content(selection)) {
-			this.delete_content(selection)
-		}
-		this.emit('content:did-change')
-	}
-	
-	can_delete_character(selection) {
-		
-		let result = true
-		if (! this.is_editable()) result = false 
-		if (selection.head.offset == 0) result = false
-		return result
-	}
-	
-	delete_character(selection) {						// what if last remaining character?
-																// perhaps use Array.splice instead
-		logger('trace').log('delete_character')
-		let node = u(selection.head.container)
-		let text = node.text()
-		let head = text.substring(0, selection.head.offset - 1)
-		let tail = text.substring(selection.tail.offset)
-		u(selection.head.container).text(head + tail)
-		selection.range.setStart(selection.head.container, selection.head.offset - 1)		// todo: use set_caret instead?
-		selection.range.setEnd(selection.tail.container, selection.tail.offset - 1)
-	}
-	
-	can_delete_block() {
-		return true
-	}
-	
-	delete_block(selection) {
-		
-		logger('trace').log('delete_block')
-		let node = selection.head.container
-		let block = u(node).closest(u(blocks))
-		var iterator = text_iterator(this.element, node)
-		let previous
-		while (previous = iterator.previousNode()) {
-			if (previous == this.element) break 
-			let text = u(previous).text()
-			if (text.trim().length > 0) {
-				let block_ = u(previous).closest(u(blocks))
-				let length = block_.children().nodes.length
-				let selectable = block_.children().nodes[length - 1].firstChild
-				block.children().each(function(each) {
-					block_.append(each)
-				})
-				block.remove()
-				set_caret(this, { container: selectable, offset: selectable.textContent.length })
-				break
-			}
-		}
-	}
-	
-	can_delete_content() {
-		return true
-	}
-	
-	delete_content(selection) {
-		
-		logger('trace').log('delete_content')
-		var fragment = selection.range.cloneContents()
-		var div = document.createElement('div')
-		div.appendChild(fragment.cloneNode(true))
-		this.emit('content:will-delete', fragment)
-		let offset = selection.head.offset
-		let contents = selection.range.deleteContents()
-		if (u(div).find('p,li,h1,h2,h3').length) {
-			set_caret(this, { container: selection.tail.container, offset: 0 })
-			selection = get_selection(this)
-			this.delete_block(selection)
-		} else {
-			set_caret(this, { container: selection.head.container, offset: offset })
-		}
-		this.emit('content:did-delete', fragment)
 	}
 	
 	is_editable() {
