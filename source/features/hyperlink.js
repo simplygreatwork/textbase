@@ -1,4 +1,5 @@
 
+import { an_inline_element } from '../basics.js'
 import { element_iterator, an_element_node, a_text_node } from '../basics.js'
 import { Logger } from '../logger.js'
 
@@ -22,7 +23,7 @@ export function detect_hyperlinks(editor, bus) {
 function invoke_hyperlink(target, editor, bus) {
 	
 	logger('trace').log('invoke_hyperlink')
-	if (target.is('span')) {
+	if (target.is(an_inline_element)) {
 		if (target.hasClass('hyperlink')) {
 			console.log('clicked hyperlink: ' + target.text())
 			let href = find_href(editor, event.target)

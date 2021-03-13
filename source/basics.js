@@ -1,6 +1,6 @@
 
-export let block_elements = 'p,h1,h2,h3,ul,ol,li,blockquote'
-export let inline_elements = 'span,a'
+export let a_block_element = 'p,h1,h2,h3,ul,ol,li,blockquote'
+export let an_inline_element = 'span,a'
 
 export function node_iterator(element, node, filter) {
 	
@@ -51,14 +51,6 @@ export function an_element_node(node) {
 
 export function a_span_node(node) {			// fixme
 	return 'span'
-}
-
-export function an_inline_node(node) {		// fixme
-	return 'span,a'
-}
-
-export function an_block_node(node) {		// fixme
-	return 'h1,h2,h3,p,li,blockquote'
 }
 
 export function is_alphanumeric(keycode) {

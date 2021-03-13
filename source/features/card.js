@@ -1,6 +1,7 @@
 
 import { get_selection } from '../selection.js'
-import { find_previous_block, find_previous_element, an_element_node, element_iterator, text_iterator } from '../basics.js'
+import { an_inline_element, find_previous_block, find_previous_element } from '../basics.js'
+import { an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -27,7 +28,7 @@ export function can_delete_card(editor, selection) {
 	logger('trace').log('can_delete_card')
 	if (selection.head.offset > 0) return false
 	let previous_element = find_previous_element(editor.element, selection.head.container)
-	if (u(previous_element).is('span')) return false
+	if (u(previous_element).is(an_inline_element)) return false
 	let previous_block = find_previous_block(editor.element, selection.head.container)
 	if (previous_block && u(previous_block).hasClass('card')) return true
 	return false

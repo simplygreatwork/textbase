@@ -1,4 +1,5 @@
 
+import { an_inline_element } from './basics.js'
 import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, text_iterator, iterate_characters } from './basics.js'
 import { Logger } from './logger.js'
@@ -55,13 +56,13 @@ export function selection_edge(editor, selection) {
 	let range, node, fragment
 	let edges = [null, null]
 	range = selection.range.cloneRange()
-	node = u(selection.tail.container).closest(u('span')).first()
+	node = u(selection.tail.container).closest(u(an_inline_element)).first()
 	range.setStart(selection.tail.container, selection.tail.offset)
 	range.setEndAfter(node)
 	fragment = range.extractContents()
 	edges[0] = fragment.children[0]
 	range.insertNode(fragment)
-	node = u(selection.head.container).closest(u('span')).first()
+	node = u(selection.head.container).closest(u(an_inline_element)).first()
 	range.setStartBefore(node)
 	range.setEnd(selection.head.container, selection.head.offset)
 	fragment = range.extractContents()
@@ -208,7 +209,7 @@ export function get_selection_by_positions(element) {
 			}
 			if (result.head.position !== undefined && result.tail.position === undefined) {
 				if (node != range.startContainer && node != range.endContainer) {
-					if (u(node).parent().is('span')) {
+					if (u(node).parent().is(an_inline_element)) {
 						node = node.parentElement
 					}
 					if (result.middle.indexOf(node) === -1) {

@@ -1,6 +1,6 @@
 
 import { an_element_node, a_text_node } from './basics.js'
-import { inline_elements, block_elements } from './basics.js'
+import { an_inline_element, a_block_element } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, selection_to_string } from './selection.js'
 import { selection_edge, selection_each_node, selection_each_text, selection_each_block } from './selection.js'
@@ -199,7 +199,7 @@ export class Editor {
 			} else {
 				let iterator = text_iterator(this.element, selection.head.container)
 				let previous = iterator.previousNode()
-				if (u(previous).parent().is(inline_elements)) {
+				if (u(previous).parent().is(an_inline_element)) {
 					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
 						result = { node: previous, offset: previous.textContent.length }
 					}
@@ -231,7 +231,7 @@ export class Editor {
 			} else {
 				let iterator = text_iterator(this.element, selection.head.container)
 				let previous = iterator.previousNode()
-				if (u(previous).parent().is(inline_elements)) {
+				if (u(previous).parent().is(an_inline_element)) {
 					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
 						result = false
 					} else {
