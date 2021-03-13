@@ -1,6 +1,7 @@
 
 import { an_element_node, a_text_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
+import { find_previous_inline_sibling } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
 import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atom.js'
@@ -161,7 +162,7 @@ export class Editor {
 		this.on('card-will-enter', function(card) {
 			let type = u(card).data('card-type')
 			this.emit('card-will-enter:' + type, card)
-		}.bind(this))
+		}.bind(this))	
 		
 		this.on('card-did-enter', function(card) {
 			let type = u(card).data('card-type')
@@ -179,13 +180,72 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	get_previous_block(node, offset) {
+	initialize_selection() {
 		
-		let iterator = text_iterator(this.element, node)
-		let previous = iterator.previousNode()
-		if (u(node).parent().parent().first() != u(previous).parent().parent().first()) {
-			return previous
+		document.addEventListener('selectionchange', function(event) {
+			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
+				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
+					this.emit('selection:did-change', event, this)
+				}
+			}
+		}.bind(this))
+		
+		this.on('selection:did-change', function(event, editor) {
+			normalize_selection(this)
+		}.bind(this))
+	}
+	
+	can_insert_character() {
+		return this.is_editable()
+	}
+	
+	insert_character(key) {
+		
+		logger('trace').log('insert_character')
+		this.insert_string(key)
+	}
+	
+	insert_string(string) {
+		
+		logger('trace').log('insert_string')
+		if (! this.is_editable()) return
+		let selection = get_selection(this)
+		if (! selection.range.collapsed) {
+			this.delete_content(selection)
+			selection = get_selection(this)
 		}
+		let node = u(selection.head.container)
+		if (! node.is(a_text_node)) throw Error('Expected the selection container to be a text node.') 
+		let text = node.text()
+		let head = text.substring(0, selection.head.offset)
+		let tail = text.substring(selection.tail.offset)
+		text = head + string + tail
+		node.text(text.trim())
+		selection.range.setStart(selection.head.container, selection.head.offset + string.length)
+		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
+		this.emit('content:did-change')
+	}
+	
+	split_content(limit) {
+		
+		logger('trace').log('split_content')
+		if (! this.is_editable()) return
+		let selection = get_selection(this)
+		if (! selection.range.collapsed) this.delete_()
+		let range = selection.range.cloneRange()
+		let node = u(selection.head.container).closest(u(limit)).first()
+		range.setStartBefore(node)
+		let fragment_a = range.extractContents()
+		range.setEndAfter(node)
+		let fragment_b = range.extractContents()
+		let a = fragment_a.firstElementChild
+		let b = fragment_b.firstElementChild
+		range.insertNode(b)
+		range.insertNode(a)
+		set_caret(this, { container: b, offset: 0 })
+		normalize_selection(this)
+		this.emit('content:did-change')
+		return [a, b]
 	}
 	
 	can_delete_character(selection) {
@@ -195,13 +255,8 @@ export class Editor {
 			if ((u(selection.head.container).is(a_text_node)) && (selection.head.offset > 0)) {
 				result = { node: selection.head.container, offset: selection.head.offset }
 			} else {
-				let iterator = text_iterator(this.element, selection.head.container)
-				let previous = iterator.previousNode()
-				if (u(previous).parent().is(an_inline_element)) {
-					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
-						result = { node: previous, offset: previous.textContent.length }
-					}
-				}
+				let previous = this.find_previous_span_sibling(selection)
+				if (previous) result = { node: previous, offset: previous.textContent.length }
 			}
 			if (! this.is_editable()) result = false
 		}
@@ -216,8 +271,11 @@ export class Editor {
 		let text = u(node).text()
 		let head = text.substring(0, offset - 1)
 		let tail = text.substring(offset)
-		u(node).text(head + tail)
-		set_caret(this, { container: node, offset: offset - 1})
+		text = head + tail
+		u(node).text(text)
+		if (text.length > 0) { 
+			set_caret(this, { container: node, offset: offset - 1 })
+		}
 	}
 	
 	can_delete_block(selection) {
@@ -287,74 +345,6 @@ export class Editor {
 			set_caret(this, { container: selection.head.container, offset: offset })
 		}
 		this.emit('content:did-delete', fragment)
-	}
-	
-	initialize_selection() {
-		
-		document.addEventListener('selectionchange', function(event) {
-			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
-				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
-					this.emit('selection:did-change', event, this)
-				}
-			}
-		}.bind(this))
-		
-		this.on('selection:did-change', function(event, editor) {
-			normalize_selection(this)
-		}.bind(this))
-	}
-	
-	can_insert_character() {
-		return this.is_editable()
-	}
-	
-	insert_character(key) {
-		
-		logger('trace').log('insert_character')
-		this.insert_string(key)
-	}
-	
-	insert_string(string) {
-		
-		logger('trace').log('insert_string')
-		if (! this.is_editable()) return
-		let selection = get_selection(this)
-		if (! selection.range.collapsed) {
-			this.delete_content(selection)
-			selection = get_selection(this)
-		}
-		let node = u(selection.head.container)
-		if (! node.is(a_text_node)) throw Error('Expected the selection container to be a text node.') 
-		let text = node.text()
-		let head = text.substring(0, selection.head.offset)
-		let tail = text.substring(selection.tail.offset)
-		text = head + string + tail
-		node.text(text.trim())
-		selection.range.setStart(selection.head.container, selection.head.offset + string.length)
-		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
-		this.emit('content:did-change')
-	}
-	
-	split_content(limit) {
-		
-		logger('trace').log('split_content')
-		if (! this.is_editable()) return
-		let selection = get_selection(this)
-		if (! selection.range.collapsed) this.delete_()
-		let range = selection.range.cloneRange()
-		let node = u(selection.head.container).closest(u(limit)).first()
-		range.setStartBefore(node)
-		let fragment_a = range.extractContents()
-		range.setEndAfter(node)
-		let fragment_b = range.extractContents()
-		let a = fragment_a.firstElementChild
-		let b = fragment_b.firstElementChild
-		range.insertNode(b)
-		range.insertNode(a)
-		set_caret(this, { container: b, offset: 0 })
-		normalize_selection(this)
-		this.emit('content:did-change')
-		return [a, b]
 	}
 	
 	is_editable() {

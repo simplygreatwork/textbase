@@ -28,6 +28,17 @@ export function text_iterator(element, node) {
 	})
 }
 
+export function find_previous_inline_sibling(selection) {
+		
+	let iterator = text_iterator(this.element, selection.head.container)
+	let previous = iterator.previousNode()
+	if (u(previous).parent().is(an_inline_element)) {
+		if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
+			return previous
+		}
+	}
+}
+
 export function find_previous_block(element, node) {
 	
 	let block = u(node).closest(u(a_block_element))
