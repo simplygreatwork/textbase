@@ -2,9 +2,7 @@
 import { an_element_node, a_text_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
-import { get_selection, set_selection, set_caret, selection_to_string } from './selection.js'
-import { selection_edge, selection_each_node, selection_each_text, selection_each_block } from './selection.js'
-import { normalize_selection } from './selection.js'
+import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
 import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atom.js'
 import { can_insert_card, insert_card, can_delete_card, delete_card } from './features/card.js'
 import { serialize } from './serialize.js'
@@ -108,8 +106,8 @@ export class Editor {
 			if (event.consumed) return
 			let selection = get_selection(this)
 			if (selection.range.collapsed) {
-				if (can_delete_card(this, selection)) {
-					delete_card(this, selection)
+				if (can_delete_atom(this, selection)) {
+					delete_atom(this, selection)
 					this.emit('content:did-change')
 					event.consumed = true
 				}
@@ -120,8 +118,8 @@ export class Editor {
 			if (event.consumed) return
 			let selection = get_selection(this)
 			if (selection.range.collapsed) {
-				if (can_delete_atom(this, selection)) {
-					delete_atom(this, selection)
+				if (can_delete_card(this, selection)) {
+					delete_card(this, selection)
 					this.emit('content:did-change')
 					event.consumed = true
 				}
@@ -281,7 +279,7 @@ export class Editor {
 		this.emit('content:will-delete', fragment)
 		let offset = selection.head.offset
 		let contents = selection.range.deleteContents()
-		if (u(div).find('p,li,h1,h2,h3').length) {
+		if (u(div).find(a_block_element).length) {
 			set_caret(this, { container: selection.tail.container, offset: 0 })
 			selection = get_selection(this)
 			this.delete_block(selection)

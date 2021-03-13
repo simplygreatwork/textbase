@@ -30,7 +30,7 @@ export function text_iterator(element, node) {
 
 export function find_previous_block(element, node) {
 	
-	let block = u(node).closest(u(block_elements))
+	let block = u(node).closest(u(a_block_element))
 	var iterator = element_iterator(element, block.first())
 	return iterator.previousNode()
 }

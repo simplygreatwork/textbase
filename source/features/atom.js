@@ -6,7 +6,7 @@ import { Logger } from '../logger.js'
 const logger = Logger()
 
 export function can_insert_atom(editor) {
-	return
+	return true
 }
 
 export function insert_atom(editor, atom) {
