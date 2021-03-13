@@ -255,7 +255,7 @@ export class Editor {
 			if ((u(selection.head.container).is(a_text_node)) && (selection.head.offset > 0)) {
 				result = { node: selection.head.container, offset: selection.head.offset }
 			} else {
-				let previous = this.find_previous_span_sibling(selection)
+				let previous = find_previous_inline_sibling(this, selection)
 				if (previous) result = { node: previous, offset: previous.textContent.length }
 			}
 			if (! this.is_editable()) result = false
@@ -273,7 +273,12 @@ export class Editor {
 		let tail = text.substring(offset)
 		text = head + tail
 		u(node).text(text)
-		if (text.length > 0) set_caret(this, { container: node, offset: offset - 1 })
+		if (text.length == 0) { 
+			let previous = find_previous_inline_sibling(this, selection)
+			if (previous) set_caret(this, { container: previous, offset: previous.textContent.length })
+		} else {
+			set_caret(this, { container: node, offset: offset - 1 })
+		}
 	}
 	
 	can_delete_block(selection) {

@@ -28,9 +28,9 @@ export function text_iterator(element, node) {
 	})
 }
 
-export function find_previous_inline_sibling(selection) {
+export function find_previous_inline_sibling(editor, selection) {
 		
-	let iterator = text_iterator(this.element, selection.head.container)
+	let iterator = text_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	if (u(previous).parent().is(an_inline_element)) {
 		if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
