@@ -273,9 +273,7 @@ export class Editor {
 		let tail = text.substring(offset)
 		text = head + tail
 		u(node).text(text)
-		if (text.length > 0) { 
-			set_caret(this, { container: node, offset: offset - 1 })
-		}
+		if (text.length > 0) set_caret(this, { container: node, offset: offset - 1 })
 	}
 	
 	can_delete_block(selection) {
