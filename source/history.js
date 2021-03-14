@@ -1,14 +1,16 @@
 
 // derived from lohfu/snapback
 
+const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
+
 export class History {
 	
 	constructor(element, bus) {
 		
-		const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
-		if (! MutationObserver) return
+		if (! MutationObserver) throw Error('MutationObserver could not be found.')
+		
 		Object.assign(this, {
-			observe: {
+			config: {
 				subtree: true,
 				attributes: true,
 				attributeOldValue: true,
@@ -18,9 +20,9 @@ export class History {
 			},
 			element,
 			bus,
-			records: [],
 			mutations: [],
-			index: -1,
+			records: [],
+			index: -1
 		})
 		
 		this.observer = new MutationObserver(function(mutations) {
@@ -29,7 +31,7 @@ export class History {
 				this.bus.emit('history:did-begin-mutations')
 			}
 			mutations.forEach(function(mutation) {
-				if (mutation.target && ((u(mutation.target).is(u('.card'))) || u(mutation.target).closest(u('.card')) == false)) return
+				if (! this.is_observable(mutation.target)) return
 				switch (mutation.type) {
 					case 'characterData':
 						mutation.newValue = mutation.target.textContent
@@ -48,19 +50,26 @@ export class History {
 		}.bind(this))
 	}
 	
-	disable() {
+	is_observable(target) {
 		
-		if (this.enabled) {
-			this.observer.disconnect()
-			this.enabled = false
-		}
+		if (target && ((u(target).is(u('.card'))) || u(target).closest(u('.card')) == false)) return false
+		if (target && ((u(target).is(u('.atom'))) || u(target).closest(u('.atom')) == false)) return false
+		return true
 	}
 	
 	enable() {
 		
 		if (! this.enabled) {
-			this.observer.observe(this.element, this.observe)
+			this.observer.observe(this.element, this.config)
 			this.enabled = true
+		}
+	}
+	
+	disable() {
+		
+		if (this.enabled) {
+			this.observer.disconnect()
+			this.enabled = false
 		}
 	}
 	
@@ -80,104 +89,133 @@ export class History {
 		}
 	}
 	
-	redo() {
-		
-		if (this.enabled && this.index < this.records.length - 1) {
-			this.will_undo_redo(this.records[this.index + 1], false)
-			this.undo_redo(this.records[this.index + 1], false)
-			this.index++
-		}
-	}
-	
 	undo() {
 		
 		this.capture()
 		if (this.enabled && this.index >= 0) {
-			this.will_undo_redo(this.records[this.index], true)
-			this.undo_redo(this.records[this.index], true)
+			this.disable()
+			this.will_undo(this.records[this.index])
+			this.perform_undo(this.records[this.index])
 			this.index--
+			this.enable()
 		}
 	}
 	
-	will_undo_redo(record, isUndo) {
+	redo() {
 		
-		this.disable()
+		if (this.enabled && this.index < this.records.length - 1) {
+			this.disable()
+			this.will_redo(this.records[this.index + 1])
+			this.perform_redo(this.records[this.index + 1], false)
+			this.index++
+			this.enable()
+		}
+	}
+	
+	will_undo(record, isUndo) {
+		
 		let added = []
 		let removed = []
-		const mutations = isUndo ? record.mutations.slice(0).reverse() : record.mutations
-		mutations.forEach((mutation) => {
-			switch (mutation.type) {
-				case 'childList':
-					const addNodes = isUndo ? mutation.removedNodes : mutation.addedNodes
-					const removeNodes = isUndo ? mutation.addedNodes : mutation.removedNodes
-					if (mutation.nextSibling) {
-						Array.from(addNodes).forEach(function(node) {
-							added.push(node)
-						})
-					} else {
-						Array.from(addNodes).forEach(function(node) {
-							added.push(node)
-						})
-					}
-					Array.from(removeNodes).forEach(function(node) {
-						removed.push(node)
-					})
-					break
+		record.mutations.slice(0).reverse().forEach(function(mutation) {
+			if (mutation.type == 'childList') {
+				Array.from(mutation.removedNodes).forEach(function(node) {
+					added.push(node)
+				})
+				Array.from(mutation.addedNodes).forEach(function(node) {
+					removed.push(node)
+				})
 			}
 		})
-		if (isUndo) {
-			this.bus.emit('history:will-undo', added, removed)
-		} else {
-			this.bus.emit('history:will-redo', added, removed)
-		}
-		this.enable()
+		this.bus.emit('history:will-undo', added, removed)
 	}
 	
-	undo_redo(record, isUndo) {
+	will_redo(record, isUndo) {
 		
-		this.disable()
 		let added = []
 		let removed = []
-		const mutations = isUndo ? record.mutations.slice(0).reverse() : record.mutations
-		mutations.forEach((mutation) => {
+		record.mutations.forEach(function(mutation) {
+			if (mutation.type == 'childList') {
+				Array.from(mutation.addedNodes).forEach(function(node) {
+					added.push(node)
+				})
+				Array.from(mutation.removedNodes).forEach(function(node) {
+					removed.push(node)
+				})
+			}
+		})
+		this.bus.emit('history:will-redo', added, removed)
+	}
+	
+	perform_undo(record) {
+		
+		let added = []
+		let removed = []
+		record.mutations.slice(0).reverse().forEach(function(mutation) {
 			switch (mutation.type) {
 				case 'characterData':
-					mutation.target.textContent = isUndo ? mutation.oldValue : mutation.newValue
+					this.mutate_character_data(mutation, mutation.oldValue)
 					break
 				case 'attributes':
-					const value = isUndo ? mutation.oldValue : mutation.newValue
-					if (value || value === false || value === 0) {
-						mutation.target.setAttribute(mutation.attributeName, value)
-					} else {
-						mutation.target.removeAttribute(mutation.attributeName)
-					}
+					this.mutate_attributes(mutation, mutation.oldValue)
 					break
 				case 'childList':
-					const addNodes = isUndo ? mutation.removedNodes : mutation.addedNodes
-					const removeNodes = isUndo ? mutation.addedNodes : mutation.removedNodes
-					if (mutation.nextSibling) {
-						Array.from(addNodes).forEach(function(node) {
-							mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
-							added.push(node)
-						})
-					} else {
-						Array.from(addNodes).forEach(function(node) {
-							mutation.target.appendChild(node)
-							added.push(node)
-						})
-					}
-					Array.from(removeNodes).forEach(function(node) {
-						removed.push(node)
-						if (node.parentNode) node.parentNode.removeChild(node)
-					})
+					this.mutate_child_list(mutation, mutation.removedNodes, mutation.addedNodes, added, removed)
 					break
 			}
-		})
-		if (isUndo) {
-			this.bus.emit('history:did-undo', added, removed)
+		}.bind(this))
+		this.bus.emit('history:did-undo', added, removed)
+	}
+	
+	perform_redo(record) {
+		
+		let added = []
+		let removed = []
+		record.mutations.forEach(function(mutation) {
+			switch (mutation.type) {
+				case 'characterData':
+					this.mutate_character_data(mutation, mutation.newValue)
+					break
+				case 'attributes':
+					this.mutate_attributes(mutation, mutation.newValue)
+					break
+				case 'childList':
+					this.mutate_child_list(mutation, mutation.addedNodes, mutation.removedNodes, added, removed)
+					break
+			}
+		}.bind(this))
+		this.bus.emit('history:did-redo', added, removed)
+	}
+	
+	mutate_character_data(mutation, value) {
+		
+		mutation.target.textContent = value
+	}
+	
+	mutate_attributes(mutation, value) {
+		
+		if (value || value === false || value === 0) {
+			mutation.target.setAttribute(mutation.attributeName, value)
 		} else {
-			this.bus.emit('history:did-redo', added, removed)
+			mutation.target.removeAttribute(mutation.attributeName)
 		}
-		this.enable()
+	}
+	
+	mutate_child_list(mutation, add_nodes, remove_nodes, added, removed) {
+		
+		if (mutation.nextSibling) {
+			Array.from(add_nodes).forEach(function(node) {
+				mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
+				added.push(node)
+			})
+		} else {
+			Array.from(add_nodes).forEach(function(node) {
+				mutation.target.appendChild(node)
+				added.push(node)
+			})
+		}
+		Array.from(remove_nodes).forEach(function(node) {
+			removed.push(node)
+			if (node.parentNode) node.parentNode.removeChild(node)
+		})
 	}
 }

@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function install_image_card(bus, editor, toolbar) {
+export function initialize_image_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-image">Card: Image</button>`)
 	

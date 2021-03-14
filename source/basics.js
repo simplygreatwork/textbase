@@ -1,5 +1,5 @@
 
-export let a_block_element = 'p,h1,h2,h3,ul,ol,li,blockquote,div'
+export let a_block_element = 'div,p,h1,h2,h3,ul,ol,li,blockquote'
 export let an_inline_element = 'span,a'
 
 export function node_iterator(element, node, filter) {
@@ -29,7 +29,7 @@ export function text_iterator(element, node) {
 }
 
 export function find_previous_inline_sibling(editor, selection) {
-		
+	
 	let iterator = text_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	if (u(previous).parent().is(an_inline_element)) {

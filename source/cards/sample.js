@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function install_sample_card(bus, editor, toolbar) {
+export function initialize_sample_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-sample">Card: Sample</button>`)
 	

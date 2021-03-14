@@ -3,6 +3,7 @@ import { Bus } from './bus.js'
 import { Editor } from './editor.js'
 import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
+import { an_inline_element, a_block_element } from './basics.js'
 import { get_selection, set_selection, selection_to_string } from './selection.js'
 import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
 import { toggle_format, remove_formats, find_active_formats, find_applicable_formats } from './features/formats.js'
@@ -13,9 +14,9 @@ import { insert_card, watch_cards_will_enter, watch_cards_will_exit, watch_cards
 import { insert_atom, watch_atoms_will_enter, watch_atoms_will_exit, watch_atoms_did_enter, watch_atoms_did_exit } from './features/atom.js'
 import { serialize } from './serialize.js'
 import { Scanner } from './scanner.js'
-import { install_sample_card } from './cards/sample.js'
-import { install_animated_card } from './cards/animated.js'
-import { install_image_card } from './cards/image.js'
+import { initialize_sample_cards } from './cards/sample.js'
+import { initialize_animated_cards } from './cards/animated.js'
+import { initialize_image_cards } from './cards/image.js'
 import { Logger } from './logger.js'
 
 const logger = Logger(['trace-off', 'application-off', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
@@ -137,7 +138,7 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('keydown:enter', function(event) {
-			editor.split_content('p,h1,h2,li')
+			editor.split_content(a_block_element)
 			event.preventDefault()
 			return false
 		}.bind(this))
@@ -363,9 +364,9 @@ export class Application {
 			watch_cards_did_exit(removed, bus)
 		}.bind(this))
 		
-		install_sample_card(bus, editor, toolbar)
-		install_animated_card(bus, editor, toolbar)
-		install_image_card(bus, editor, toolbar)
+		initialize_sample_cards(bus, editor, toolbar)
+		initialize_animated_cards(bus, editor, toolbar)
+		initialize_image_cards(bus, editor, toolbar)
 	}
 	
 	configure_other(bus, editor, toolbar) {

@@ -39,40 +39,44 @@ export function delete_atom(editor, selection) {
 	}
 }
 
-export function watch_atoms_will_enter(added, bus) {
+export function watch_atoms_will_enter(nodes, bus) {
 	
 	logger('trace').log('watch_atoms_will_enter')
-	added.forEach(function(node) {
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.atom')) {
 			bus.emit('atom-will-enter', node)
 		}
 	})
 }
 
-export function watch_atoms_will_exit(removed, bus) {
+export function watch_atoms_will_exit(nodes, bus) {
 	
 	logger('trace').log('watch_atoms_will_exit')
-	removed.forEach(function(node) {
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.atom')) {
 			bus.emit('atom-will-exit', node)
 		}
 	})
 }
 
-export function watch_atoms_did_enter(added, bus) {
+export function watch_atoms_did_enter(nodes, bus) {
 	
 	logger('trace').log('watch_atoms_did_enter')
-	added.forEach(function(node) {
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.atom')) {
 			bus.emit('atom-did-enter', node)
 		}
 	})
 }
 
-export function watch_atoms_did_exit(removed, bus) {
+export function watch_atoms_did_exit(nodes, bus) {
 	
 	logger('trace').log('watch_atoms_did_exit')
-	removed.forEach(function(node) {
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.atom')) {
 			bus.emit('atom-did-exit', node)
 		}
