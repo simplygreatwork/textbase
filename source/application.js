@@ -323,12 +323,12 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('atom-will-enter:sample', function(atom) {
-			atom.text('Sample Atom')
+			u(atom).text('Sample Atom')
 		}.bind(this))
 		
 		bus.on('atom-did-enter:sample', function(atom) {
 			window.setTimeout(function() {
-				atom.text('Sample Atom !!!')
+				u(atom).text('Sample Atom !!!')
 			}, 1000)
 		}.bind(this))
 		
