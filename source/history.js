@@ -106,7 +106,7 @@ export class History {
 		if (this.enabled && this.index < this.records.length - 1) {
 			this.disable()
 			this.will_redo(this.records[this.index + 1])
-			this.perform_redo(this.records[this.index + 1], false)
+			this.perform_redo(this.records[this.index + 1])
 			this.index++
 			this.enable()
 		}
