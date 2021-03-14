@@ -2,6 +2,7 @@
 import { get_selection, set_caret, normalize_selection, selection_edge } from './selection.js'
 import { node_iterator, a_text_node, a_span_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
+import { watch_cards_will_enter, watch_cards_did_enter } from './features/card.js'
 import { sanitize } from './sanitize.js'
 import { Logger } from './logger.js'
 
@@ -79,7 +80,9 @@ export function paste(event, editor) {  	//todo: need to edge selection
 						let parts = editor.split_content(a_block_element)
 						part = u(parts[0])
 					}
+					watch_cards_will_enter([each_], editor.bus)
 					part.after(each_)
+					watch_cards_did_enter([each_], editor.bus)
 					part = each_
 				}
 			})

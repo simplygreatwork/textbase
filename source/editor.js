@@ -128,19 +128,25 @@ export class Editor {
 		}.bind(this))
 		
 		bus.on('content:will-delete', function(fragment) {
+			u(fragment).find('.atom').each(function(each) {
+				this.emit('atom-will-exit', each)
+			}.bind(this))
 			u(fragment).find('.card').each(function(each) {
 				this.emit('card-will-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
 		bus.on('content:did-delete', function(fragment) {
+			u(fragment).find('.atom').each(function(each) {
+				this.emit('atom-did-exit', each)
+			}.bind(this))
 			u(fragment).find('.card').each(function(each) {
 				this.emit('card-did-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
 		bus.on('atom-will-enter', function(atom) {
-			let type = u(card).data('atom-type')
+			let type = u(atom).data('atom-type')
 			this.emit('atom-will-enter:' + type, atom)
 		}.bind(this))
 		
@@ -277,7 +283,7 @@ export class Editor {
 		let tail = text.substring(offset)
 		text = head + tail
 		u(node).text(text)
-		if (text.length == 0) { 
+		if (text.length === 0) { 
 			let previous = find_previous_inline_sibling(this, selection)
 			if (previous) set_caret(this, { container: previous, offset: previous.textContent.length })
 		} else {

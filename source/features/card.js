@@ -51,31 +51,41 @@ export function delete_card(editor, selection) {
 	}
 }
 
-export function watch_cards_will(added, removed, bus) {
+export function watch_cards_will_enter(added, bus) {		// todo: actually need to use find
 	
-	logger('trace').log('watch_cards_will')
+	logger('trace').log('watch_cards_will_enter')
 	added.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.card')) {
+		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
 			bus.emit('card-will-enter', node)
 		}
 	})
+}
+
+export function watch_cards_will_exit(removed, bus) {
+	
+	logger('trace').log('watch_cards_will_exit')
 	removed.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.card')) {
+		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
 			bus.emit('card-will-exit', node)
 		}
 	})
 }
 
-export function watch_cards_did(added, removed, bus) {
+export function watch_cards_did_enter(added, bus) {
 	
-	logger('trace').log('watch_cards_did')
+	logger('trace').log('watch_cards_did_enter')
 	added.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.card')) {
+		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
 			bus.emit('card-did-enter', node)
 		}
 	})
+}
+
+export function watch_cards_did_exit(removed, bus) {
+	
+	logger('trace').log('watch_cards_did_exit')
 	removed.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.card')) {
+		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
 			bus.emit('card-did-exit', node)
 		}
 	})

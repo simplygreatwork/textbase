@@ -9,8 +9,8 @@ import { toggle_format, remove_formats, find_active_formats, find_applicable_for
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlink.js'
 import { initialize_clipboard } from './clipboard.js'
-import { insert_card, watch_cards_will, watch_cards_did } from './features/card.js'
-import { insert_atom, watch_atoms_will, watch_atoms_did } from './features/atom.js'
+import { insert_card, watch_cards_will_enter, watch_cards_will_exit, watch_cards_did_enter, watch_cards_did_exit } from './features/card.js'
+import { insert_atom, watch_atoms_will_enter, watch_atoms_will_exit, watch_atoms_did_enter, watch_atoms_did_exit } from './features/atom.js'
 import { serialize } from './serialize.js'
 import { Scanner } from './scanner.js'
 import { install_sample_card } from './cards/sample.js'
@@ -295,19 +295,23 @@ export class Application {
 	configure_atoms(bus, editor, toolbar) {
 		
 		bus.on('history:will-undo', function(added, removed) {
-			watch_atoms_will(added, removed, bus)
+			watch_atoms_will_enter(added, bus)
+			watch_atoms_will_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-undo', function(added, removed) {
-			watch_atoms_did(added, removed, bus)
+			watch_atoms_did_enter(added, bus)
+			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:will-redo', function(added, removed) {
-			watch_atoms_will(added, removed, bus)
+			watch_atoms_will_enter(added, bus)
+			watch_atoms_will_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-redo', function(added, removed) {
-			watch_atoms_did(added, removed, bus)
+			watch_atoms_did_enter(added, bus)
+			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="atom">Atom</button>`)
@@ -340,19 +344,23 @@ export class Application {
 	configure_cards(bus, editor, toolbar) {
 		
 		bus.on('history:will-undo', function(added, removed) {
-			watch_cards_will(added, removed, bus)
+			watch_cards_will_enter(added, bus)
+			watch_cards_will_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-undo', function(added, removed) {
-			watch_cards_did(added, removed, bus)
+			watch_cards_did_enter(added, bus)
+			watch_cards_did_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:will-redo', function(added, removed) {
-			watch_cards_will(added, removed, bus)
+			watch_cards_will_enter(added, bus)
+			watch_cards_will_exit(removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-redo', function(added, removed) {
-			watch_cards_did(added, removed, bus)
+			watch_cards_did_enter(added, bus)
+			watch_cards_did_exit(removed, bus)
 		}.bind(this))
 		
 		install_sample_card(bus, editor, toolbar)

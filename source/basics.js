@@ -1,5 +1,5 @@
 
-export let a_block_element = 'p,h1,h2,h3,ul,ol,li,blockquote'
+export let a_block_element = 'p,h1,h2,h3,ul,ol,li,blockquote,div'
 export let an_inline_element = 'span,a'
 
 export function node_iterator(element, node, filter) {
