@@ -29,6 +29,7 @@ export class History {
 				this.bus.emit('history:did-begin-mutations')
 			}
 			mutations.forEach(function(mutation) {
+				if (mutation.target && ((u(mutation.target).is(u('.card'))) || u(mutation.target).closest(u('.card')) == false)) return
 				switch (mutation.type) {
 					case 'characterData':
 						mutation.newValue = mutation.target.textContent
@@ -82,7 +83,8 @@ export class History {
 	redo() {
 		
 		if (this.enabled && this.index < this.records.length - 1) {
-			this.undoRedo(this.records[this.index + 1], false)
+			this.will_undo_redo(this.records[this.index + 1], false)
+			this.undo_redo(this.records[this.index + 1], false)
 			this.index++
 		}
 	}
@@ -91,12 +93,47 @@ export class History {
 		
 		this.capture()
 		if (this.enabled && this.index >= 0) {
-			this.undoRedo(this.records[this.index], true)
+			this.will_undo_redo(this.records[this.index], true)
+			this.undo_redo(this.records[this.index], true)
 			this.index--
 		}
 	}
 	
-	undoRedo(record, isUndo) {
+	will_undo_redo(record, isUndo) {
+		
+		this.disable()
+		let added = []
+		let removed = []
+		const mutations = isUndo ? record.mutations.slice(0).reverse() : record.mutations
+		mutations.forEach((mutation) => {
+			switch (mutation.type) {
+				case 'childList':
+					const addNodes = isUndo ? mutation.removedNodes : mutation.addedNodes
+					const removeNodes = isUndo ? mutation.addedNodes : mutation.removedNodes
+					if (mutation.nextSibling) {
+						Array.from(addNodes).forEach(function(node) {
+							added.push(node)
+						})
+					} else {
+						Array.from(addNodes).forEach(function(node) {
+							added.push(node)
+						})
+					}
+					Array.from(removeNodes).forEach(function(node) {
+						removed.push(node)
+					})
+					break
+			}
+		})
+		if (isUndo) {
+			this.bus.emit('history:will-undo', added, removed)
+		} else {
+			this.bus.emit('history:will-redo', added, removed)
+		}
+		this.enable()
+	}
+	
+	undo_redo(record, isUndo) {
 		
 		this.disable()
 		let added = []
@@ -131,7 +168,7 @@ export class History {
 					}
 					Array.from(removeNodes).forEach(function(node) {
 						removed.push(node)
-						node.parentNode.removeChild(node)
+						if (node.parentNode) node.parentNode.removeChild(node)
 					})
 					break
 			}

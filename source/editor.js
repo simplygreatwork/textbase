@@ -127,54 +127,54 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		this.on('content:will-delete', function(fragment) {
+		bus.on('content:will-delete', function(fragment) {
 			u(fragment).find('.card').each(function(each) {
 				this.emit('card-will-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
-		this.on('content:did-delete', function(fragment) {
+		bus.on('content:did-delete', function(fragment) {
 			u(fragment).find('.card').each(function(each) {
 				this.emit('card-did-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
-		this.on('atom-will-enter', function(atom) {
+		bus.on('atom-will-enter', function(atom) {
 			let type = u(card).data('atom-type')
 			this.emit('atom-will-enter:' + type, atom)
 		}.bind(this))
 		
-		this.on('atom-did-enter', function(atom) {
+		bus.on('atom-did-enter', function(atom) {
 			let type = u(atom).data('atom-type')
 			this.emit('atom-did-enter:' + type, atom)
 		}.bind(this))
 		
-		this.on('atom-will-exit', function(atom) {
+		bus.on('atom-will-exit', function(atom) {
 			let type = u(atom).data('atom-type')
 			this.emit('atom-will-exit:' + type, atom)
 		}.bind(this))
 		
-		this.on('atom-did-exit', function(atom) {
+		bus.on('atom-did-exit', function(atom) {
 			let type = u(atom).data('atom-type')
 			this.emit('atom-did-exit:' + type, atom)
 		}.bind(this))
 		
-		this.on('card-will-enter', function(card) {
+		bus.on('card-will-enter', function(card) {
 			let type = u(card).data('card-type')
 			this.emit('card-will-enter:' + type, card)
 		}.bind(this))	
 		
-		this.on('card-did-enter', function(card) {
+		bus.on('card-did-enter', function(card) {
 			let type = u(card).data('card-type')
 			this.emit('card-did-enter:' + type, card)
 		}.bind(this))
 		
-		this.on('card-will-exit', function(card) {
+		bus.on('card-will-exit', function(card) {
 			let type = u(card).data('card-type')
 			this.emit('card-will-exit:' + type, card)
 		}.bind(this))
 		
-		this.on('card-did-exit', function(card) {
+		bus.on('card-did-exit', function(card) {
 			let type = u(card).data('card-type')
 			this.emit('card-did-exit:' + type, card)
 		}.bind(this))
@@ -221,7 +221,7 @@ export class Editor {
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
 		node.text(text.trim())
-		selection.range.setStart(selection.head.container, selection.head.offset + string.length)
+		selection.range.setStart(selection.head.container, selection.head.offset + string.length)		// fixme: use set_caret
 		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
 		this.emit('content:did-change')
 	}
@@ -246,6 +246,10 @@ export class Editor {
 		normalize_selection(this)
 		this.emit('content:did-change')
 		return [a, b]
+	}
+	
+	delete_() {
+		this.bus.emit('delete-requested', { consumed: false})
 	}
 	
 	can_delete_character(selection) {

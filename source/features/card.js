@@ -10,17 +10,18 @@ export function can_insert_card(editor) {
 	return true
 }
 
-export function insert_card(editor, card) {
+export function insert_card(editor, string) {
 	
+	logger('trace').log('insert_card')
 	let parts = editor.split_content('p,h1,h2,li')
-	let node = u(card)
-	node.attr('contenteditable', 'false')
-	node.attr('id', node.attr('id') || Math.random())
-	let type = node.attr('data-card-type')
-	editor.emit(`card-will-enter`, node)
+	let card = u(string)
+	card.attr('contenteditable', 'false')
+	card.attr('id', card.attr('id') || Math.random())
+	let type = card.attr('data-card-type')
+	editor.emit(`card-will-enter`, card.first())
 	let selection = get_selection(editor)
-	u(parts[0]).after(node)
-	editor.emit(`card-did-enter`, node)
+	u(parts[0]).after(card)
+	editor.emit(`card-did-enter`, card.first())
 }
 
 export function can_delete_card(editor, selection) {
@@ -50,17 +51,32 @@ export function delete_card(editor, selection) {
 	}
 }
 
-export function watch_cards(added, removed, bus) {
+export function watch_cards_will(added, removed, bus) {
 	
-	logger('trace').log('watch_cards')
+	logger('trace').log('watch_cards_will')
 	added.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.card')) {
-			bus.emit('card-did-enter', u(node))
+			bus.emit('card-will-enter', node)
 		}
 	})
 	removed.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.card')) {
-			bus.emit('card-did-exit', u(node))
+			bus.emit('card-will-exit', node)
+		}
+	})
+}
+
+export function watch_cards_did(added, removed, bus) {
+	
+	logger('trace').log('watch_cards_did')
+	added.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.card')) {
+			bus.emit('card-did-enter', node)
+		}
+	})
+	removed.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.card')) {
+			bus.emit('card-did-exit', node)
 		}
 	})
 }

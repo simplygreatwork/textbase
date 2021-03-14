@@ -9,13 +9,16 @@ import { toggle_format, remove_formats, find_active_formats, find_applicable_for
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlink.js'
 import { initialize_clipboard } from './clipboard.js'
-import { insert_card, watch_cards } from './features/card.js'
-import { insert_atom, watch_atoms } from './features/atom.js'
+import { insert_card, watch_cards_will, watch_cards_did } from './features/card.js'
+import { insert_atom, watch_atoms_will, watch_atoms_did } from './features/atom.js'
 import { serialize } from './serialize.js'
 import { Scanner } from './scanner.js'
+import { install_sample_card } from './cards/sample.js'
+import { install_animated_card } from './cards/animated.js'
+import { install_image_card } from './cards/image.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace', 'application', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
+const logger = Logger(['trace-off', 'application-off', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
 
 export class Application {
 	
@@ -24,9 +27,9 @@ export class Application {
 		this.bus = new Bus()
 		this.load_document(function() {
 			this.editor = new Editor({ element: document.querySelector('.editor'), bus: this.bus })
-			this.toolbar = new Toolbar(this.bus)
+			toolbar = new Toolbar(this.bus)
 			this.history = new History(document.querySelector('.content'), this.bus)
-			this.configure(this.bus, this.editor)
+			this.configure(this.bus, this.editor, toolbar)
 			let scanner = new Scanner(this.editor)
 			scanner.scan(document.querySelector('.content'))
 			if (false) this.apply_selection_by_positions()
@@ -46,27 +49,26 @@ export class Application {
 		}.bind(this))
 	}
 	
-	configure(bus, editor) {
+	configure(bus, editor, toolbar) {
 		
-		this.configure_history_selections(bus, editor)
-		this.configure_basics(bus, editor)
-		this.configure_formats(bus, editor)
-		this.configure_blocks(bus, editor)
-		this.configure_atoms(bus, editor)
-		this.configure_cards(bus, editor)
-		this.configure_other(bus, editor)
+		this.configure_history_selections(bus, editor, toolbar)
+		this.configure_basics(bus, editor, toolbar)
+		this.configure_formats(bus, editor, toolbar)
+		this.configure_blocks(bus, editor, toolbar)
+		this.configure_atoms(bus, editor, toolbar)
+		this.configure_cards(bus, editor, toolbar)
+		this.configure_other(bus, editor, toolbar)
 	}
 	
-	configure_history_selections(bus, editor) {
+	configure_history_selections(bus, editor, toolbar) {
 		
 		let selections = []
 		let selection = null
 		
 		bus.on('selection:did-change', function(editor) {
-			if (this.history.enabled) {
-				let selection = get_selection(this.editor)
-				selections.push(selection)
-			}
+			if (! this.history.enabled) return
+			let selection = get_selection(this.editor)
+			selections.push(selection)
 		}.bind(this))
 		
 		bus.on('history:did-begin-mutations', function(data) {
@@ -118,13 +120,13 @@ export class Application {
 		}.bind(this))
 	}
 	
-	configure_basics(bus, editor) {
+	configure_basics(bus, editor, toolbar) {
 		
-		this.toolbar.append(`<button data-action="hyperlink">Link</button>`)
-		this.toolbar.append(`<button data-action="image">Image</button>`)
-		this.toolbar.append(`<button data-action="code">Code</button>`)
-		this.toolbar.append(`<button data-action="metadata">Metadata</button>`)
-		this.toolbar.append(`<button data-action="formula">Formula</button>`)
+		toolbar.append(`<button data-action="hyperlink">Link</button>`)
+		toolbar.append(`<button data-action="image">Image</button>`)
+		toolbar.append(`<button data-action="code">Code</button>`)
+		toolbar.append(`<button data-action="metadata">Metadata</button>`)
+		toolbar.append(`<button data-action="formula">Formula</button>`)
 		
 		bus.on('keydown:alphanumeric', function(event) {
 			if (editor.can_insert_character()) {
@@ -141,7 +143,7 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
-			bus.emit('delete-requested', { consumed: false})
+			editor.delete_()
 			event.preventDefault()
 			return false
 		}.bind(this))
@@ -182,15 +184,15 @@ export class Application {
 		initialize_clipboard(editor)
 	}
 	
-	configure_formats(bus, editor) {
+	configure_formats(bus, editor, toolbar) {
 		
-		this.toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
-		this.toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
-		this.toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
-		this.toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
-		this.toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
-		this.toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
-		this.toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
+		toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
+		toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
+		toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
+		toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
+		toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
+		toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
+		toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
 		
 		initialize_hyperlinks(editor, bus)
 		detect_hyperlinks(editor, bus)
@@ -251,15 +253,15 @@ export class Application {
 		}.bind(this))
 	}
 	
-	configure_blocks(bus, editor) {
+	configure_blocks(bus, editor, toolbar) {
 		
-		this.toolbar.append(`<button data-action="paragraph" data-element="p">Paragraph</button>`)
-		this.toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
-		this.toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
-		this.toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
-		this.toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
-		this.toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
-		this.toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
+		toolbar.append(`<button data-action="paragraph" data-element="p">Paragraph</button>`)
+		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
+		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
+		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
+		toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
+		toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
+		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
 		
 		bus.on('action.request.paragraph', function() {
 			toggle_block(editor, 'p')
@@ -290,17 +292,25 @@ export class Application {
 		}.bind(this))
 	}
 	
-	configure_atoms(bus, editor) {
+	configure_atoms(bus, editor, toolbar) {
+		
+		bus.on('history:will-undo', function(added, removed) {
+			watch_atoms_will(added, removed, bus)
+		}.bind(this))
 		
 		bus.on('history:did-undo', function(added, removed) {
-			watch_atoms(added, removed, bus)
+			watch_atoms_did(added, removed, bus)
+		}.bind(this))
+		
+		bus.on('history:will-redo', function(added, removed) {
+			watch_atoms_will(added, removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-redo', function(added, removed) {
-			watch_atoms(added, removed, bus)
+			watch_atoms_did(added, removed, bus)
 		}.bind(this))
 		
-		this.toolbar.append(`<button data-action="atom">Atom</button>`)
+		toolbar.append(`<button data-action="atom">Atom</button>`)
 		
 		bus.on('action.request.atom', function() {
 			insert_atom(editor, `
@@ -327,102 +337,32 @@ export class Application {
 		}.bind(this))
 	}
 	
-	configure_cards(bus, editor) {
+	configure_cards(bus, editor, toolbar) {
+		
+		bus.on('history:will-undo', function(added, removed) {
+			watch_cards_will(added, removed, bus)
+		}.bind(this))
 		
 		bus.on('history:did-undo', function(added, removed) {
-			watch_cards(added, removed, bus)
+			watch_cards_did(added, removed, bus)
+		}.bind(this))
+		
+		bus.on('history:will-redo', function(added, removed) {
+			watch_cards_will(added, removed, bus)
 		}.bind(this))
 		
 		bus.on('history:did-redo', function(added, removed) {
-			watch_cards(added, removed, bus)
+			watch_cards_did(added, removed, bus)
 		}.bind(this))
 		
-		this.toolbar.append(`<button data-action="card">Card: Sample</button>`)
-		
-		bus.on('action.request.card', function() {
-			insert_card(editor, `
-				<div class="card" data-card-type="sample"></div>
-			`)
-		}.bind(this))
-		
-		bus.on('card-will-enter:sample', function(card) {
-			logger('application').log('card-will-enter:sample')
-			card.text('Sample Card')
-		}.bind(this))
-		
-		bus.on('card-did-enter:sample', function(card) {
-			logger('application').log('card-did-enter:sample')
-			window.setTimeout(function() {
-				card.text('Sample Card !!!')
-			}, 1000)
-		}.bind(this))
-		
-		bus.on('card-will-exit:sample', function(card) {
-			logger('application').log('card-will-exit:sample')
-		}.bind(this))
-		
-		bus.on('card-did-exit:sample', function(card) {
-			logger('application').log('card-did-exit:sample')
-		}.bind(this))
-		
-		this.toolbar.append(`<button data-action="card-image">Card: Image</button>`)
-		
-		bus.on('action.request.card-image', function() {
-			insert_card(editor, `
-				<div class="card" data-card-type="image">
-					<img style="object-fit:contain;" src="https://www.philosophytalk.org/sites/default/files/styles/large_blog__900x400_/public/graham-holtshausen-fUnfEz3VLv4-unsplash.jpg">
-				</div>
-			`)
-		}.bind(this))
-		
-		bus.on('card-will-enter:image', function(card) {
-			logger('application').log('card-will-enter:image')
-		}.bind(this))
-		
-		bus.on('card-did-enter:image', function(card) {
-			logger('application').log('card-did-enter:image')
-		}.bind(this))
-		
-		bus.on('card-will-exit:image', function(card) {
-			logger('application').log('card-will-exit:image')
-		}.bind(this))
-		
-		bus.on('card-did-exit:image', function(card) {
-			logger('application').log('card-did-exit:image')
-		}.bind(this))
-		
-		this.toolbar.append(`<button data-action="card-timer">Card: Timer</button>`)
-		
-		bus.on('action.request.card-timer', function() {
-			insert_card(editor, `
-				<div class="card" data-card-type="timer"></div>
-			`)
-		}.bind(this))
-		
-		bus.on('card-will-enter:timer', function(card) {
-			logger('application').log('card-will-enter:timer')
-			card.text('Timer Card')
-		}.bind(this))
-		
-		bus.on('card-did-enter:timer', function(card) {
-			logger('application').log('card-did-enter:timer')
-			window.setTimeout(function() {
-				card.text('Timer Card !!!')
-			}, 1000)
-		}.bind(this))
-		
-		bus.on('card-will-exit:timer', function(card) {
-			logger('application').log('card-will-exit:timer')
-		}.bind(this))
-		
-		bus.on('card-did-exit:timer', function(card) {
-			logger('application').log('card-did-exit:timer')
-		}.bind(this))
+		install_sample_card(bus, editor, toolbar)
+		install_animated_card(bus, editor, toolbar)
+		install_image_card(bus, editor, toolbar)
 	}
 	
-	configure_other(bus, editor) {
+	configure_other(bus, editor, toolbar) {
 		
-		this.toolbar.append(`<button data-action="validate">Validate</button>`)
+		toolbar.append(`<button data-action="validate">Validate</button>`)
 		
 		bus.on('action.request.validate', function() {
 			let scanner = new Scanner(editor)

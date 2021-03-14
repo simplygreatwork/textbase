@@ -39,9 +39,24 @@ export function delete_atom(editor, selection) {
 	}
 }
 
-export function watch_atoms(added, removed, bus) {
+export function watch_atoms_will(added, removed, bus) {
 	
-	logger('trace').log('watch_atoms')
+	logger('trace').log('watch_atoms_will')
+	added.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+			bus.emit('atom-will-enter', node)
+		}
+	})
+	removed.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+			bus.emit('atom-will-exit', node)
+		}
+	})
+}
+
+export function watch_atoms_did(added, removed, bus) {
+	
+	logger('trace').log('watch_atoms_did')
 	added.forEach(function(node) {
 		if (u(node).is(an_element_node) && u(node).is('.atom')) {
 			bus.emit('atom-did-enter', node)

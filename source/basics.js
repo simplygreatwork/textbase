@@ -42,13 +42,13 @@ export function find_previous_inline_sibling(editor, selection) {
 export function find_previous_block(element, node) {
 	
 	let block = u(node).closest(u(a_block_element))
-	var iterator = element_iterator(element, block.first())
+	let iterator = element_iterator(element, block.first())
 	return iterator.previousNode()
 }
 
 export function find_previous_element(element, node) {
 	
-	var iterator = text_iterator(element, node)
+	let iterator = text_iterator(element, node)
 	return iterator.previousNode().parentElement
 }
 

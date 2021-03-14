@@ -25,7 +25,7 @@ export function caret_left(event, editor) {					// skip across zero width whites
 	if ((text.charAt(0) == '\u200b') && (selection.head.offset == 0)) {
 		var iterator = text_iterator(editor.element, selection.head.container)
 		let previous = iterator.previousNode()
-		set_caret(editor, { container: previous, offset: previous.nodeValue.length - 1 })
+		set_caret(editor, { container: previous, offset: previous.nodeValue.length })
 	}
 }
 
