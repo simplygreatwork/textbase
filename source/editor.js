@@ -220,8 +220,7 @@ export class Editor {
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
 		node.text(text.trim())
-		selection.range.setStart(selection.head.container, selection.head.offset + string.length)		// fixme: use set_caret
-		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
+		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
 		this.emit('content:did-change', selection.head.container, selection.head.container)
 	}
 	

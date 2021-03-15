@@ -9,11 +9,11 @@ export class Walker {
 		this.bus = new Bus()
 	}
 	
-	walk(root, from, to) {
+	walk(root, begin, end) {
 		
-		from = from || root
-		let node = from
-		let iterator = node_iterator(root, root)
+		begin = begin || root
+		let node = begin
+		let iterator = node_iterator(root, node)
 		let index = 0
 		while (node) {
 			if (node.nodeType === 1) {
@@ -21,7 +21,7 @@ export class Walker {
 			} else if (node.nodeType === 3) {
 				this.emit('text', node)
 			}
-			if (to && node == to) break
+			if (end && node == end) break
 			node = iterator.nextNode()
 			index++
 		}

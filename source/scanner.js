@@ -17,10 +17,10 @@ export class Scanner {
 		this.configure(this.walker, this.bus)
 	}
 	
-	scan(from, to) {
+	scan(begin, end) {
 		
 		logger('scanner').log('walking...')
-		this.walker.walk(this.editor.element, from, to)
+		this.walker.walk(this.editor.element, begin, end)
 	}
 	
 	configure(walker, bus) {

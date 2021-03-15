@@ -311,9 +311,9 @@ export class Application {
 			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
 		
-		toolbar.append(`<button data-action="atom">Atom</button>`)
+		toolbar.append(`<button data-action="atom-sample">Atom</button>`)
 		
-		bus.on('action.request.atom', function() {
+		bus.on('action.request.atom-sample', function() {
 			insert_atom(editor, `
 				<span class="atom" data-atom-type="sample">@sample-atom</span>
 			`)
@@ -370,7 +370,6 @@ export class Application {
 		toolbar.append(`<button data-action="validate">Validate</button>`)
 		
 		bus.on('action.request.validate', function() {
-			this.scanner = new Scanner(this.editor)
 			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
 		
@@ -379,10 +378,10 @@ export class Application {
 			document.querySelector('.structure-html').textContent = serialize(this.editor)
 		}.bind(this))
 		
-		bus.on('content:did-change', function(from, to) {
+		bus.on('content:did-change', function(begin, end) {
 			logger('application').log('content:did-change')
 			document.querySelector('.structure-html').textContent = serialize(this.editor)
-			this.scanner.scan(from, to)
+			this.scanner.scan(begin, end)
 		}.bind(this))
 		
 		bus.on('content:valid', function(html) {
