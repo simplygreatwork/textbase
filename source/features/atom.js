@@ -35,7 +35,12 @@ export function delete_atom(editor, selection) {
 	var iterator = element_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	if (u(previous).hasClass('atom')) {
+		let atom = previous
+		let type = u(atom).attr('data-atom-type')
+		editor.emit(`atom-will-exit`, atom)
 		u(previous).remove()
+		editor.emit(`atom-did-exit`, atom)
+		editor.emit('content:did-change')
 	}
 }
 

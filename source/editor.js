@@ -104,7 +104,6 @@ export class Editor {
 			if (selection.range.collapsed) {
 				if (can_delete_atom(this, selection)) {
 					delete_atom(this, selection)
-					this.emit('content:did-change')
 					event.consumed = true
 				}
 			}
@@ -116,7 +115,6 @@ export class Editor {
 			if (selection.range.collapsed) {
 				if (can_delete_card(this, selection)) {
 					delete_card(this, selection)
-					this.emit('content:did-change')
 					event.consumed = true
 				}
 			}

@@ -48,6 +48,7 @@ export function delete_card(editor, selection) {
 		editor.emit(`card-will-exit`, card)
 		u(previous).remove()
 		editor.emit(`card-did-exit`, card)
+		editor.emit('content:did-change')
 	}
 }
 
