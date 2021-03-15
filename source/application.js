@@ -26,27 +26,25 @@ export class Application {
 	constructor() {
 		
 		this.bus = new Bus()
-		this.load_document(function() {
-			this.editor = new Editor({ element: document.querySelector('.editor'), bus: this.bus })
-			toolbar = new Toolbar(this.bus)
-			this.history = new History(document.querySelector('.content'), this.bus)
-			this.configure(this.bus, this.editor, toolbar)
-			let scanner = new Scanner(this.editor)
-			scanner.scan(document.querySelector('.content'))
-			if (false) this.apply_selection_by_positions()
+		this.editor = new Editor(this.bus, document.querySelector('.editor') )
+		this.toolbar = new Toolbar(this.bus)
+		this.history = new History(this.bus, document.querySelector('.content'))
+		this.configure(this.bus, this.editor, this.toolbar)
+		this.bus.on('document:did-load', function() {
+			this.history.enable()
+			this.scanner = new Scanner(this.editor)
+			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
+		this.load_document('./documents/all.html')
 	}
 	
-	load_document(fn) {
+	load_document(path) {
 		
-		fetch('./documents/all.html')
-		// fetch('./documents/p.html')
+		fetch(path)
 		.then(response => response.text())
 		.then(function(data) {
-			logger('application').log('fetched: ' + data)
 			u('.content').empty().append(u(data))
 			this.bus.emit('document:did-load')
-			fn()
 		}.bind(this))
 	}
 	
@@ -97,8 +95,6 @@ export class Application {
 				set_selection(this.editor, record.selection.after)
 			}
 		}.bind(this))
-		
-		this.history.enable()
 		
 		bus.on('editor:mousedown', function(data) {
 			this.history.capture()
@@ -374,8 +370,8 @@ export class Application {
 		toolbar.append(`<button data-action="validate">Validate</button>`)
 		
 		bus.on('action.request.validate', function() {
-			let scanner = new Scanner(editor)
-			scanner.scan(document.querySelector('.content'))
+			this.scanner = new Scanner(this.editor)
+			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
 		
 		bus.on('selection:did-change', function(event, editor) {
@@ -383,11 +379,10 @@ export class Application {
 			document.querySelector('.structure-html').textContent = serialize(this.editor)
 		}.bind(this))
 		
-		bus.on('content:did-change', function(html) {
+		bus.on('content:did-change', function(from, to) {
 			logger('application').log('content:did-change')
 			document.querySelector('.structure-html').textContent = serialize(this.editor)
-			let scanner = new Scanner(editor)
-			scanner.scan(document.querySelector('.content'))
+			this.scanner.scan(from, to)
 		}.bind(this))
 		
 		bus.on('content:valid', function(html) {
@@ -467,7 +462,7 @@ export class Application {
 	apply_selection_by_positions() {
 		
 		let element = document.querySelector('.content')
-		set_selection_by_positions(element, { head: 15, tail: 25 })
+		set_selection_by_positions(element, { head: 5, tail: 10 })
 		set_selection_by_positions(element, { element: element})
 		let selection = get_selection(element)
 		if (false) logger('application').log('selection: ' + JSON.stringify(selection, null, 2))

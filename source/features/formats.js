@@ -30,7 +30,7 @@ export function toggle_format(editor, format, data) {
 			parent.addClass(format)
 		}
 	})
-	editor.emit('content:did-change', serialize(editor))
+	editor.emit('content:did-change')
 }
 
 export function remove_formats(editor, formats) {

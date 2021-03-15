@@ -10,13 +10,13 @@ import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
-let blocks = 'p,h1,h2,li'
 
 export class Editor {
 	
-	constructor(options) {
+	constructor(bus, element) {
 		
-		Object.assign(this, options)
+		this.bus = bus
+		this.element = element
 		this.initialize_content()
 		this.initialize_keymap()
 		this.initialize_events(this.bus)
@@ -29,8 +29,6 @@ export class Editor {
 		u(this.content).on('input', function(event) {
 			this.emit('content:did-change')
 		}.bind(this))
-		this.element.appendChild(this.content)
-		this.emit('content:did-change')
 	}
 	
 	initialize_keymap() {
@@ -77,7 +75,6 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				this.emit('content:did-change')
 				event.consumed = true
 			}
 			return
@@ -88,7 +85,6 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				this.emit('content:did-change')
 				event.consumed = true
 			}
 		}.bind(this))
@@ -98,7 +94,6 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				this.emit('content:did-change')
 				event.consumed = true
 			}
 		}.bind(this))
@@ -229,7 +224,7 @@ export class Editor {
 		node.text(text.trim())
 		selection.range.setStart(selection.head.container, selection.head.offset + string.length)		// fixme: use set_caret
 		selection.range.setEnd(selection.tail.container, selection.tail.offset + string.length)
-		this.emit('content:did-change')
+		this.emit('content:did-change', selection.head.container, selection.head.container)
 	}
 	
 	split_content(limit) {
@@ -250,7 +245,7 @@ export class Editor {
 		range.insertNode(a)
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
-		this.emit('content:did-change')
+		this.emit('content:did-change', a, b)
 		return [a, b]
 	}
 	
@@ -289,6 +284,7 @@ export class Editor {
 		} else {
 			set_caret(this, { container: node, offset: offset - 1 })
 		}
+		this.emit('content:did-change', node)
 	}
 	
 	can_delete_block(selection) {
@@ -317,14 +313,14 @@ export class Editor {
 		
 		logger('trace').log('delete_block')
 		let node = selection.head.container
-		let block = u(node).closest(u(blocks))
+		let block = u(node).closest(u(a_block_element))
 		var iterator = text_iterator(this.element, node)
 		let previous
 		while (previous = iterator.previousNode()) {
 			if (previous == this.element) break 
 			let text = u(previous).text()
 			if (text.trim().length > 0) {
-				let block_ = u(previous).closest(u(blocks))
+				let block_ = u(previous).closest(u(a_block_element))
 				let length = block_.children().nodes.length
 				let selectable = block_.children().nodes[length - 1].firstChild
 				block.children().each(function(each) {
@@ -332,6 +328,7 @@ export class Editor {
 				})
 				block.remove()
 				set_caret(this, { container: selectable, offset: selectable.textContent.length })
+				this.emit('content:did-change', block_.first())
 				break
 			}
 		}
@@ -357,6 +354,7 @@ export class Editor {
 		} else {
 			set_caret(this, { container: selection.head.container, offset: offset })
 		}
+		this.emit('content:did-change', selection.head.container, selection.tail.container)
 		this.emit('content:did-delete', fragment)
 	}
 	

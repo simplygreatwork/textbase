@@ -1,5 +1,6 @@
 
 import { Bus } from './bus.js'
+import { node_iterator } from './basics.js'
 
 export class Walker {
 	
@@ -8,24 +9,22 @@ export class Walker {
 		this.bus = new Bus()
 	}
 	
-	walk(node) {
+	walk(root, from, to) {
 		
-		this.walk_(u(node), 0)
-	}
-	
-	walk_(node, level) {
-		
-		level++
-		node.contents().each(function(each) {
-			if (each.nodeType === 1) {
-				this.emit('enter', each, level)
-				this.walk_(u(each), level)
-				this.emit('exit', each, level)
-			} else if (each.nodeType === 3) {
-				this.emit('text', each)
+		from = from || root
+		let node = from
+		let iterator = node_iterator(root, root)
+		let index = 0
+		while (node) {
+			if (node.nodeType === 1) {
+				this.emit('element', node)
+			} else if (node.nodeType === 3) {
+				this.emit('text', node)
 			}
-		}.bind(this))
-		level--
+			if (to && node == to) break
+			node = iterator.nextNode()
+			index++
+		}
 	}
 	
 	on(key, fn) {

@@ -7,8 +7,6 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-let editable = true
-
 export class Scanner {
 	
 	constructor(editor) {
@@ -16,21 +14,19 @@ export class Scanner {
 		this.editor = editor
 		this.walker = new Walker()
 		this.bus = new Bus()
-		this.issues = []
-		this.configure(this.walker, this.bus, this.issues)
+		this.configure(this.walker, this.bus)
 	}
 	
-	scan(element) {
+	scan(from, to) {
 		
 		logger('scanner').log('walking...')
-		editable = true
-		this.walker.walk(element)
+		this.walker.walk(this.editor.element, from, to)
 	}
 	
-	configure(walker, bus, issues) {
+	configure(walker, bus) {
 		
 		walker.on('text', function(element) {
-			if (! editable) return
+			if (! is_editable(element)) return
 			if (element.nodeValue.length === 0) {
 				bus.emit('detected:text-node-without-content', element)
 			} else {
@@ -39,7 +35,7 @@ export class Scanner {
 		})
 		
 		walker.on('text', function(element) {
-			if (! editable) return
+			if (! is_editable(element)) return
 			if (element.nodeValue.indexOf('\n') === -1) {
 				if (! u(element.parentElement).is('span')) {
 					bus.emit('detected:text-node-without-span-parent', element)
@@ -47,8 +43,8 @@ export class Scanner {
 			}
 		})
 		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('span')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:span-with-no-text-content', element)
@@ -56,8 +52,8 @@ export class Scanner {
 			}
 		})
 		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('span')) {
 				if (u(element.nextSibling).is(u('span'))) {
 					if (Array.from(element.classList).sort().toString() == Array.from(element.nextSibling.classList).sort().toString()) {
@@ -67,8 +63,8 @@ export class Scanner {
 			}
 		})
 		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('span')) {
 				if (element.firstChild.textContent.length === 0) {
 					if (element.parentElement && element.parentElement.childNodes.length > 1) {
@@ -78,8 +74,8 @@ export class Scanner {
 			}
 		})
 		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('p,h1,h2,li')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:block-element-with-no-span', element)
@@ -87,42 +83,27 @@ export class Scanner {
 			}
 		})
 		
-		walker.on('enter', function(element) {
+		walker.on('element', function(element) {
 			if (element.matches('.atom')) {
-				editable = false
 				bus.emit('detected:atom', element)
 			}
 		})
-		
-		walker.on('exit', function(element) {
-			if (element.matches('.atom')) {
-				editable = true
-			}
-		})
-		
-		walker.on('enter', function(element) {
-			if (! editable) return
+
+		walker.on('element', function(element) {
 			if (element.matches('.card')) {
-				editable = false
 				bus.emit('detected:card', element)
 			}
 		})
 		
-		walker.on('exit', function(element) {
-			if (element.matches('.card')) {
-				editable = true
-			}
-		})
-		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('[content-editable=false]')) {
 				bus.emit('detected:content-editable-false', element)
 			}
 		})
 		
-		walker.on('enter', function(element) {
-			if (! editable) return
+		walker.on('element', function(element) {
+			if (! is_editable(element)) return
 			if (element.matches('article')) {
 				bus.emit('detected:other', element)
 			}
@@ -210,6 +191,15 @@ export class Scanner {
 			logger('scanner').log('detected:other')
 		}.bind(this))
 	}
+}
+
+function is_editable(node) {
+	
+	// if (u(node).is(u('.atom'))) return false
+	// if (u(node).closest(u('.atom'))) return false
+	// if (u(node).is(u('.card'))) return false
+	// if (u(node).closest(u('.card'))) return false
+	return true
 }
 
 function concatenate() {
