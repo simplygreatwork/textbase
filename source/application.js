@@ -119,11 +119,13 @@ export class Application {
 	
 	configure_basics(bus, editor, toolbar) {
 		
-		toolbar.append(`<button data-action="hyperlink">Link</button>`)
-		toolbar.append(`<button data-action="image">Image</button>`)
-		toolbar.append(`<button data-action="code">Code</button>`)
-		toolbar.append(`<button data-action="metadata">Metadata</button>`)
-		toolbar.append(`<button data-action="formula">Formula</button>`)
+		if (false) {
+			toolbar.append(`<button data-action="hyperlink">Link</button>`)
+			toolbar.append(`<button data-action="image">Image</button>`)
+			toolbar.append(`<button data-action="code">Code</button>`)
+			toolbar.append(`<button data-action="metadata">Metadata</button>`)
+			toolbar.append(`<button data-action="formula">Formula</button>`)
+		}
 		
 		bus.on('keydown:alphanumeric', function(event) {
 			if (editor.can_insert_character()) {
