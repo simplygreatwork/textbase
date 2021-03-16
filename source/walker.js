@@ -11,7 +11,9 @@ export class Walker {
 	
 	walk(root, begin, end) {
 		
-		begin = begin || root
+		if (! (begin && end)) {
+			begin = begin || root
+		}
 		let node = begin
 		let iterator = node_iterator(root, node)
 		let index = 0

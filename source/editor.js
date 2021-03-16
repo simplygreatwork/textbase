@@ -26,9 +26,6 @@ export class Editor {
 	initialize_content() {
 		
 		this.content = this.element.querySelector('.content')
-		u(this.content).on('input', function(event) {
-			this.emit('content:did-change')
-		}.bind(this))
 	}
 	
 	initialize_keymap() {
@@ -278,10 +275,11 @@ export class Editor {
 		if (text.length === 0) { 
 			let previous = find_previous_inline_sibling(this, selection)
 			if (previous) set_caret(this, { container: previous, offset: previous.textContent.length })
+			this.emit('content:did-change', previous, node)
 		} else {
 			set_caret(this, { container: node, offset: offset - 1 })
+			this.emit('content:did-change', node, node)
 		}
-		this.emit('content:did-change', node)
 	}
 	
 	can_delete_block(selection) {

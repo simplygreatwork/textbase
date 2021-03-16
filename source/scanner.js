@@ -1,9 +1,9 @@
 
 import { an_element_node, a_text_node } from './basics.js'
-import { Bus } from './bus.js'
-import { Walker } from './walker.js'
 import { text_iterator } from './basics.js'
 import { get_selection, set_selection, get_selection_length, normalize_selection } from './selection.js'
+import { Bus } from './bus.js'
+import { Walker } from './walker.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -21,8 +21,6 @@ export class Scanner {
 	scan(begin, end) {
 		
 		logger('scanner').log('walking...')
-		begin = null
-		end = null
 		this.walker.walk(this.editor.element, begin, end)
 	}
 	
