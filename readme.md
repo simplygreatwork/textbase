@@ -14,7 +14,7 @@
 
 ## What this project is not at this time
 
-- This project does not use document.executeCommand. All editing is achieved by manipulating the DOM directly. This is a good thing.
+- This project does not use document.executeCommand. All editing is achieved by manipulating the DOM directly.
 - This project has only been tested with Google Chrome. Will branch out soon.- This project does not yet use a JSON data model.
 	- It's quite simple and uses HTML DOM nodes as the model.
 - This project does not yet support collaboration.
