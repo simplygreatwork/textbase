@@ -1,4 +1,5 @@
 
+import { an_element_node, a_text_node } from './basics.js'
 import { Bus } from './bus.js'
 import { Walker } from './walker.js'
 import { text_iterator } from './basics.js'
@@ -20,6 +21,8 @@ export class Scanner {
 	scan(begin, end) {
 		
 		logger('scanner').log('walking...')
+		begin = null
+		end = null
 		this.walker.walk(this.editor.element, begin, end)
 	}
 	
@@ -195,25 +198,13 @@ export class Scanner {
 
 function is_editable(node) {
 	
-	// if (u(node).is(u('.atom'))) return false
-	// if (u(node).closest(u('.atom'))) return false
-	// if (u(node).is(u('.card'))) return false
-	// if (u(node).closest(u('.card'))) return false
-	return true
-}
-
-function concatenate() {
-	return
-}
-
-function scope() {
-	return
-}
-
-function hoist() {
-	return
-}
-
-function assign() {
-	return
+	let result = true
+	node = u(node)
+	if (node.is(an_element_node) && node.is('.atom')) result = false
+	if (node.is(an_element_node) && node.closest('.atom').length > 0) result = false
+	if (node.is(a_text_node) && node.parent().closest('.atom') && node.parent().closest('.atom').length  > 0) result = false
+	if (node.is(an_element_node) && node.is('.card')) result = false
+	if (node.is(an_element_node) && node.closest('.card').length > 0) result = false
+	if (node.is(a_text_node) && node.parent().closest('.card') && node.parent().closest('.card').length  > 0) result = false
+	return result
 }
