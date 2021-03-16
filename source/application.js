@@ -256,8 +256,8 @@ export class Application {
 		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
 		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
 		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
-		toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
-		toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
+		if (false) toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
+		if (false) toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
 		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
 		
 		bus.on('action.request.paragraph', function() {
