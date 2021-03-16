@@ -21,7 +21,7 @@
 - This project does not yet use a JSON data model.
 	- It's quite simple and uses HTML DOM nodes as the model.
 - This project does not yet support collaboration.
-	- In the future, this project might potentially use differential sychronization.
+	- In the future, this project might potentially use differential synchronization.
 
 ## Demo
 
