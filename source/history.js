@@ -112,7 +112,7 @@ export class History {
 		}
 	}
 	
-	will_undo(record, isUndo) {
+	will_undo(record) {
 		
 		let added = []
 		let removed = []
@@ -129,7 +129,7 @@ export class History {
 		this.bus.emit('history:will-undo', added, removed)
 	}
 	
-	will_redo(record, isUndo) {
+	will_redo(record) {
 		
 		let added = []
 		let removed = []
