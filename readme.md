@@ -4,6 +4,7 @@
 ## Goals
 
 - Create a robust rich text editor for the web which is a joy to develop and extend. 
+- Be able to quickly configure or extend the editor in a straightforward manner with minimal learning and reading docs.
 - Embrace progressive enhancement and feature detection.
 - Use the concept of code over configuration for initializing the editor.
 - Aim to follow the concept that flat is better than nested.
@@ -21,3 +22,7 @@
 	- It's quite simple and uses HTML DOM nodes as the model.
 - This project does not yet support collaboration.
 	- In the future, this project might potentially use differential sychronization.
+
+## Demo
+
+A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages.
