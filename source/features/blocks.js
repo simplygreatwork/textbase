@@ -20,7 +20,7 @@ export function toggle_block(editor, type) {
 		u(node).replace(element)
 	})
 	set_selection(editor, selection)
-	editor.emit('content:did-change')
+	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
 export function find_active_block(editor, blocks) {
@@ -52,7 +52,7 @@ export function indent(editor) {
 		level = parseInt(level) + 1
 		u(node).data('level', level)
 	})
-	editor.emit('content:did-change')
+	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
 export function dedent(editor) {
@@ -66,5 +66,5 @@ export function dedent(editor) {
 		level = level > 0 ? level - 1 : 0
 		u(node).data('level', level)
 	})
-	editor.emit('content:did-change')
+	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
