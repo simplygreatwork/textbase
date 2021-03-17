@@ -11,6 +11,9 @@ export function toggle_block(editor, type) {
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let element = u(`<${type}>`)
+		if (u(node).data('level')) {
+			element.data('level', u(node).data('level'))
+		}
 		u(node).children().each(function(each) {
 			u(each).remove()
 			element.append(each)
@@ -63,6 +66,7 @@ export function dedent(editor) {
 		level = parseInt(level)
 		level = level > 0 ? level - 1 : 0
 		u(node).data('level', level)
+		if (level == 0) node.removeAttribute('data-level') 
 	})
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
