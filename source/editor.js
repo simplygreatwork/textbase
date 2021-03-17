@@ -2,6 +2,7 @@
 import { an_element_node, a_text_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { find_previous_inline_sibling } from './basics.js'
+import { find_next_block } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
 import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atom.js'
@@ -239,7 +240,7 @@ export class Editor {
 		range.insertNode(a)
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
-		this.emit('content:did-change', a, b)
+		this.emit('content:did-change', a, b.nextSibling)
 		return [a, b]
 	}
 	

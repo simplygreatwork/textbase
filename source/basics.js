@@ -46,6 +46,13 @@ export function find_previous_block(element, node) {
 	return iterator.previousNode()
 }
 
+export function find_next_block(element, node) {
+	
+	let block = u(node).closest(u(a_block_element))
+	let iterator = element_iterator(element, block.first())
+	return iterator.nextNode()
+}
+
 export function find_previous_element(element, node) {
 	
 	let iterator = text_iterator(element, node)
