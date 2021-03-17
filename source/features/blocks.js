@@ -1,6 +1,6 @@
 
 import { a_text_node } from '../basics.js'
-import { get_selection } from '../selection.js'
+import { get_selection, set_selection, selection_to_string } from '../selection.js'
 import { selection_each_block } from '../selection.js'
 import { serialize } from '../serialize.js'
 import { Logger } from '../logger.js'
@@ -14,11 +14,12 @@ export function toggle_block(editor, type) {
 	selection_each_block(editor, selection, function(node) {
 		let element = u(`<${type}>`)
 		u(node).children().each(function(each) {
+			u(each).remove()
 			element.append(each)
 		})
 		u(node).replace(element)
 	})
-	// todo: restore selection
+	set_selection(editor, selection)
 	editor.emit('content:did-change')
 }
 
