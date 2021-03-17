@@ -194,6 +194,17 @@ export class Application {
 		}.bind(this))
 		
 		initialize_clipboard(editor)
+		
+		toolbar.append(`<button data-action="indent">Indent</button>`)
+		toolbar.append(`<button data-action="dedent">Dedent</button>`)
+		
+		bus.on('action.request.indent', function() {
+			indent(editor)
+		}.bind(this))
+		
+		bus.on('action.request.dedent', function() {
+			dedent(editor)
+		}.bind(this))
 	}
 	
 	configure_formats(bus, editor, toolbar) {

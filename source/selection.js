@@ -1,5 +1,5 @@
 
-import { an_inline_element } from './basics.js'
+import { an_inline_element, a_block_element } from './basics.js'
 import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, text_iterator, iterate_characters } from './basics.js'
 import { Logger } from './logger.js'
@@ -106,7 +106,7 @@ export function selection_each_block(editor, selection, fn) {
 	let array = []
 	selection_each_node(editor, selection, function(node) {
 		if (u(node).is(a_text_node)) node = node.parentElement
-		let element = u(node).closest('p,h1,h2,h3,ul,ol,li').first()
+		let element = u(node).closest(a_block_element).first()
 		if (array.indexOf(element) === -1) array.push(element)
 	})
 	array.forEach(function(each) {

@@ -1,33 +1,33 @@
-[data-level="0"] {
+[data-indent="0"] {
 	margin-left:0px;
 }
-[data-level="1"] {
+[data-indent="1"] {
 	margin-left:15px;
 }
-[data-level="2"] {
+[data-indent="2"] {
 	margin-left:30px;
 }
-[data-level="3"] {
+[data-indent="3"] {
 	margin-left:45px;
 }
-[data-level="4"] {
+[data-indent="4"] {
 	margin-left:60px;
 }
-[data-level="5"] {
+[data-indent="5"] {
 	margin-left:75px;
 }
-[data-level="6"] {
+[data-indent="6"] {
 	margin-left:90px;
 }
-[data-level="7"] {
+[data-indent="7"] {
 	margin-left:105px;
 }
-[data-level="8"] {
+[data-indent="8"] {
 	margin-left:120px;
 }
-[data-level="9"] {
+[data-indent="9"] {
 	margin-left:135px;
 }
-[data-level="10"] {
+[data-indent="10"] {
 	margin-left:150px;
 }

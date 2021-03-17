@@ -11,8 +11,8 @@ export function toggle_block(editor, type) {
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let element = u(`<${type}>`)
-		if (u(node).data('level')) {
-			element.data('level', u(node).data('level'))
+		if (u(node).data('indent')) {
+			element.data('indent', u(node).data('indent'))
 		}
 		u(node).children().each(function(each) {
 			u(each).remove()
@@ -38,7 +38,7 @@ export function find_applicable_blocks(editor, blocks) {
 	
 	logger('trace').log('find_applicable_blocks')
 	let block = find_active_block(editor, blocks)
-	blocks = JSON.parse(JSON.stringify(blocks))
+	blocks = blocks.split(',')
 	blocks.splice(blocks.indexOf(block), 1)
 	return blocks
 }
@@ -48,10 +48,10 @@ export function indent(editor) {
 	logger('trace').log('indent')
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
-		let level = u(node).data('level')
+		let level = u(node).data('indent')
 		level = level || '0'
 		level = parseInt(level) + 1
-		u(node).data('level', level)
+		u(node).data('indent', level)
 	})
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
@@ -61,12 +61,12 @@ export function dedent(editor) {
 	logger('trace').log('dedent')
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
-		let level = u(node).data('level')
+		let level = u(node).data('indent')
 		level = level || '0'
 		level = parseInt(level)
 		level = level > 0 ? level - 1 : 0
-		u(node).data('level', level)
-		if (level == 0) node.removeAttribute('data-level') 
+		u(node).data('indent', level)
+		if (level == 0) node.removeAttribute('data-indent') 
 	})
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }

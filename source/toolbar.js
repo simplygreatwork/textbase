@@ -1,4 +1,5 @@
 
+import { an_inline_element, a_block_element } from './basics.js'
 import { toggle_format, remove_formats, find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { Logger } from './logger.js'
@@ -12,10 +13,10 @@ export class Toolbar {
 		this.bus = bus
 		bus.on('selection:did-change', function(event, editor) {
 			logger('toolbar').log('toolbar:selection:did-change')
-			let blocks = ['p','h1','h2','h3','ul','ol, li']
+			let blocks = a_block_element
 			let active_formats = find_active_formats(editor)
 			let applicable_formats = find_applicable_formats(editor)
-			let active_block = find_active_block(editor, blocks)
+			let active_block = find_active_block(editor, a_block_element)
 			let applicable_blocks = find_applicable_blocks(editor, blocks)
 			u('.toolbar').find('button').each(function(each) {
 				u(each).removeClass('active')
