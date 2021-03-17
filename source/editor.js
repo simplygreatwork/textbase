@@ -219,7 +219,7 @@ export class Editor {
 		text = head + string + tail
 		node.text(text.trim())
 		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
-		this.emit('content:did-change', selection.head.container, selection.head.container)
+		this.emit('content:did-change', selection.head.container, selection.head.container.nextSibling)
 	}
 	
 	split_content(limit) {

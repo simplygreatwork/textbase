@@ -1,8 +1,6 @@
 
 import { a_text_node } from '../basics.js'
-import { get_selection, set_selection, selection_to_string } from '../selection.js'
-import { selection_each_block } from '../selection.js'
-import { serialize } from '../serialize.js'
+import { get_selection, set_selection, selection_each_block } from '../selection.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
