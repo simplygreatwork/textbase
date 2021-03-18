@@ -5,7 +5,7 @@ import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
 import { Scanner } from './scanner.js'
 import { an_inline_element, a_block_element } from './basics.js'
-import { get_selection, set_selection, selection_to_string } from './selection.js'
+import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
 import { toggle_format, remove_formats, find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
@@ -161,6 +161,12 @@ export class Application {
 		
 		bus.on('keydown:shift-tab', function(event) {
 			dedent(editor)
+			event.preventDefault()
+			return false
+		}.bind(this))
+		
+		bus.on('keydown:control-a', function(event) {
+			select_all(editor)
 			event.preventDefault()
 			return false
 		}.bind(this))

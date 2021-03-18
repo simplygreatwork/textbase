@@ -51,6 +51,17 @@ export function set_caret(editor, options) {
 	selection.addRange(range)
 }
 
+export function select_all(editor) {
+	
+	let first_child = document.createTreeWalker(editor.content, NodeFilter.SHOW_TEXT).firstChild()
+	let last_child = document.createTreeWalker(editor.content, NodeFilter.SHOW_TEXT).lastChild()
+	set_selection(editor, {
+		head: { container: first_child, offset: 0 },
+		tail: { container: last_child, offset: last_child.nodeValue.length }
+	})
+	normalize_selection(editor)
+}
+
 export function selection_edge(editor, selection) {
 	
 	let range, node, fragment
