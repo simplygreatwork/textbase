@@ -2,8 +2,8 @@
 import { get_selection, set_caret, normalize_selection, selection_edge } from './selection.js'
 import { node_iterator, a_text_node, a_span_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
-import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atom.js'
-import { watch_cards_will_enter, watch_cards_did_enter } from './features/card.js'
+import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
+import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
 import { sanitize } from './sanitize.js'
 import { Logger } from './logger.js'
 

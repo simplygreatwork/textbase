@@ -1,5 +1,5 @@
 
-import { insert_card } from '../features/card.js'
+import { insert_card } from '../features/cards.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()

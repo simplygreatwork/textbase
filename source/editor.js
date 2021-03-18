@@ -5,8 +5,8 @@ import { find_previous_inline_sibling } from './basics.js'
 import { find_next_block } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
-import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atom.js'
-import { can_insert_card, insert_card, can_delete_card, delete_card } from './features/card.js'
+import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atoms.js'
+import { can_insert_card, insert_card, can_delete_card, delete_card } from './features/cards.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
@@ -32,16 +32,18 @@ export class Editor {
 	initialize_keymap() {
 		
 		u(this.content).on('keydown', function(event) {
-			if (false) logger('editor').log('event.key: ' + event.key) 
+			logger('editor').log('event.key: ' + event.key)
+			this.emit('keydown', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keydown:alphanumeric', event)
 			} else {
+				let key = event.key
+				if (key == ' ') key = 'space'
 				let array = []
 				array.push('keydown:')
 				if (event.ctrlKey) array.push('control-')
 				if (event.shiftKey) array.push('shift-')
-				array.push(event.key.toLowerCase())
-				this.emit('keydown', event)
+				array.push(key.toLowerCase())
 				this.emit(array.join(''), event)
 			}
 		}.bind(this))
@@ -51,14 +53,15 @@ export class Editor {
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keyup:alphanumeric', event)
 			} else {
+				this.emit('keyup', event)
 				let array = []
 				array.push('keyup:')
 				if (event.ctrlKey) array.push('control-')
 				if (event.shiftKey) array.push('shift-')
 				array.push(event.key.toLowerCase())
-				this.emit('keyup', event)
 				this.emit(array.join(''), event)
 			}
+			if (event.key == ' ') this.emit('keyup:space', event)
 		}.bind(this))
 		
 		u(this.content).on('mousedown', function(event) {
@@ -229,7 +232,7 @@ export class Editor {
 		if (! this.is_editable()) return
 		event.preventDefault()
 		let selection = get_selection(this)
-		if (! selection.range.collapsed) this.delete_()
+		if (! selection.range.collapsed) this.delete_(event)
 		let range = selection.range.cloneRange()
 		let node = u(selection.head.container).closest(u(limit)).first()
 		range.setStartBefore(node)
@@ -372,5 +375,3 @@ export class Editor {
 		this.bus.emit(...arguments)
 	}
 }
-
-export default { Editor }
