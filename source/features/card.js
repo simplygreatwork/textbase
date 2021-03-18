@@ -17,7 +17,6 @@ export function insert_card(editor, string) {
 	let card = u(string)
 	card.attr('contenteditable', 'false')
 	card.attr('id', card.attr('id') || Math.random())
-	let type = card.attr('data-card-type')
 	editor.emit(`card-will-enter`, card.first())
 	let selection = get_selection(editor)
 	u(parts[0]).after(card)
@@ -40,11 +39,10 @@ export function delete_card(editor, selection) {
 	logger('trace').log('delete_card')
 	let node = selection.head.container
 	let block = u(node).closest(u('p,h1,h2,li'))
-	var iterator = element_iterator(editor.element, block.first())
+	let iterator = element_iterator(editor.element, block.first())
 	let previous = iterator.previousNode()
 	if (u(previous).hasClass('card')) {
 		let card = previous
-		let type = u(card).attr('data-card-type')
 		editor.emit(`card-will-exit`, card)
 		u(previous).remove()
 		editor.emit(`card-did-exit`, card)

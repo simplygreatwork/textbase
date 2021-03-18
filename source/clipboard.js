@@ -31,7 +31,7 @@ export function cut(event, editor) {
 	if (selection == null) return
 	let range = selection.range
 	let fragment = range.extractContents()
-	var clip = document.createElement('internal-transfer')
+	let clip = document.createElement('internal-transfer')
 	clip.appendChild(fragment.cloneNode(true))
 	let content = clip.outerHTML
 	logger('trace').log('cut content: ' + content)
@@ -46,7 +46,7 @@ export function copy(event, editor) {
 	if (selection == null) return
 	let range = selection.range
 	let fragment = range.cloneContents()
-	var clip = document.createElement('internal-transfer')
+	let clip = document.createElement('internal-transfer')
 	clip.appendChild(fragment.cloneNode(true))
 	let content = clip.outerHTML
 	logger('trace').log('copy content: ' + content)

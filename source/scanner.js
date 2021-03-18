@@ -162,7 +162,7 @@ export class Scanner {
 			logger('scanner').log('detected:empty-span')
 			let selection = get_selection(this.editor)
 			let apply_selection = element.firstChild == selection.head.container
-			var iterator = text_iterator(this.editor.element, element.firstChild)
+			let iterator = text_iterator(this.editor.element, element.firstChild)
 			let next = iterator.nextNode()
 			element.remove()
 			if (apply_selection) {

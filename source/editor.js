@@ -310,7 +310,7 @@ export class Editor {
 		logger('trace').log('delete_block')
 		let node = selection.head.container
 		let block = u(node).closest(u(a_block_element))
-		var iterator = text_iterator(this.element, node)
+		let iterator = text_iterator(this.element, node)
 		let previous
 		while (previous = iterator.previousNode()) {
 			if (previous == this.element) break 
@@ -337,8 +337,8 @@ export class Editor {
 	delete_content(selection) {
 		
 		logger('trace').log('delete_content')
-		var fragment = selection.range.cloneContents()
-		var div = document.createElement('div')
+		let fragment = selection.range.cloneContents()
+		let div = document.createElement('div')
 		div.appendChild(fragment.cloneNode(true))
 		this.emit('content:will-delete', fragment)
 		let offset = selection.head.offset

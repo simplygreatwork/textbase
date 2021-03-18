@@ -9,7 +9,7 @@ const logger = Logger()
 export function set_selection(editor, options) {
 	
 	if (options.tail.container.nodeType == 1) {
-		var iterator = text_iterator(editor.element, options.tail.container)
+		let iterator = text_iterator(editor.element, options.tail.container)
 		options.tail.container = iterator.nextNode()
 		options.tail.offset = 0
 	}
@@ -40,7 +40,7 @@ export function get_selection(editor) {
 export function set_caret(editor, options) {
 	
 	if (options.container.nodeType == 1) {
-		var iterator = text_iterator(editor.element, options.container)
+		let iterator = text_iterator(editor.element, options.container)
 		options.container = iterator.nextNode()
 	}
 	let range = new Range()
@@ -98,7 +98,7 @@ export function selection_each_node(editor, selection, fn) {
 export function selection_each_text(editor, selection, fn) {
 	
 	let node = selection.head.container
-	var iterator = text_iterator(editor.element, node)
+	let iterator = text_iterator(editor.element, node)
 	let index = 0
 	while (node) {
 		if (u(node).text().trim().length > 0) {
@@ -155,7 +155,7 @@ export function normalize_selection(editor) {
 	
 	let selection = get_selection(editor)
 	if (selection && selection.range && selection.tail.container.nodeType == 1) {
-		var iterator = text_iterator(editor.element, selection.tail.container)
+		let iterator = text_iterator(editor.element, selection.tail.container)
 		let next = iterator.nextNode()
 		selection.range.setEnd(next, 0)
 		editor.emit('selection:did-change', null, editor)

@@ -16,7 +16,7 @@ export class Bus {
 		
 		this.channels = this.channels || {}
 		if (this.channels[key]) {
-			var index = this.channels[key].length
+			let index = this.channels[key].length
 			while (index--) {
 				this.channels[key][index].apply(this, Array.from(arguments).splice(1))
 			}

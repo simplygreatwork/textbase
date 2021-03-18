@@ -15,28 +15,26 @@ export function insert_atom(editor, atom) {
 	let node = u(atom)
 	node.attr('contenteditable', 'false')
 	node.attr('id', node.attr('id') || Math.random())
-	let type = node.attr('data-atom-type')
-	editor.emit(`atom-will-enter:${type}`, node)
+	editor.emit(`atom-will-enter`, node)
 	let selection = get_selection(editor)
 	selection.range.insertNode(node.first())
-	editor.emit(`atom-did-enter:${type}`, node)
+	editor.emit(`atom-did-enter`, node)
 }
 
 export function can_delete_atom(editor, selection) {
 	
 	if (selection.head.offset > 0) return false
-	var iterator = element_iterator(editor.element, selection.head.container)
+	let iterator = element_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	return u(previous).hasClass('atom') ? true : false
 }
 
 export function delete_atom(editor, selection) {
 	
-	var iterator = element_iterator(editor.element, selection.head.container)
+	let iterator = element_iterator(editor.element, selection.head.container)
 	let previous = iterator.previousNode()
 	if (u(previous).hasClass('atom')) {
 		let atom = previous
-		let type = u(atom).attr('data-atom-type')
 		editor.emit(`atom-will-exit`, atom)
 		u(previous).remove()
 		editor.emit(`atom-did-exit`, atom)
