@@ -172,31 +172,27 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('keydown:control-z', function(event) {
-			this.history.undo()
-			event.preventDefault()
-			return false
+			this.history.undo(event)
 		}.bind(this))
 		
 		bus.on('keydown:control-shift-z', function(event) {
-			this.history.redo()
-			event.preventDefault()
-			return false
+			this.history.redo(event)
 		}.bind(this))
 		
 		bus.on('keyup:arrowright', function(event) {
-			return caret_right(event, editor)
+			caret_right(event, editor)
 		}.bind(this))
 		
 		bus.on('keyup:arrowleft', function(event) {
-			return caret_left(event, editor)
+			caret_left(event, editor)
 		}.bind(this))
 		
 		bus.on('keyup:arrowdown', function(event) {
-			return caret_down(event, editor)
+			caret_down(event, editor)
 		}.bind(this))
 		
 		bus.on('keyup:arrowup', function(event) {
-			return caret_up(event, editor)
+			caret_up(event, editor)
 		}.bind(this))
 		
 		initialize_clipboard(editor)
@@ -233,7 +229,7 @@ export class Application {
 		
 		bus.on('hyperlink:clicked', function(href, event) {
 			if (event && event.ctrlKey) {
-				let window_ = window.open(href)
+				window.open(href)
 			} else {
 				window.location.href = href
 			}

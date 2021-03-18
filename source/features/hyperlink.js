@@ -25,7 +25,6 @@ function invoke_hyperlink(target, editor, bus) {
 	logger('trace').log('invoke_hyperlink')
 	if (target.is(an_inline_element)) {
 		if (target.hasClass('hyperlink')) {
-			console.log('clicked hyperlink: ' + target.text())
 			let href = find_href(editor, event.target)
 			bus.emit('hyperlink:clicked', href, event)
 		}

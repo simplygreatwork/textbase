@@ -11,6 +11,7 @@ export function caret_right(event, editor) {					// skip across zero width white
 	let selection = get_selection(editor)
 	let text = selection.tail.container.nodeValue
 	if ((text.charAt(0) == '\u200b') && (selection.tail.offset == 1)) {
+		event.preventDefault()
 		let iterator = text_iterator(editor.element, selection.tail.container)
 		let next = iterator.nextNode()
 		set_caret(editor, { container: next, offset: 0 })
@@ -23,6 +24,7 @@ export function caret_left(event, editor) {					// skip across zero width whites
 	let selection = get_selection(editor)
 	let text = selection.head.container.nodeValue
 	if ((text.charAt(0) == '\u200b') && (selection.head.offset == 0)) {
+		event.preventDefault()
 		let iterator = text_iterator(editor.element, selection.head.container)
 		let previous = iterator.previousNode()
 		set_caret(editor, { container: previous, offset: previous.nodeValue.length })

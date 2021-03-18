@@ -89,8 +89,9 @@ export class History {
 		}
 	}
 	
-	undo() {
+	undo(event) {
 		
+		event.preventDefault()
 		this.capture()
 		if (this.enabled && this.index >= 0) {
 			this.disable()
@@ -101,8 +102,9 @@ export class History {
 		}
 	}
 	
-	redo() {
+	redo(event) {
 		
+		event.preventDefault()
 		if (this.enabled && this.index < this.records.length - 1) {
 			this.disable()
 			this.will_redo(this.records[this.index + 1])
