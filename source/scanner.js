@@ -1,5 +1,6 @@
 
 import { an_element_node, a_text_node } from './basics.js'
+import { zero_width_whitespace } from './basics.js'
 import { text_iterator } from './basics.js'
 import { get_selection, set_selection, get_selection_length, normalize_selection } from './selection.js'
 import { Bus } from './bus.js'
@@ -111,16 +112,16 @@ export class Scanner {
 		})
 		
 		bus.on('detected:text-node-without-content', function(node) {
-			node.textContent = '\u200b'
+			node.textContent = zero_width_whitespace
 		})
 		
 		bus.on('detected:text-node-with-content', function(node) {
 			if (node.nodeValue.length > 1) {
-				if (node.nodeValue && node.nodeValue.indexOf('\u200b') > -1) {
+				if (node.nodeValue && node.nodeValue.indexOf(zero_width_whitespace) > -1) {
 					let selection = get_selection(this.editor)
 					let container = selection.head.container
 					let offset = selection.head.offset
-					node.nodeValue = node.nodeValue.split('\u200b').join('')
+					node.nodeValue = node.nodeValue.split(zero_width_whitespace).join('')
 					set_selection(this.editor, {
 						head: { container: container, offset: node.nodeValue.length }, 
 						tail: { container: container, offset: node.nodeValue.length }

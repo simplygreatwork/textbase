@@ -1,6 +1,7 @@
 
-export let a_block_element = 'div,p,h1,h2,h3,ul,ol,li,blockquote'
+export let a_block_element = 'div,p,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote'
 export let an_inline_element = 'span,a'
+export let zero_width_whitespace = '\u200b'
 
 export function node_iterator(element, node, filter) {
 	

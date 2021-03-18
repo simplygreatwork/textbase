@@ -1,5 +1,6 @@
 
 import { text_iterator } from './basics.js'
+import { text_iterator } from './basics.js'
 import { get_selection, set_selection, set_caret } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -10,7 +11,7 @@ export function caret_right(event, editor) {					// skip across zero width white
 	logger('trace').log('caret_right')
 	let selection = get_selection(editor)
 	let text = selection.tail.container.nodeValue
-	if ((text.charAt(0) == '\u200b') && (selection.tail.offset == 1)) {
+	if ((text.charAt(0) == zero_width_whitespace) && (selection.tail.offset == 1)) {
 		event.preventDefault()
 		let iterator = text_iterator(editor.element, selection.tail.container)
 		let next = iterator.nextNode()
@@ -23,7 +24,7 @@ export function caret_left(event, editor) {					// skip across zero width whites
 	logger('trace').log('caret_left')
 	let selection = get_selection(editor)
 	let text = selection.head.container.nodeValue
-	if ((text.charAt(0) == '\u200b') && (selection.head.offset == 0)) {
+	if ((text.charAt(0) == zero_width_whitespace) && (selection.head.offset == 0)) {
 		event.preventDefault()
 		let iterator = text_iterator(editor.element, selection.head.container)
 		let previous = iterator.previousNode()
