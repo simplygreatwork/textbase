@@ -129,46 +129,33 @@ export class Application {
 		}
 		
 		bus.on('keydown:alphanumeric', function(event) {
-			if (editor.can_insert_character()) {
-				editor.insert_character(event.key)
-				event.preventDefault()
-				return false
+			if (editor.can_insert_character(event)) {
+				editor.insert_character(event)
 			}
 		}.bind(this))
 		
 		bus.on('keydown:enter', function(event) {
-			editor.split_content(a_block_element)
-			event.preventDefault()
-			return false
+			editor.split_content(event, a_block_element)
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
-			editor.delete_()
-			event.preventDefault()
-			return false
+			editor.delete_(event)
 		}.bind(this))
 		
 		bus.on('keyup:backspace', function(event) {
 			event.preventDefault()
-			return false
 		}.bind(this))
 		
 		bus.on('keydown:tab', function(event) {
-			indent(editor)
-			event.preventDefault()
-			return false
+			indent(event, editor)
 		}.bind(this))
 		
 		bus.on('keydown:shift-tab', function(event) {
-			dedent(editor)
-			event.preventDefault()
-			return false
+			dedent(event, editor)
 		}.bind(this))
 		
 		bus.on('keydown:control-a', function(event) {
-			select_all(editor)
-			event.preventDefault()
-			return false
+			select_all(event, editor)
 		}.bind(this))
 		
 		bus.on('keydown:control-z', function(event) {
@@ -260,21 +247,18 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('keydown:control-b', function(event) {
-			toggle_format(editor, 'strong')
 			event.preventDefault()
-			return false
+			toggle_format(editor, 'strong')
 		}.bind(this))
 		
 		bus.on('keydown:control-i', function(event) {
-			toggle_format(editor, 'emphasis')
 			event.preventDefault()
-			return false
+			toggle_format(editor, 'emphasis')
 		}.bind(this))
 		
 		bus.on('keydown:control-u', function(event) {
-			toggle_format(editor, 'underline')
 			event.preventDefault()
-			return false
+			toggle_format(editor, 'underline')
 		}.bind(this))
 	}
 	

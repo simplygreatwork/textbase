@@ -192,14 +192,15 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	can_insert_character() {
+	can_insert_character(event) {
 		return this.is_editable()
 	}
 	
-	insert_character(key) {
+	insert_character(event) {
 		
 		logger('trace').log('insert_character')
-		this.insert_string(key)
+		event.preventDefault()
+		this.insert_string(event.key)
 	}
 	
 	insert_string(string) {
@@ -222,10 +223,11 @@ export class Editor {
 		this.emit('content:did-change', selection.head.container, selection.head.container.nextSibling)
 	}
 	
-	split_content(limit) {
+	split_content(event, limit) {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
+		event.preventDefault()
 		let selection = get_selection(this)
 		if (! selection.range.collapsed) this.delete_()
 		let range = selection.range.cloneRange()
@@ -244,7 +246,9 @@ export class Editor {
 		return [a, b]
 	}
 	
-	delete_() {
+	delete_(event) {
+		
+		event.preventDefault()
 		this.bus.emit('delete-requested', { consumed: false})
 	}
 	

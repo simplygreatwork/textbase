@@ -10,15 +10,16 @@ export function toggle_block(editor, type) {
 	logger('trace').log('toggle_block')
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
+		node = u(node)
 		let element = u(`<${type}>`)
-		if (u(node).data('indent')) {
-			element.data('indent', u(node).data('indent'))
+		if (node.data('indent')) {
+			element.data('indent', node.data('indent'))
 		}
-		u(node).children().each(function(each) {
+		node.children().each(function(each) {
 			u(each).remove()
 			element.append(each)
 		})
-		u(node).replace(element)
+		node.replace(element)
 	})
 	set_selection(editor, selection)
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
@@ -43,9 +44,10 @@ export function find_applicable_blocks(editor, blocks) {
 	return blocks
 }
 
-export function indent(editor) {
+export function indent(event, editor) {
 	
 	logger('trace').log('indent')
+	event.preventDefault()
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let level = u(node).data('indent')
@@ -56,9 +58,10 @@ export function indent(editor) {
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
-export function dedent(editor) {
+export function dedent(event, editor) {
 	
 	logger('trace').log('dedent')
+	event.preventDefault()
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let level = u(node).data('indent')
