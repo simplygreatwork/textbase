@@ -197,13 +197,12 @@ export class Scanner {
 
 function is_editable(node) {
 	
-	let result = true
 	node = u(node)
-	if (node.is(an_element_node) && node.is('.atom')) result = false
-	if (node.is(an_element_node) && node.closest('.atom').length > 0) result = false
-	if (node.is(a_text_node) && node.parent().closest('.atom') && node.parent().closest('.atom').length  > 0) result = false
-	if (node.is(an_element_node) && node.is('.card')) result = false
-	if (node.is(an_element_node) && node.closest('.card').length > 0) result = false
-	if (node.is(a_text_node) && node.parent().closest('.card') && node.parent().closest('.card').length  > 0) result = false
-	return result
+	if (node.is(an_element_node) && node.is('.atom')) return false
+	if (node.is(an_element_node) && node.closest('.atom').length > 0) return false
+	if (node.is(a_text_node) && node.parent().closest('.atom') && node.parent().closest('.atom').length  > 0) return false
+	if (node.is(an_element_node) && node.is('.card')) return false
+	if (node.is(an_element_node) && node.closest('.card').length > 0) return false
+	if (node.is(a_text_node) && node.parent().closest('.card') && node.parent().closest('.card').length  > 0) return false
+	return true
 }

@@ -109,7 +109,7 @@ export function selection_each_text(editor, selection, fn) {
 	let index = 0
 	while (node) {
 		if (u(node).text().trim().length > 0) {
-			if (! should_skip(node)) {
+			if (! is_atom_or_card(node)) {
 				fn(node, index)
 			}
 		}
@@ -128,13 +128,13 @@ export function selection_each_block(editor, selection, fn) {
 		if (array.indexOf(element) === -1) array.push(element)
 	})
 	array.forEach(function(each) {
-		if (! should_skip(each)) {
+		if (! is_atom_or_card(each)) {
 			fn(each)
 		}
 	})
 }
 
-function should_skip(node) {					// fixme: rework: should_skip is not descriptive
+function is_atom_or_card(node) {
 	
 	if (u(node).parent().is('.atom')) return true
 	if (u(node).parent().is('.card')) return true
