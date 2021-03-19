@@ -235,7 +235,6 @@ export class System {
 		
 		bus.on('action.request.strong', function() {
 			toggle_format(editor, 'strong')
-			this.history.capture()
 		}.bind(this))
 		
 		bus.on('action.request.emphasis', function() {
