@@ -39,5 +39,3 @@ export class Toolbar {
 		u('.toolbar').append(element)
 	}
 }
-
-export default { Toolbar }
