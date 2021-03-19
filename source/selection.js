@@ -148,11 +148,11 @@ export function get_selection_length(editor, selection) {
 	let result = 0
 	selection_each_text(editor, selection, function(node, index) {
 		if (node == selection.head.container) {
-			result = selection.head.container.textContent.length - selection.head.offset
+			result += selection.head.container.textContent.length - selection.head.offset
 		} else if (node == selection.tail.container) {
-			result = selection.tail.offset 
+			result += selection.tail.offset 
 		} else {
-			result = node.textContent.length 
+			result += node.textContent.length 
 		}
 	})
 	return result
