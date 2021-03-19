@@ -172,17 +172,9 @@ export function normalize_selection(editor) {
 export function selection_to_string(selection) {
 	
 	let array = []
-	if (selection.head.container.nodeType == 1) {
-		array.push(selection.head.container.tagName)
-	} else {
-		array.push(selection.head.container.textContent)
-	}
+	array.push(selection.head.container.nodeType == 1 ? selection.tail.container.tagName : selection.tail.container.textContent)
 	array.push(selection.head.offset)
-	if (selection.head.container.nodeType == 1) {
-		array.push(selection.tail.container.tagName)
-	} else {
-		array.push(selection.tail.container.textContent)
-	}
+	array.push(selection.tail.container.nodeType == 1 ? selection.tail.container.tagName : selection.tail.container.textContent)
 	array.push(selection.tail.offset)
 	return array.join(':')
 }
