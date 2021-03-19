@@ -230,7 +230,7 @@ export class Editor {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
-		event.preventDefault()
+		if (event) event.preventDefault()
 		let selection = get_selection(this)
 		if (! selection.range.collapsed) this.delete_(event)
 		let range = selection.range.cloneRange()
