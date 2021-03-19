@@ -1,7 +1,7 @@
 
 import { an_inline_element, a_block_element } from './basics.js'
 import { an_element_node, a_text_node } from './basics.js'
-import { node_iterator, text_iterator, iterate_characters } from './basics.js'
+import { node_iterator, text_iterator } from './basics.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
