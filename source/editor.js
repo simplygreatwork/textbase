@@ -31,7 +31,6 @@ export class Editor {
 	initialize_keymap() {
 		
 		u(this.content).on('keydown', function(event) {
-			logger('editor').log('event.key: ' + event.key)
 			this.emit('keydown', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keydown:alphanumeric', event)
@@ -48,19 +47,19 @@ export class Editor {
 		}.bind(this))
 		
 		u(this.content).on('keyup', function(event) {
-			if (false) logger('editor').log('event.key: ' + event.key) 
+			this.emit('keyup', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keyup:alphanumeric', event)
 			} else {
-				this.emit('keyup', event)
+				let key = event.key
+				if (key == ' ') key = 'space'
 				let array = []
 				array.push('keyup:')
 				if (event.ctrlKey) array.push('control-')
 				if (event.shiftKey) array.push('shift-')
-				array.push(event.key.toLowerCase())
+				array.push(key.toLowerCase())
 				this.emit(array.join(''), event)
 			}
-			if (event.key == ' ') this.emit('keyup:space', event)
 		}.bind(this))
 		
 		u(this.content).on('mousedown', function(event) {
