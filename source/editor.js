@@ -7,7 +7,6 @@ import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from 
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
 import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atoms.js'
 import { can_insert_card, insert_card, can_delete_card, delete_card } from './features/cards.js'
-import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
