@@ -1,7 +1,7 @@
 
-import { get_selection } from '../selection.js'
-import { an_inline_element, find_previous_block, find_previous_element } from '../basics.js'
+import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { an_element_node, element_iterator, text_iterator } from '../basics.js'
+import { get_selection } from '../selection.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -13,7 +13,7 @@ export function can_insert_card(editor) {
 export function insert_card(editor, string) {
 	
 	logger('trace').log('insert_card')
-	let parts = editor.split_content('p,h1,h2,li')
+	let parts = editor.split_content(a_block_element)
 	let card = u(string)
 	card.attr('contenteditable', 'false')
 	card.attr('id', card.attr('id') || Math.random())
@@ -38,7 +38,7 @@ export function delete_card(editor, selection) {
 	
 	logger('trace').log('delete_card')
 	let node = selection.head.container
-	let block = u(node).closest(u('p,h1,h2,li'))
+	let block = u(node).closest(u(a_block_element))
 	let iterator = element_iterator(editor.element, block.first())
 	let previous = iterator.previousNode()
 	if (u(previous).hasClass('card')) {
