@@ -15,7 +15,7 @@ export function toggle_block(editor, type) {
 		if (node.data('indent')) {
 			element.data('indent', node.data('indent'))
 		}
-		node.replace(element)							// note: redo breaks if moved one line down
+		node.replace(element)									// note: redo breaks if moved one line down
 		node.children().each(function(each) {
 			u(each).remove()
 			element.append(each)

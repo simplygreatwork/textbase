@@ -271,7 +271,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('format:did-change', function(event) {
-			if (true) this.history.capture()
+			if (false) this.history.capture()
 		}.bind(this))
 	}
 	
@@ -314,7 +314,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('block:did-change', function(event) {
-			if (true) this.history.capture()
+			if (false) this.history.capture()
 		}.bind(this))
 	}
 	
