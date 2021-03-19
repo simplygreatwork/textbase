@@ -226,7 +226,7 @@ export class Editor {
 		this.emit('content:did-change', selection.head.container, selection.head.container.nextSibling)
 	}
 	
-	split_content(event, limit) {
+	split_content(limit, event) {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return

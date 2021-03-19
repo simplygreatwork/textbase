@@ -1,6 +1,9 @@
 
 // derived from lohfu/snapback
 
+import { Logger } from './logger.js'
+
+const logger = Logger()
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
 
 export class History {
@@ -34,6 +37,8 @@ export class History {
 				if (! this.is_observable(mutation.target)) return
 				switch (mutation.type) {
 					case 'characterData':
+						logger('history').log('observed mutation of characterData')
+						logger('history').log('mutation.target.textContent: ' + mutation.target.textContent)
 						mutation.newValue = mutation.target.textContent
 						const lastMutation = this.mutations[this.mutations.length - 1]
 						if (lastMutation && lastMutation.type === 'characterData' && lastMutation.target === mutation.target && lastMutation.newValue === mutation.oldValue) {
@@ -42,7 +47,14 @@ export class History {
 						}
 						break
 					case 'attributes':
+						logger('history').log('observed mutation of attributes')
+						logger('history').log('mutation.attributeName: ' + mutation.attributeName)
 						mutation.newValue = mutation.target.getAttribute(mutation.attributeName)
+						break
+					case 'childList':
+						logger('history').log('observed mutation of childList')
+						logger('history').log('mutation.addedNodes.length: ' + mutation.addedNodes.length)
+						logger('history').log('mutation.removedNodes.length: ' + mutation.removedNodes.length)
 						break
 				}
 				this.mutations.push(mutation)
@@ -150,6 +162,7 @@ export class History {
 	
 	perform_undo(record) {
 		
+		logger('history').log('perform_undo')
 		let added = []
 		let removed = []
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
@@ -170,6 +183,7 @@ export class History {
 	
 	perform_redo(record) {
 		
+		logger('history').log('perform_redo')
 		let added = []
 		let removed = []
 		record.mutations.forEach(function(mutation) {
@@ -190,11 +204,13 @@ export class History {
 	
 	mutate_character_data(mutation, value) {
 		
+		logger('history').log('mutate_character_data')
 		mutation.target.textContent = value
 	}
 	
 	mutate_attributes(mutation, value) {
 		
+		logger('history').log('mutate_attributes')
 		if (value || value === false || value === 0) {
 			mutation.target.setAttribute(mutation.attributeName, value)
 		} else {
@@ -204,20 +220,24 @@ export class History {
 	
 	mutate_child_list(mutation, add_nodes, remove_nodes, added, removed) {
 		
+		logger('history').log('mutate_child_list')
 		if (mutation.nextSibling) {
 			Array.from(add_nodes).forEach(function(node) {
+				logger('history').log('adding: ' + node.outerHTML)
 				mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
 				added.push(node)
 			})
 		} else {
 			Array.from(add_nodes).forEach(function(node) {
+				logger('history').log('adding: ' + node.outerHTML)
 				mutation.target.appendChild(node)
 				added.push(node)
 			})
 		}
 		Array.from(remove_nodes).forEach(function(node) {
+			logger('history').log('removing: ' + node.outerHTML)
 			removed.push(node)
-			if (node.parentNode) node.parentNode.removeChild(node)
+			node.parentNode.removeChild(node)
 		})
 	}
 }

@@ -1,6 +1,6 @@
 
 import { text_iterator } from './basics.js'
-import { text_iterator } from './basics.js'
+import { zero_width_whitespace } from './basics.js'
 import { get_selection, set_selection, set_caret } from './selection.js'
 import { Logger } from './logger.js'
 

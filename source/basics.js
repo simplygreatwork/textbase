@@ -3,7 +3,7 @@ export let a_block_element = 'div,p,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote'
 export let an_inline_element = 'span,a'
 export let zero_width_whitespace = '\u200b'
 
-export function node_iterator(element, node, filter) {
+export function node_iterator(element, from, filter) {
 	
 	filter = filter || function(node) {
 		return true
@@ -11,21 +11,21 @@ export function node_iterator(element, node, filter) {
 	let walker = document.createTreeWalker(element, NodeFilter.SHOW_ALL, function(node) {
 		return filter(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
 	}, false)
-	walker.currentNode = node
+	walker.currentNode = from
 	return walker
 }
 
-export function element_iterator(element, node) {
+export function element_iterator(element, from) {
 	
-	return node_iterator(element, node, function(node_) {
-		return node_.nodeType === 1
+	return node_iterator(element, from, function(node) {
+		return node.nodeType === 1
 	})
 }
 
-export function text_iterator(element, node) {
+export function text_iterator(element, from) {
 	
-	return node_iterator(element, node, function(node_) {
-		return node_.nodeType === 3
+	return node_iterator(element, from, function(node) {
+		return node.nodeType === 3
 	})
 }
 

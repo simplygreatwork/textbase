@@ -15,13 +15,14 @@ export function toggle_block(editor, type) {
 		if (node.data('indent')) {
 			element.data('indent', node.data('indent'))
 		}
+		node.replace(element)							// note: redo breaks if moved one line down
 		node.children().each(function(each) {
 			u(each).remove()
 			element.append(each)
 		})
-		node.replace(element)
 	})
 	set_selection(editor, selection)
+	editor.emit('block:did-change', type)
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
@@ -44,7 +45,7 @@ export function find_applicable_blocks(editor, blocks) {
 	return blocks
 }
 
-export function indent(event, editor) {
+export function indent(editor, event) {
 	
 	logger('trace').log('indent')
 	event.preventDefault()
@@ -58,7 +59,7 @@ export function indent(event, editor) {
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
-export function dedent(event, editor) {
+export function dedent(editor, event) {
 	
 	logger('trace').log('dedent')
 	event.preventDefault()

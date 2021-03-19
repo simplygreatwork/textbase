@@ -7,21 +7,22 @@ import { Scanner } from './scanner.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
-import { toggle_format, remove_formats, find_active_formats, find_applicable_formats } from './features/formats.js'
+import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
+import { find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { indent, dedent } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
 import { insert_card, watch_cards_will_enter, watch_cards_will_exit, watch_cards_did_enter, watch_cards_did_exit } from './features/cards.js'
 import { insert_atom, watch_atoms_will_enter, watch_atoms_will_exit, watch_atoms_did_enter, watch_atoms_did_exit } from './features/atoms.js'
-import { serialize } from './serialize.js'
 import { initialize_sample_cards } from './cards/sample.js'
 import { initialize_animated_cards } from './cards/animated.js'
 import { initialize_image_cards } from './cards/image.js'
 import { initialize_recognizers } from './features/recognizers.js'
+import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'system-off', 'editor-off', 'toolbar-off', 'formats-off', 'scanner-off'])
+const logger = Logger(['trace-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'formats-off', 'scanner-off'])
 
 export class System {
 	
@@ -69,7 +70,7 @@ export class System {
 		
 		bus.on('selection:did-change', function(editor) {
 			if (! this.history.enabled) return
-			let selection = get_selection(this.editor)
+			let selection = get_selection(editor)
 			selections.push(selection)
 		}.bind(this))
 		
@@ -82,20 +83,20 @@ export class System {
 		
 		bus.on('history:did-capture', function(record) {
 			record.selection.before = selection
-			record.selection.after = get_selection(this.editor)
+			record.selection.after = get_selection(editor)
 		}.bind(this))
 		
 		bus.on('history:did-undo', function() {
 			let record = this.history.records[this.history.index]
 			if (record && record.selection && record.selection.before) {
-				set_selection(this.editor, record.selection.before)
+				set_selection(editor, record.selection.before)
 			}
 		}.bind(this))
 		
 		bus.on('history:did-redo', function() {
 			let record = this.history.records[this.history.index + 1]
 			if (record && record.selection && record.selection.after) {
-				set_selection(this.editor, record.selection.after)
+				set_selection(editor, record.selection.after)
 			}
 		}.bind(this))
 		
@@ -137,7 +138,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:enter', function(event) {
-			editor.split_content(event, a_block_element)
+			editor.split_content(a_block_element, event)
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
@@ -149,23 +150,23 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:tab', function(event) {
-			indent(event, editor)
+			indent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:control-]', function(event) {
-			indent(event, editor)
+			indent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:shift-tab', function(event) {
-			dedent(event, editor)
+			dedent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:control-[', function(event) {
-			dedent(event, editor)
+			dedent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:control-a', function(event) {
-			select_all(event, editor)
+			select_all(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:control-z', function(event) {
@@ -221,7 +222,7 @@ export class System {
 		
 		bus.on('action.request.hyperlink', function() {
 			let result = window.prompt('Enter a URL', 'http://github.com')
-			if (result) toggle_format(this.editor, 'hyperlink', { href: result })
+			if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
 		}.bind(this))
 		
 		bus.on('hyperlink:clicked', function(href, event) {
@@ -233,42 +234,44 @@ export class System {
 		}.bind(this))
 		
 		bus.on('action.request.strong', function() {
-			toggle_format(this.editor, 'strong')
+			toggle_format(editor, 'strong')
+			this.history.capture()
 		}.bind(this))
 		
 		bus.on('action.request.emphasis', function() {
-			toggle_format(this.editor, 'emphasis')
-		}.bind(this))
-		
-		bus.on('action.request.underline', function() {
-			toggle_format(this.editor, 'underline')
-		}.bind(this))
-		
-		bus.on('action.request.strikethrough', function() {
-			toggle_format(this.editor, 'strikethrough')
-		}.bind(this))
-		
-		bus.on('action.request.highlight', function() {
-			toggle_format(this.editor, 'highlight')
-		}.bind(this))
-		
-		bus.on('action.request.clear-formatting', function() {
-			remove_formats(this.editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
-		}.bind(this))
-		
-		bus.on('keydown:control-b', function(event) {
-			event.preventDefault()
-			toggle_format(editor, 'strong')
-		}.bind(this))
-		
-		bus.on('keydown:control-i', function(event) {
-			event.preventDefault()
 			toggle_format(editor, 'emphasis')
 		}.bind(this))
 		
-		bus.on('keydown:control-u', function(event) {
-			event.preventDefault()
+		bus.on('action.request.underline', function() {
 			toggle_format(editor, 'underline')
+		}.bind(this))
+		
+		bus.on('action.request.strikethrough', function() {
+			toggle_format(editor, 'strikethrough')
+		}.bind(this))
+		
+		bus.on('action.request.highlight', function() {
+			toggle_format(editor, 'highlight')
+		}.bind(this))
+		
+		bus.on('action.request.clear-formatting', function() {
+			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
+		}.bind(this))
+		
+		bus.on('keydown:control-b', function(event) {
+			toggle_format(editor, 'strong', event)
+		}.bind(this))
+		
+		bus.on('keydown:control-i', function(event) {
+			toggle_format(editor, 'emphasis', event)
+		}.bind(this))
+		
+		bus.on('keydown:control-u', function(event) {
+			toggle_format(editor, 'underline', event)
+		}.bind(this))
+		
+		bus.on('format:did-change', function(event) {
+			if (true) this.history.capture()
 		}.bind(this))
 	}
 	
@@ -308,6 +311,10 @@ export class System {
 		
 		bus.on('action.request.blockquote', function() {
 			toggle_block(editor, 'blockquote')
+		}.bind(this))
+		
+		bus.on('block:did-change', function(event) {
+			if (true) this.history.capture()
 		}.bind(this))
 	}
 	
@@ -402,12 +409,12 @@ export class System {
 		
 		bus.on('selection:did-change', function(event, editor) {
 			logger('system').log('selection:did-change')
-			document.querySelector('.structure-html').textContent = serialize(this.editor)
+			document.querySelector('.structure-html').textContent = serialize(editor)
 		}.bind(this))
 		
 		bus.on('content:did-change', function(begin, end) {
 			logger('system').log('content:did-change')
-			document.querySelector('.structure-html').textContent = serialize(this.editor)
+			document.querySelector('.structure-html').textContent = serialize(editor)
 			this.scanner.scan(begin, end)
 		}.bind(this))
 		

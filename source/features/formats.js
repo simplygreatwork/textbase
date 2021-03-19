@@ -7,9 +7,16 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function toggle_format(editor, format, data) {
+export function toggle_format(editor, format, event) {
 	
 	logger('trace').log('toggle_format')
+	toggle_format_with_data(editor, format, null, event)
+}
+
+export function toggle_format_with_data(editor, format, data, event) {
+	
+	logger('trace').log('toggle_format_with_data')
+	if (event) event.preventDefault()
 	data = data || {}
 	let selection = get_selection(editor)
 	selection_edge(editor, selection)
@@ -30,6 +37,7 @@ export function toggle_format(editor, format, data) {
 			parent.addClass(format)
 		}
 	})
+	editor.emit('format:did-change', format)
 	editor.emit('content:did-change')
 }
 
@@ -43,6 +51,7 @@ export function remove_formats(editor, formats) {
 			u(node).parent().removeClass(each)
 		})
 	})
+	editor.emit('format:did-change')
 	editor.emit('content:did-change')
 }
 

@@ -51,7 +51,7 @@ export function set_caret(editor, options) {
 	selection.addRange(range)
 }
 
-export function select_all(event, editor) {
+export function select_all(editor, event) {
 	
 	event.preventDefault()
 	let first_child = document.createTreeWalker(editor.content, NodeFilter.SHOW_TEXT).firstChild()
