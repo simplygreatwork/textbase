@@ -17,10 +17,9 @@ export function toggle_format_with_data(editor, format, data, event) {
 	
 	logger('trace').log('toggle_format_with_data')
 	if (event) event.preventDefault()
-	data = data || {}
 	let selection = get_selection(editor)
 	selection_edge(editor, selection)
-	apply_data(editor, selection, data)
+	if (data) apply_data(editor, selection, data)
 	let apply = false
 	selection_each_text(editor, selection, function(node, index) {
 		if (! u(node).parent().hasClass(format)) apply = true
