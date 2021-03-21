@@ -15,18 +15,23 @@ export class Application {
 	
 	listen(bus, system) {
 		
-		bus.on('document:did-load', function(content) {
-			system.install_document(content)
+		bus.on('document:did-load', function(document_) {
+			system.install_document(document_)
+		}.bind(this))
+		
+		bus.on('content:did-change', function() {
+			this.debounce(function() {
+				system.document_.content = document.querySelector('.content').innerHTML
+				bus.emit('document:did-request-save', system.document_)
+			}.bind(this))
 		}.bind(this))
 	}
 	
 	load_document(bus) {
-		
-		let options = this.find_options()
-		bus.emit('document:did-request-load', options.mutable, options.path, options.token)
+		bus.emit('document:did-request-load', this.options())
 	}
 	
-	find_options() {
+	options() {
 		
 		let parameters = new URLSearchParams(document.location.search.substring(1))
 		if (parameters.get('path')) {
@@ -41,5 +46,14 @@ export class Application {
 				path: './documents/all.html'
 			}
 		}
+	}
+	
+	debounce(fn) {
+		
+		if (this.id) window.clearTimeout(this.id)
+		this.id = window.setTimeout(function() {
+			this.id = null
+			fn()
+		}.bind(this), 5000)
 	}
 }

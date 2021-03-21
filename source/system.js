@@ -35,10 +35,11 @@ export class System {
 		this.configure(this.bus, this.editor, this.toolbar)
 	}
 	
-	install_document(content) {
+	install_document(document_) {
 		
-		u('.content').empty().append(u(content))
-		this.bus.emit('document:did-install')
+		this.document_ = document_
+		u('.content').empty().append(u(document_.content))
+		this.bus.emit('document:did-install', document_)
 	}
 	
 	configure(bus, editor, toolbar) {
@@ -56,20 +57,16 @@ export class System {
 	
 	configure_documents(bus, editor, toolbar) {
 		
-		bus.on('document:did-install', function() {
+		bus.on('document:did-install', function(document_) {
 			logger('system').log('document:did-install')
 			this.history.enable()
 			this.scanner = new Scanner(this.editor)
 			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
 		
-		bus.on('document:did-unload', function() {
-			logger('system').log('document:did-unload')
+		bus.on('document:did-uninstall', function(document_) {
+			logger('system').log('document:did-uninstall')
 			this.history.disable()
-		})
-		
-		bus.on('document:did-save', function() {
-			logger('system').log('document:did-save')
 		})
 	}
 	

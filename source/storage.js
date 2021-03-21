@@ -9,30 +9,31 @@ export class Storage {
 	
 	configure_load(bus) {
 		
-		bus.on('document:did-request-load', function(mutable, path) {
+		bus.on('document:did-request-load', function(options) {
 			
-			if (! mutable) {
-				this.mutable = mutable
-				this.path = path
-				fetch(path)
+			if (! options.mutable) {
+				this.options = options
+				fetch(options.path)
 				.then(function(response) {
 					return response.text()
 				}.bind(this))
 				.then(function(content) {
-					bus.emit('document:did-load', content)
+					bus.emit('document:did-load', this.document_ = {
+						mutable: options.mutable,
+						path: options.path,
+						content: options.content
+					})
 				}.bind(this))
 			}
 		}.bind(this))
 		
-		bus.on('document:did-request-load', function(mutable, path, token) {
+		bus.on('document:did-request-load', function(options) {
 			
-			if (mutable) {
-				this.mutable = mutable
-				this.path = path
-				this.token = token
-				fetch(path, {
+			if (options.mutable) {
+				this.options = options
+				fetch(options.path, {
 					headers: {
-						authorization: token,
+						authorization: options.token,
 					},
 					method: 'get'
 				})
@@ -43,24 +44,29 @@ export class Storage {
 					if (! data || ! data.content) {
 						data = { content: `<p><span>Begin editing here...</span></p>` }
 					}
-					bus.emit('document:did-load', data.content)
-				})
+					bus.emit('document:did-load', this.document_ = {
+						mutable: options.mutable,
+						path: options.path,
+						token: options.token,
+						content: data.content
+					})
+				}.bind(this))
 			}
 		}.bind(this))
 	}
 	
 	configure_save(bus) {
 		
-		bus.on('document:did-request-save', function(path, content, token) {
+		bus.on('document:did-request-save', function(document_) {
 			
-			if (! this.mutable) return
-			if (! this.token) return
-			fetch(path, {
+			if (! document_.mutable) return
+			if (! document_.token) return
+			fetch(document_.path, {
 				headers: {
-					authorization: this.token,
+					authorization: document_.token,
 				},
 				method: 'post',
-				body: JSON.stringify({ content : content })
+				body: JSON.stringify({ content : document_.content })
 			})
 			.then(function(response) {
 				bus.emit('document:did-save', response.status)
@@ -69,19 +75,6 @@ export class Storage {
 		
 		bus.on('document:did-save', function(status) {
 			console.log('document:did-save: ' + status)
-		}.bind(this))
-		
-		bus.on('content:did-change', function(status) {
-			
-			if (this.timeout_id) {
-				window.clearTimeout(this.timeout_id)
-				this.timeout_id = null
-			}
-			this.timeout_id = window.setTimeout(function() {
-				this.timeout_id = null
-				let content = document.querySelector('.content').innerHTML
-				bus.emit('document:did-request-save', this.path, content)
-			}.bind(this), 5000)
 		}.bind(this))
 	}
 }
