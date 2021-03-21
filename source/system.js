@@ -33,12 +33,6 @@ export class System {
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.configure(this.bus, this.editor, this.toolbar)
-		this.bus.on('document:did-load', function() {
-			this.history.enable()
-			this.scanner = new Scanner(this.editor)
-			this.scanner.scan(document.querySelector('.content'))
-		}.bind(this))
-		this.load_document('./documents/all.html')
 	}
 	
 	load_document(path) {
@@ -53,6 +47,7 @@ export class System {
 	
 	configure(bus, editor, toolbar) {
 		
+		this.configure_documents(bus, editor, toolbar)
 		this.configure_history_selections(bus, editor, toolbar)
 		this.configure_basics(bus, editor, toolbar)
 		this.configure_formats(bus, editor, toolbar)
@@ -61,6 +56,25 @@ export class System {
 		this.configure_cards(bus, editor, toolbar)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
+	}
+	
+	configure_documents(bus, editor, toolbar) {
+		
+		bus.on('document:did-load', function() {
+			logger('system').log('document:did-load')
+			this.history.enable()
+			this.scanner = new Scanner(this.editor)
+			this.scanner.scan(document.querySelector('.content'))
+		}.bind(this))
+		
+		bus.on('document:did-unload', function() {
+			logger('system').log('document:did-unload')
+			this.history.disable()
+		})
+		
+		bus.on('document:did-save', function() {
+			logger('system').log('document:did-save')
+		})
 	}
 	
 	configure_history_selections(bus, editor, toolbar) {
@@ -269,7 +283,11 @@ export class System {
 			toggle_format(editor, 'underline', event)
 		}.bind(this))
 		
-		bus.on('format:did-change', function(event) {
+		bus.on('format:did-add', function(event) {
+			this.history.capture()
+		}.bind(this))
+		
+		bus.on('format:did-remove', function(event) {
 			this.history.capture()
 		}.bind(this))
 	}
@@ -397,7 +415,7 @@ export class System {
 		
 		initialize_recognizers(bus, editor)
 	}
-
+	
 	configure_other(bus, editor, toolbar) {
 		
 		toolbar.append(`<button data-action="validate">Validate</button>`)
@@ -432,18 +450,6 @@ export class System {
 		
 		bus.on('content:did-delete', function(fragment) {
 			if (false) logger('system').log('content:did-delete: ' + fragment)
-		})
-		
-		bus.on('document:did-load', function() {
-			logger('system').log('document:did-load')
-		})
-		
-		bus.on('document:did-save', function() {
-			logger('system').log('document:did-save')
-		})
-		
-		bus.on('document:did-unload', function() {
-			logger('system').log('document:did-unload')
 		})
 		
 		bus.on('clipboard:will-cut', function() {
