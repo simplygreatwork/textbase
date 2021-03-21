@@ -3,11 +3,11 @@ export class Storage {
 	
 	constructor(bus) {
 		
-		this.configure_loading(bus)
-		this.configure_saving(bus)
+		this.configure_load(bus)
+		this.configure_save(bus)
 	}
 	
-	configure_loading(bus) {
+	configure_load(bus) {
 		
 		bus.on('document:did-request-load', function(mutable, path) {
 			
@@ -49,7 +49,7 @@ export class Storage {
 		}.bind(this))
 	}
 	
-	configure_saving(bus) {
+	configure_save(bus) {
 		
 		bus.on('document:did-request-save', function(path, content, token) {
 			

@@ -6,13 +6,23 @@ export class Application {
 	
 	constructor() {
 		
-		let system = this.system = new System()
-		let storage = this.storage = new Storage(system.bus)
-		let options = this.find_options()
+		let system = new System()
 		let bus = system.bus
+		let storage = new Storage(bus)
+		this.listen(bus, system)
+		this.load_document(bus)
+	}
+	
+	listen(bus, system) {
+		
 		bus.on('document:did-load', function(content) {
 			system.install_document(content)
 		}.bind(this))
+	}
+	
+	load_document(bus) {
+		
+		let options = this.find_options()
 		bus.emit('document:did-request-load', options.mutable, options.path, options.token)
 	}
 	
