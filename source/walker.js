@@ -29,11 +29,11 @@ export class Walker {
 		}
 	}
 	
-	on(key, fn) {
-		return this.bus.on(key, fn)
+	on() {
+		return this.bus.on(...arguments)
 	}
 	
-	emit(message, data) {
-		return this.bus.emit(message, data)
+	emit() {
+		return this.bus.emit(...arguments)
 	}
 }

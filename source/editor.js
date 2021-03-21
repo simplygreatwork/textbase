@@ -366,10 +366,10 @@ export class Editor {
 	}
 	
 	on() {
-		this.bus.on(...arguments)
+		return this.bus.on(...arguments)
 	}
 	
 	emit() {
-		this.bus.emit(...arguments)
+		return this.bus.emit(...arguments)
 	}
 }
