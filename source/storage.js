@@ -1,6 +1,4 @@
 
-// todo: permit loading without auth, but only saving with auth
-
 export class Storage {
 	
 	constructor(bus) {
@@ -42,6 +40,9 @@ export class Storage {
 					return response.json()
 				})
 				.then(function(data) {
+					if (! data || ! data.content) {
+						data = { content: `<p><span>Begin editing here...</span></p>` }
+					}
 					bus.emit('document:did-load', data.content)
 				})
 			}
@@ -50,10 +51,11 @@ export class Storage {
 	
 	configure_saving(bus) {
 		
-		bus.on('document:did-request-save', function(endpoint, content, token) {
+		bus.on('document:did-request-save', function(path, content, token) {
 			
 			if (! this.mutable) return
-			fetch(endpoint, {
+			if (! this.token) return
+			fetch(path, {
 				headers: {
 					authorization: this.token,
 				},
