@@ -66,7 +66,9 @@ export function remove_formats(editor, formats) {
 			u(node).parent().removeClass(each)
 		})
 	})
-	editor.emit('format:did-remove')
+	formats.forEach(function(format) {
+		editor.emit('format:did-remove', format)
+	})
 	editor.emit('content:did-change')
 }
 
