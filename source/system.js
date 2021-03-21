@@ -163,22 +163,6 @@ export class System {
 			event.preventDefault()
 		}.bind(this))
 		
-		bus.on('keydown:tab', function(event) {
-			indent(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:control-]', function(event) {
-			indent(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:shift-tab', function(event) {
-			dedent(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:control-[', function(event) {
-			dedent(editor, event)
-		}.bind(this))
-		
 		bus.on('keydown:control-a', function(event) {
 			select_all(editor, event)
 		}.bind(this))
@@ -208,29 +192,11 @@ export class System {
 		}.bind(this))
 		
 		initialize_clipboard(editor)
-		
-		toolbar.append(`<button data-action="indent">Indent</button>`)
-		toolbar.append(`<button data-action="dedent">Dedent</button>`)
-		
-		bus.on('action.request.indent', function() {
-			indent(editor)
-		}.bind(this))
-		
-		bus.on('action.request.dedent', function() {
-			dedent(editor)
-		}.bind(this))
 	}
 	
 	configure_formats(bus, editor, toolbar) {
 		
 		toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
-		toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
-		toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
-		toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
-		toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
-		toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
-		toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
-		
 		initialize_hyperlinks(editor, bus)
 		detect_hyperlinks(editor, bus)
 		
@@ -247,40 +213,52 @@ export class System {
 			}
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
+		
 		bus.on('action.request.strong', function() {
 			toggle_format(editor, 'strong')
-		}.bind(this))
-		
-		bus.on('action.request.emphasis', function() {
-			toggle_format(editor, 'emphasis')
-		}.bind(this))
-		
-		bus.on('action.request.underline', function() {
-			toggle_format(editor, 'underline')
-		}.bind(this))
-		
-		bus.on('action.request.strikethrough', function() {
-			toggle_format(editor, 'strikethrough')
-		}.bind(this))
-		
-		bus.on('action.request.highlight', function() {
-			toggle_format(editor, 'highlight')
-		}.bind(this))
-		
-		bus.on('action.request.clear-formatting', function() {
-			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 		}.bind(this))
 		
 		bus.on('keydown:control-b', function(event) {
 			toggle_format(editor, 'strong', event)
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
+		
+		bus.on('action.request.emphasis', function() {
+			toggle_format(editor, 'emphasis')
+		}.bind(this))
+		
 		bus.on('keydown:control-i', function(event) {
 			toggle_format(editor, 'emphasis', event)
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
+		
+		bus.on('action.request.underline', function() {
+			toggle_format(editor, 'underline')
+		}.bind(this))
+		
 		bus.on('keydown:control-u', function(event) {
 			toggle_format(editor, 'underline', event)
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
+		
+		bus.on('action.request.strikethrough', function() {
+			toggle_format(editor, 'strikethrough')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
+		
+		bus.on('action.request.highlight', function() {
+			toggle_format(editor, 'highlight')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
+		
+		bus.on('action.request.clear-formatting', function() {
+			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 		}.bind(this))
 		
 		bus.on('format:did-add', function(event) {
@@ -295,39 +273,73 @@ export class System {
 	configure_blocks(bus, editor, toolbar) {
 		
 		toolbar.append(`<button data-action="paragraph" data-element="p">Paragraph</button>`)
-		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
-		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
-		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
-		if (false) toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
-		if (false) toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
-		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
 		
 		bus.on('action.request.paragraph', function() {
 			toggle_block(editor, 'p')
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
+		
 		bus.on('action.request.heading-1', function() {
 			toggle_block(editor, 'h1')
 		}.bind(this))
+		
+		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
 		
 		bus.on('action.request.heading-2', function() {
 			toggle_block(editor, 'h2')
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
+		
 		bus.on('action.request.list-item', function() {
 			toggle_block(editor, 'li')
 		}.bind(this))
+		
+		if (false) toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
 		
 		bus.on('action.request.ordered-list', function() {
 			toggle_block(editor, 'ol')
 		}.bind(this))
 		
+		if (false) toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
+		
 		bus.on('action.request.unordered-list', function() {
 			toggle_block(editor, 'ul')
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
+		
 		bus.on('action.request.blockquote', function() {
 			toggle_block(editor, 'blockquote')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="indent">Indent</button>`)
+		
+		bus.on('action.request.indent', function() {
+			indent(editor)
+		}.bind(this))
+		
+		bus.on('keydown:tab', function(event) {
+			indent(editor, event)
+		}.bind(this))
+		
+		bus.on('keydown:control-]', function(event) {
+			indent(editor, event)
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="dedent">Dedent</button>`)
+		
+		bus.on('action.request.dedent', function() {
+			dedent(editor)
+		}.bind(this))
+		
+		bus.on('keydown:shift-tab', function(event) {
+			dedent(editor, event)
+		}.bind(this))
+		
+		bus.on('keydown:control-[', function(event) {
+			dedent(editor, event)
 		}.bind(this))
 		
 		bus.on('block:did-change', function(event) {
