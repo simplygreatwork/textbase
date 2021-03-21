@@ -35,20 +35,16 @@ export class System {
 		this.configure(this.bus, this.editor, this.toolbar)
 	}
 	
-	load_document(path) {
+	install_document(content) {
 		
-		fetch(path)
-		.then(response => response.text())
-		.then(function(data) {
-			u('.content').empty().append(u(data))
-			this.bus.emit('document:did-load')
-		}.bind(this))
+		u('.content').empty().append(u(content))
+		this.bus.emit('document:did-install')
 	}
 	
 	configure(bus, editor, toolbar) {
 		
 		this.configure_documents(bus, editor, toolbar)
-		this.configure_history_selections(bus, editor, toolbar)
+		this.configure_history(bus, editor, toolbar)
 		this.configure_basics(bus, editor, toolbar)
 		this.configure_formats(bus, editor, toolbar)
 		this.configure_blocks(bus, editor, toolbar)
@@ -60,8 +56,8 @@ export class System {
 	
 	configure_documents(bus, editor, toolbar) {
 		
-		bus.on('document:did-load', function() {
-			logger('system').log('document:did-load')
+		bus.on('document:did-install', function() {
+			logger('system').log('document:did-install')
 			this.history.enable()
 			this.scanner = new Scanner(this.editor)
 			this.scanner.scan(document.querySelector('.content'))
@@ -77,7 +73,7 @@ export class System {
 		})
 	}
 	
-	configure_history_selections(bus, editor, toolbar) {
+	configure_history(bus, editor, toolbar) {
 		
 		let selections = []
 		let selection = null
