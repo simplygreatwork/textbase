@@ -19,6 +19,10 @@ export class Application {
 			system.install_document(document_)
 		}.bind(this))
 		
+		bus.on('document:did-save', function(status) {
+			console.log('document:did-save: ' + status)
+		}.bind(this))
+		
 		bus.on('content:did-change', function() {
 			this.debounce(function() {
 				system.document_.content = document.querySelector('.content').innerHTML

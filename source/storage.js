@@ -72,9 +72,5 @@ export class Storage {
 				bus.emit('document:did-save', response.status)
 			})
 		}.bind(this))
-		
-		bus.on('document:did-save', function(status) {
-			console.log('document:did-save: ' + status)
-		}.bind(this))
 	}
 }
