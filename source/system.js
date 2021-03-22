@@ -160,14 +160,6 @@ export class System {
 			select_all(editor, event)
 		}.bind(this))
 		
-		bus.on('keydown:control-z', function(event) {
-			this.history.undo(event)
-		}.bind(this))
-		
-		bus.on('keydown:control-shift-z', function(event) {
-			this.history.redo(event)
-		}.bind(this))
-		
 		bus.on('keyup:arrowright', function(event) {
 			caret_right(event, editor)
 		}.bind(this))
@@ -184,6 +176,27 @@ export class System {
 			caret_up(event, editor)
 		}.bind(this))
 		
+		toolbar.append(`<button data-action="undo">Undo</button>`)
+		
+		bus.on('action.request.undo', function() {
+			this.history.undo()
+		}.bind(this))
+		
+		bus.on('keydown:control-z', function(event) {
+			this.history.undo(event)
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="redo">Redo</button>`)
+		
+		bus.on('action.request.redo', function() {
+			this.history.redo()
+		}.bind(this))
+		
+		bus.on('keydown:control-shift-z', function(event) {
+			this.history.redo(event)
+		}.bind(this))
+		
+
 		initialize_clipboard(editor)
 	}
 	
