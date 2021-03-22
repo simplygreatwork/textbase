@@ -18,7 +18,7 @@ export class Storage {
 		}
 	}
 	
-	load_mutable(options, bus) {
+	load_mutable(options) {
 		
 		fetch(options.path, {
 			headers: {
@@ -30,25 +30,20 @@ export class Storage {
 			return response.json()
 		})
 		.then(function(data) {
-			if (! data || ! data.content) {
-				data = { content: `<p><span>Begin editing here...</span></p>` }
-			}
-			let document_ = options
-			document_.content = data.content
-			this.bus.emit('document:did-load', document_)
+			if (! data || ! data.content) data = { content: `<p><span>Begin editing here...</span></p>` }
+			this.bus.emit('document:did-load', Object.assign(options, data))
 		}.bind(this))
 	}
 	
-	load_immutable(options, bus) {
+	load_immutable(options) {
 		
 		fetch(options.path)
 		.then(function(response) {
 			return response.text()
 		}.bind(this))
 		.then(function(content) {
-			let document_ = options
-			document_.content = content
-			this.bus.emit('document:did-load', document_)
+			options.content = content
+			this.bus.emit('document:did-load', options)
 		}.bind(this))
 	}
 	
