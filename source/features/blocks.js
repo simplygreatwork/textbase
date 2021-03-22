@@ -78,4 +78,15 @@ export function dedent(editor, event) {
 export function align(editor, alignment) {
 	
 	logger('trace').log('align')
+	let class_ = `align-${alignment}`
+	let selection = get_selection(editor)
+	selection_each_block(editor, selection, function(node) {
+		node = u(node)
+		node.removeClass('align-left')
+		node.removeClass('align-right')
+		node.removeClass('align-center')
+		node.removeClass('align-justify')
+		node.addClass(class_)
+	})
+	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }

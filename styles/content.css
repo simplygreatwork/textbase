@@ -47,17 +47,17 @@ blockquote {
 	padding-left:6px;
 	color:black;
 }
-.text-align-left {
+.align-left {
 	text-align:left;
 }
-.text-align-center {
+.align-center {
 	text-align:center;
 }
-.text-align-right {
+.align-right {
 	text-align:right;
 }
-.text-align-justify {
-	text-align:right;
+.align-justify {
+	text-align:justify;
 }
 .card {
 	border:1px solid royalblue;
