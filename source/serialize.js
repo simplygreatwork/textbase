@@ -56,11 +56,3 @@ export function serialize_(selection, node, level, result) {
 export function serialize_tag_head(node) {
 	return u(node).clone().empty().first().outerHTML.split('><')[0] + '>'
 }
-
-export function unserialize() {
-	return
-}
-
-export function unserialize_() {
-	return
-}

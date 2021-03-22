@@ -22,6 +22,10 @@
 	text-decoration:underline;
 	color:royalblue;
 }
+p {
+	display:block;
+	min-height:1em;
+}
 .h1 {
 	width:100%;
 	color:black;
@@ -43,9 +47,17 @@ blockquote {
 	padding-left:6px;
 	color:black;
 }
-p {
-	display:block;
-	min-height:1em;
+.text-align-left {
+	text-align:left;
+}
+.text-align-center {
+	text-align:center;
+}
+.text-align-right {
+	text-align:right;
+}
+.text-align-justify {
+	text-align:right;
 }
 .card {
 	border:1px solid royalblue;
