@@ -10,7 +10,7 @@ import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
 import { find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
-import { indent, dedent } from './features/blocks.js'
+import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
 import { insert_card, watch_cards_will_enter, watch_cards_will_exit, watch_cards_did_enter, watch_cards_did_exit } from './features/cards.js'
@@ -349,6 +349,32 @@ export class System {
 		
 		bus.on('block:did-change', function(event) {
 			this.history.capture()
+		}.bind(this))
+		
+		if (true) return 		
+		
+		toolbar.append(`<button data-action="align-left">Align Left</button>`)
+		
+		bus.on('action.request.align-left', function() {
+			align(editor, 'left')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="align-right">Align Right</button>`)
+		
+		bus.on('action.request.align-right', function() {
+			align(editor, 'right')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="align-left">Align Center</button>`)
+		
+		bus.on('action.request.align-center', function() {
+			align(editor, 'center')
+		}.bind(this))
+		
+		toolbar.append(`<button data-action="align-justified">Align Justified</button>`)
+		
+		bus.on('action.request.align-justified', function() {
+			align(editor, 'justified')
 		}.bind(this))
 	}
 	

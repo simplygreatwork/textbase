@@ -74,3 +74,8 @@ export function dedent(editor, event) {
 	})
 	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
+
+export function align(editor, alignment) {
+	
+	logger('trace').log('align')
+}

@@ -19,7 +19,7 @@ export class Editor {
 		this.element = element
 		this.initialize_content()
 		this.initialize_keymap()
-		this.initialize_events(this.bus)
+		this.initialize_events(bus)
 		this.initialize_selection()
 	}
 	
