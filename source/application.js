@@ -13,7 +13,7 @@ export class Application {
 		let bus = system.bus
 		let storage = new Storage(bus)
 		this.listen(bus, system, storage)
-		this.load_document(storage)
+		storage.load(this.options())
 	}
 	
 	listen(bus, system, storage) {
@@ -32,10 +32,6 @@ export class Application {
 				storage.save(system.document_)
 			}.bind(this))
 		}.bind(this))
-	}
-	
-	load_document(storage) {
-		storage.load(this.options())
 	}
 	
 	options() {
