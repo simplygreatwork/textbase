@@ -12,7 +12,6 @@ export class Storage {
 		bus.on('document:did-request-load', function(options) {
 			
 			if (! options.mutable) {
-				this.options = options
 				fetch(options.path)
 				.then(function(response) {
 					return response.text()
@@ -21,7 +20,7 @@ export class Storage {
 					bus.emit('document:did-load', this.document_ = {
 						mutable: options.mutable,
 						path: options.path,
-						content: options.content
+						content: content
 					})
 				}.bind(this))
 			}
@@ -30,7 +29,6 @@ export class Storage {
 		bus.on('document:did-request-load', function(options) {
 			
 			if (options.mutable) {
-				this.options = options
 				fetch(options.path, {
 					headers: {
 						authorization: options.token,
