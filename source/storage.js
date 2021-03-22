@@ -33,12 +33,9 @@ export class Storage {
 			if (! data || ! data.content) {
 				data = { content: `<p><span>Begin editing here...</span></p>` }
 			}
-			this.bus.emit('document:did-load', {
-				mutable: options.mutable,
-				path: options.path,
-				token: options.token,
-				content: data.content
-			})
+			let document_ = options
+			document_.content = data.content
+			this.bus.emit('document:did-load', document_)
 		}.bind(this))
 	}
 	
@@ -49,11 +46,9 @@ export class Storage {
 			return response.text()
 		}.bind(this))
 		.then(function(content) {
-			this.bus.emit('document:did-load', {
-				mutable: options.mutable,
-				path: options.path,
-				content: content
-			})
+			let document_ = options
+			document_.content = content
+			this.bus.emit('document:did-load', document_)
 		}.bind(this))
 	}
 	

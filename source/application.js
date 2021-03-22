@@ -57,6 +57,6 @@ export class Application {
 		this.id = window.setTimeout(function() {
 			this.id = null
 			fn()
-		}.bind(this), 5000)
+		}.bind(this), 3000)
 	}
 }
