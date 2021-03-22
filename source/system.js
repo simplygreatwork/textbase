@@ -196,7 +196,6 @@ export class System {
 			this.history.redo(event)
 		}.bind(this))
 		
-
 		initialize_clipboard(editor)
 	}
 	
