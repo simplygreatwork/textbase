@@ -1,6 +1,9 @@
 
 import { System } from './system.js'
 import { Storage } from './storage.js'
+import { Logger } from './logger.js'
+
+const logger = Logger()
 
 export class Application {
 	
@@ -9,30 +12,30 @@ export class Application {
 		let system = new System()
 		let bus = system.bus
 		let storage = new Storage(bus)
-		this.listen(bus, system)
-		this.load_document(bus)
+		this.listen(bus, system, storage)
+		this.load_document(storage)
 	}
 	
-	listen(bus, system) {
+	listen(bus, system, storage) {
 		
 		bus.on('document:did-load', function(document_) {
 			system.install_document(document_)
 		}.bind(this))
 		
 		bus.on('document:did-save', function(status) {
-			console.log('document:did-save: ' + status)
+			logger('trace').log('document:did-save: ' + status)
 		}.bind(this))
 		
 		bus.on('content:did-change', function() {
 			this.debounce(function() {
 				system.document_.content = document.querySelector('.content').innerHTML
-				bus.emit('document:did-request-save', system.document_)
+				storage.save(system.document_)
 			}.bind(this))
 		}.bind(this))
 	}
 	
-	load_document(bus) {
-		bus.emit('document:did-request-load', this.options())
+	load_document(storage) {
+		storage.load(this.options())
 	}
 	
 	options() {
