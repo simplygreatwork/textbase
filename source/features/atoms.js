@@ -7,17 +7,17 @@ const logger = Logger()
 
 export function activate_atoms(editor, bus) {
 	
-	u(editor.element).find('.atom').each(function(card) {
-		watch_atoms_will_enter(card, bus)
-		watch_atoms_did_enter(card, bus)
+	u(editor.element).find('.atom').each(function(atom) {
+		watch_atoms_will_enter(atom, bus)
+		watch_atoms_did_enter(atom, bus)
 	})
 }
 
 export function deactivate_atoms(editor, bus) {
 	
-	u(editor.element).find('.atom').each(function(card) {
-		watch_atoms_will_exit(card, bus)
-		watch_atoms_did_exit(card, bus)
+	u(editor.element).find('.atom').each(function(atom) {
+		watch_atoms_will_exit(atom, bus)
+		watch_atoms_did_exit(atom, bus)
 	})
 }
 
