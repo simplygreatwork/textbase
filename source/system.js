@@ -361,8 +361,6 @@ export class System {
 			this.history.capture()
 		}.bind(this))
 		
-		if (false) return 		
-		
 		toolbar.append(`<button data-action="align-left">Align Left</button>`)
 		
 		bus.on('action.request.align-left', function() {
@@ -385,6 +383,14 @@ export class System {
 		
 		bus.on('action.request.align-justify', function() {
 			align(editor, 'justify')
+		}.bind(this))
+		
+		bus.on('content-will-split', function() {
+			return
+		}.bind(this))
+		
+		bus.on('content-did-split', function(a, b) {
+			return															// todo: transform a second empty list item to paragraph
 		}.bind(this))
 	}
 	

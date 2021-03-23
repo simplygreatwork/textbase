@@ -121,60 +121,60 @@ export class Editor {
 		
 		bus.on('content:will-delete', function(fragment) {
 			u(fragment).find('.atom').each(function(each) {
-				this.emit('atom-will-exit', each)
+				bus.emit('atom-will-exit', each)
 			}.bind(this))
 			u(fragment).find('.card').each(function(each) {
-				this.emit('card-will-exit', each)
+				bus.emit('card-will-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
 		bus.on('content:did-delete', function(fragment) {
 			u(fragment).find('.atom').each(function(each) {
-				this.emit('atom-did-exit', each)
+				bus.emit('atom-did-exit', each)
 			}.bind(this))
 			u(fragment).find('.card').each(function(each) {
-				this.emit('card-did-exit', each)
+				bus.emit('card-did-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
 		bus.on('atom-will-enter', function(atom) {
 			let type = u(atom).data('atom-type')
-			this.emit('atom-will-enter:' + type, atom)
+			bus.emit('atom-will-enter:' + type, atom)
 		}.bind(this))
 		
 		bus.on('atom-did-enter', function(atom) {
 			let type = u(atom).data('atom-type')
-			this.emit('atom-did-enter:' + type, atom)
+			bus.emit('atom-did-enter:' + type, atom)
 		}.bind(this))
 		
 		bus.on('atom-will-exit', function(atom) {
 			let type = u(atom).data('atom-type')
-			this.emit('atom-will-exit:' + type, atom)
+			bus.emit('atom-will-exit:' + type, atom)
 		}.bind(this))
 		
 		bus.on('atom-did-exit', function(atom) {
 			let type = u(atom).data('atom-type')
-			this.emit('atom-did-exit:' + type, atom)
+			bus.emit('atom-did-exit:' + type, atom)
 		}.bind(this))
 		
 		bus.on('card-will-enter', function(card) {
 			let type = u(card).data('card-type')
-			this.emit('card-will-enter:' + type, card)
+			bus.emit('card-will-enter:' + type, card)
 		}.bind(this))	
 		
 		bus.on('card-did-enter', function(card) {
 			let type = u(card).data('card-type')
-			this.emit('card-did-enter:' + type, card)
+			bus.emit('card-did-enter:' + type, card)
 		}.bind(this))
 		
 		bus.on('card-will-exit', function(card) {
 			let type = u(card).data('card-type')
-			this.emit('card-will-exit:' + type, card)
+			bus.emit('card-will-exit:' + type, card)
 		}.bind(this))
 		
 		bus.on('card-did-exit', function(card) {
 			let type = u(card).data('card-type')
-			this.emit('card-did-exit:' + type, card)
+			bus.emit('card-did-exit:' + type, card)
 		}.bind(this))
 	}
 	
@@ -230,6 +230,7 @@ export class Editor {
 		if (! this.is_editable()) return
 		if (event) event.preventDefault()
 		let selection = get_selection(this)
+		this.emit('content-will-split')
 		if (! selection.range.collapsed) this.delete_(event)
 		let range = selection.range.cloneRange()
 		let node = u(selection.head.container).closest(u(limit)).first()
@@ -243,6 +244,7 @@ export class Editor {
 		range.insertNode(a)
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
+		this.emit('content-did-split', a, b)
 		this.emit('content:did-change', a, b.nextSibling)
 		return [a, b]
 	}

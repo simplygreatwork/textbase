@@ -109,7 +109,7 @@ export function selection_each_text(editor, selection, fn) {
 	let index = 0
 	while (node) {
 		if (u(node).text().trim().length > 0) {
-			if (! is_atom_or_card(node)) {
+			if (! is_atom_or_card(u(node).parent())) {
 				fn(node, index)
 			}
 		}
@@ -136,10 +136,10 @@ export function selection_each_block(editor, selection, fn) {
 
 function is_atom_or_card(node) {
 	
-	if (u(node).parent().is('.atom')) return true
-	if (u(node).parent().is('.card')) return true
-	if (u(node).parent().closest('.atom').first()) return true
-	if (u(node).parent().closest('.card').first()) return true
+	if (u(node).is('.atom')) return true
+	if (u(node).is('.card')) return true
+	if (u(node).closest('.atom').first()) return true
+	if (u(node).closest('.card').first()) return true
 	return false
 }
 
