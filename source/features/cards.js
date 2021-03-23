@@ -9,16 +9,16 @@ const logger = Logger()
 export function activate_cards(editor, bus) {
 	
 	u(editor.element).find('.card').each(function(card) {
-		watch_cards_will_enter(card, bus)
-		watch_cards_did_enter(card, bus)
+		bus.emit('card-will-enter', card)
+		bus.emit('card-did-enter', card)
 	})
 }
 
 export function deactivate_cards(editor, bus) {
 	
 	u(editor.element).find('.card').each(function(card) {
-		watch_cards_will_exit(card, bus)
-		watch_cards_did_exit(card, bus)
+		bus.emit('card-will-exit', card)
+		bus.emit('card-did-exit', card)
 	})
 }
 

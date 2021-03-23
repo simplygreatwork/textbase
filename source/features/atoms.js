@@ -1,5 +1,5 @@
 
-import { get_selection } from '../selection.js'
+import { get_selection, selection_edge } from '../selection.js'
 import { an_element_node, element_iterator } from '../basics.js'
 import { Logger } from '../logger.js'
 
@@ -8,16 +8,16 @@ const logger = Logger()
 export function activate_atoms(editor, bus) {
 	
 	u(editor.element).find('.atom').each(function(atom) {
-		watch_atoms_will_enter(atom, bus)
-		watch_atoms_did_enter(atom, bus)
+		bus.emit('atom-will-enter', atom)
+		bus.emit('atom-did-enter', atom)
 	})
 }
 
 export function deactivate_atoms(editor, bus) {
 	
 	u(editor.element).find('.atom').each(function(atom) {
-		watch_atoms_will_exit(atom, bus)
-		watch_atoms_did_exit(atom, bus)
+		bus.emit('atom-will-exit', atom)
+		bus.emit('atom-did-exit', atom)
 	})
 }
 
@@ -30,12 +30,13 @@ export function insert_atom(editor, string) {
 	logger('trace').log('insert_atom')
 	let atom = u(string)
 	atom.attr('contenteditable', 'false')
-	atom = atom.first()
-	editor.emit(`atom-will-enter`, atom)
+	editor.emit(`atom-will-enter`, atom.first())
 	let selection = get_selection(editor)
-	selection.range.insertNode(atom)
+	let edges = selection_edge(editor, selection)
+	u(edges[1]).after(atom)
+	atom = atom.first()
 	editor.emit(`atom-did-enter`, atom)
-	editor.emit('content:did-change', atom, atom)
+	editor.emit('content:did-change', edges[1], edges[0])
 }
 
 export function can_delete_atom(editor, selection) {
