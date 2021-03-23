@@ -70,7 +70,7 @@ export function remove_formats(editor, formats) {
 	formats.forEach(function(format) {
 		editor.emit('format:did-remove', format)
 	})
-	editor.emit('content:did-change', selection.head.container, selection.tail.container)
+	editor.emit('content:did-change', selection.head.container, selection.tail.container.nextSibling)
 }
 
 export function find_active_formats(editor) {
