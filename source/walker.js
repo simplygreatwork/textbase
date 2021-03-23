@@ -16,7 +16,6 @@ export class Walker {
 		}
 		let node = begin
 		let iterator = node_iterator(root, node)
-		let index = 0
 		while (node) {
 			if (node.nodeType === 1) {
 				this.emit('element', node)
@@ -25,7 +24,6 @@ export class Walker {
 			}
 			if (end && node == end) break
 			node = iterator.nextNode()
-			index++
 		}
 	}
 	
