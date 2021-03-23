@@ -38,6 +38,7 @@ export class System {
 		this.editor = new Editor(this.bus, document.querySelector('.editor') )
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
+		this.scanner = new Scanner(this.editor)
 		this.configure(this.bus, this.editor, this.toolbar)
 	}
 	
@@ -66,7 +67,6 @@ export class System {
 		bus.on('document:did-install', function(document_) {
 			logger('system').log('document:did-install')
 			this.history.enable()
-			this.scanner = new Scanner(this.editor)
 			this.scanner.scan(document.querySelector('.content'))
 			activate_atoms(editor, bus)
 			activate_cards(editor, bus)

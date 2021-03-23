@@ -68,7 +68,7 @@ export class Scanner {
 		walker.on('element', function(element) {
 			if (! is_editable(element)) return
 			if (element.matches('span')) {
-				if (element.firstChild.textContent.length === 0) {
+				if (element.firstChild && element.firstChild.textContent.length === 0) {
 					if (element.parentElement && element.parentElement.childNodes.length > 1) {
 						bus.emit('detected:empty-span', element, element.nextSibling)
 					}
@@ -142,21 +142,23 @@ export class Scanner {
 		bus.on('detected:span-requiring-concatenation', function(element, next_element) {
 			logger('scanner').log('detected:span-requiring-concatenation')
 			let selection = get_selection(this.editor)
-			if (selection.head.container == next_element.firstChild) {
-				selection.head.container = element.firstChild
-				selection.head.offset = selection.head.offset + element.firstChild.textContent.length
+			if (selection && selection.head) {
+				if (selection.head.container == next_element.firstChild) {
+					selection.head.container = element.firstChild
+					selection.head.offset = selection.head.offset + element.firstChild.textContent.length
+				}
+				if (selection.tail.container == next_element.firstChild) {
+					selection.tail.container = element.firstChild
+					selection.tail.offset = element.firstChild.textContent.length + selection.tail.offset
+				}
+				element.firstChild.textContent = element.firstChild.textContent + next_element.firstChild.textContent
+				next_element.remove()
+				set_selection(this.editor, {
+					head: selection.head,
+					tail: selection.tail
+				})
 			}
-			if (selection.tail.container == next_element.firstChild) {
-				selection.tail.container = element.firstChild
-				selection.tail.offset = element.firstChild.textContent.length + selection.tail.offset
-			}
-			element.firstChild.textContent = element.firstChild.textContent + next_element.firstChild.textContent
-			next_element.remove()
-			set_selection(this.editor, {
-				head: selection.head,
-				tail: selection.tail
-			})
-			this.editor.emit('content:did-change', element, next_element)
+			this.editor.emit('content:did-change', element.previousSibling, element.nextSibling)
 		}.bind(this))
 		
 		bus.on('detected:empty-span', function(element) {
@@ -172,13 +174,13 @@ export class Scanner {
 					tail: { container: next, offset: 0 }
 				})
 			}
-			this.editor.emit('content:did-change', next, next)
+			this.editor.emit('content:did-change', next.previousSibling, next.nextSibling)
 		}.bind(this))
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html('<span>&#x200B;</span>')
-			this.editor.emit('content:did-change', element, element)
+			this.editor.emit('content:did-change')
 		}.bind(this))
 		
 		bus.on('detected:atom', function(data) {
