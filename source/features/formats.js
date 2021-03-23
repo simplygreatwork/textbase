@@ -61,6 +61,7 @@ export function remove_formats(editor, formats) {
 	logger('trace').log('remove_formats')
 	let selection = get_selection(editor)
 	selection_edge(editor, selection)
+	selection = get_selection(editor)
 	selection_each_text(editor, selection, function(node) {
 		formats.forEach(function(each) {
 			u(node).parent().removeClass(each)
@@ -69,7 +70,7 @@ export function remove_formats(editor, formats) {
 	formats.forEach(function(format) {
 		editor.emit('format:did-remove', format)
 	})
-	editor.emit('content:did-change')
+	editor.emit('content:did-change', selection.head.container, selection.tail.container)
 }
 
 export function find_active_formats(editor) {

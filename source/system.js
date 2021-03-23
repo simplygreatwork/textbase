@@ -13,8 +13,14 @@ import { toggle_block, find_active_block, find_applicable_blocks } from './featu
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
-import { insert_card, watch_cards_will_enter, watch_cards_will_exit, watch_cards_did_enter, watch_cards_did_exit } from './features/cards.js'
-import { insert_atom, watch_atoms_will_enter, watch_atoms_will_exit, watch_atoms_did_enter, watch_atoms_did_exit } from './features/atoms.js'
+import { activate_cards, deactivate_cards, insert_card } from './features/cards.js'
+import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
+import { watch_cards_will_exit, watch_cards_did_exit } from './features/cards.js'
+import { activate_atoms, deactivate_atoms, insert_atom } from './features/atoms.js'
+import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
+import { watch_atoms_will_exit, watch_atoms_did_exit } from './features/atoms.js'
+import { initialize_sample_atoms } from './atoms/sample.js'
+import { initialize_animated_atoms } from './atoms/animated.js'
 import { initialize_sample_cards } from './cards/sample.js'
 import { initialize_animated_cards } from './cards/animated.js'
 import { initialize_image_cards } from './cards/image.js'
@@ -62,11 +68,15 @@ export class System {
 			this.history.enable()
 			this.scanner = new Scanner(this.editor)
 			this.scanner.scan(document.querySelector('.content'))
+			activate_atoms(editor, bus)
+			activate_cards(editor, bus)
 		}.bind(this))
 		
 		bus.on('document:did-uninstall', function(document_) {
 			logger('system').log('document:did-uninstall')
 			this.history.disable()
+			deactivate_atoms(editor, bus)
+			deactivate_cards(editor, bus)
 		})
 	}
 	
@@ -351,7 +361,7 @@ export class System {
 			this.history.capture()
 		}.bind(this))
 		
-		if (true) return 		
+		if (false) return 		
 		
 		toolbar.append(`<button data-action="align-left">Align Left</button>`)
 		
@@ -365,16 +375,16 @@ export class System {
 			align(editor, 'right')
 		}.bind(this))
 		
-		toolbar.append(`<button data-action="align-left">Align Center</button>`)
+		toolbar.append(`<button data-action="align-center">Align Center</button>`)
 		
 		bus.on('action.request.align-center', function() {
 			align(editor, 'center')
 		}.bind(this))
 		
-		toolbar.append(`<button data-action="align-justified">Align Justified</button>`)
+		toolbar.append(`<button data-action="align-justified">Align Justify</button>`)
 		
-		bus.on('action.request.align-justified', function() {
-			align(editor, 'justified')
+		bus.on('action.request.align-justify', function() {
+			align(editor, 'justify')
 		}.bind(this))
 	}
 	
@@ -400,31 +410,8 @@ export class System {
 			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
 		
-		toolbar.append(`<button data-action="atom-sample">Atom</button>`)
-		
-		bus.on('action.request.atom-sample', function() {
-			insert_atom(editor, `
-				<span class="atom" data-atom-type="sample">@sample-atom</span>
-			`)
-		}.bind(this))
-		
-		bus.on('atom-will-enter:sample', function(atom) {
-			u(atom).text('Sample Atom')
-		}.bind(this))
-		
-		bus.on('atom-did-enter:sample', function(atom) {
-			window.setTimeout(function() {
-				u(atom).text('Sample Atom !!!')
-			}, 1000)
-		}.bind(this))
-		
-		bus.on('atom-will-exit:sample', function(atom) {
-			logger('system').log('atom-will-exit:sample')
-		}.bind(this))
-		
-		bus.on('atom-did-exit:sample', function(atom) {
-			logger('system').log('atom-did-exit:sample')
-		}.bind(this))
+		initialize_sample_atoms(bus, editor, toolbar)
+		initialize_animated_atoms(bus, editor, toolbar)
 	}
 	
 	configure_cards(bus, editor, toolbar) {

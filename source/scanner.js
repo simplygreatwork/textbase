@@ -153,10 +153,10 @@ export class Scanner {
 			element.firstChild.textContent = element.firstChild.textContent + next_element.firstChild.textContent
 			next_element.remove()
 			set_selection(this.editor, {
-				head: selection.head, 
+				head: selection.head,
 				tail: selection.tail
 			})
-			this.editor.emit('content:did-change')
+			this.editor.emit('content:did-change', element, next_element)
 		}.bind(this))
 		
 		bus.on('detected:empty-span', function(element) {
@@ -172,13 +172,13 @@ export class Scanner {
 					tail: { container: next, offset: 0 }
 				})
 			}
-			this.editor.emit('content:did-change')
+			this.editor.emit('content:did-change', next, next)
 		}.bind(this))
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html('<span>&#x200B;</span>')
-			this.editor.emit('content:did-change')
+			this.editor.emit('content:did-change', element, element)
 		}.bind(this))
 		
 		bus.on('detected:atom', function(data) {

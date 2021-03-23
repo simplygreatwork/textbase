@@ -31,7 +31,7 @@ export class Storage {
 		})
 		.then(function(data) {
 			if (! data || ! data.content) data = { content: `<p><span>Begin editing here...</span></p>` }
-			this.bus.emit('document:did-load', Object.assign(options, data))
+			this.bus.emit('storage-did-load', Object.assign(options, data))
 		}.bind(this))
 	}
 	
@@ -43,7 +43,7 @@ export class Storage {
 		}.bind(this))
 		.then(function(content) {
 			options.content = content
-			this.bus.emit('document:did-load', options)
+			this.bus.emit('storage-did-load', options)
 		}.bind(this))
 	}
 	
@@ -59,7 +59,7 @@ export class Storage {
 			body: JSON.stringify({ content : document_.content })
 		})
 		.then(function(response) {
-			this.bus.emit('document:did-save', response.status)
+			this.bus.emit('storage-did-save', response.status)
 		}.bind(this))
 	}	
 }

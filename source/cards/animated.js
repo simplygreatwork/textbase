@@ -20,8 +20,8 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 	
 	bus.on('card-did-enter:animated', function(card) {
 		console.log('card-did-enter:animated')
-		if (card.id) window.clearInterval(card.id)
-		card.id = window.setInterval(function() {
+		if (card.id_) window.clearInterval(card.id_)
+		card.id_ = window.setInterval(function() {
 			u(card).text('Animated Card: ' + Math.random())
 			console.log('Animating card...')
 		}, 500)
@@ -29,7 +29,7 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 	
 	bus.on('card-will-exit:animated', function(card) {
 		console.log('card-will-exit:animated')
-		window.clearInterval(card.id)
+		window.clearInterval(card.id_)
 	}.bind(this))
 	
 	bus.on('card-did-exit:animated', function(card) {

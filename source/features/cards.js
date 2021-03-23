@@ -6,6 +6,22 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
+export function activate_cards(editor, bus) {
+	
+	u(editor.element).find('.card').each(function(card) {
+		watch_cards_will_enter(card, bus)
+		watch_cards_did_enter(card, bus)
+	})
+}
+
+export function deactivate_cards(editor, bus) {
+	
+	u(editor.element).find('.card').each(function(card) {
+		watch_cards_will_exit(card, bus)
+		watch_cards_did_exit(card, bus)
+	})
+}
+
 export function can_insert_card(editor) {
 	return true
 }
@@ -16,11 +32,12 @@ export function insert_card(editor, string) {
 	let parts = editor.split_content(a_block_element)
 	let card = u(string)
 	card.attr('contenteditable', 'false')
-	card.attr('id', card.attr('id') || Math.random())
 	editor.emit(`card-will-enter`, card.first())
 	let selection = get_selection(editor)
 	u(parts[0]).after(card)
-	editor.emit(`card-did-enter`, card.first())
+	card = card.first()
+	editor.emit(`card-did-enter`, card)
+	editor.emit('content:did-change', card, card)
 }
 
 export function can_delete_card(editor, selection) {

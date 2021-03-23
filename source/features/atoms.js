@@ -5,20 +5,37 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
+export function activate_atoms(editor, bus) {
+	
+	u(editor.element).find('.atom').each(function(card) {
+		watch_atoms_will_enter(card, bus)
+		watch_atoms_did_enter(card, bus)
+	})
+}
+
+export function deactivate_atoms(editor, bus) {
+	
+	u(editor.element).find('.atom').each(function(card) {
+		watch_atoms_will_exit(card, bus)
+		watch_atoms_did_exit(card, bus)
+	})
+}
+
 export function can_insert_atom(editor) {
 	return true
 }
 
-export function insert_atom(editor, atom) {
+export function insert_atom(editor, string) {
 	
 	logger('trace').log('insert_atom')
-	let node = u(atom)
-	node.attr('contenteditable', 'false')
-	node.attr('id', node.attr('id') || Math.random())
-	editor.emit(`atom-will-enter`, node)
+	let atom = u(string)
+	atom.attr('contenteditable', 'false')
+	atom = atom.first()
+	editor.emit(`atom-will-enter`, atom)
 	let selection = get_selection(editor)
-	selection.range.insertNode(node.first())
-	editor.emit(`atom-did-enter`, node)
+	selection.range.insertNode(atom)
+	editor.emit(`atom-did-enter`, atom)
+	editor.emit('content:did-change', atom, atom)
 }
 
 export function can_delete_atom(editor, selection) {

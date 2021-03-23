@@ -18,15 +18,15 @@ export class Application {
 	
 	listen(bus, system, storage) {
 		
-		bus.on('document:did-load', function(document_) {
+		bus.on('storage-did-load', function(document_) {
 			system.install_document(document_)
 		}.bind(this))
 		
-		bus.on('document:did-save', function(status) {
+		bus.on('storage-did-save', function(status) {
 			logger('trace').log('document:did-save: ' + status)
 		}.bind(this))
 		
-		bus.on('content:did-change', function() {
+		bus.on('content:did-change', function(begin, end) {
 			this.debounce(function() {
 				system.document_.content = document.querySelector('.content').innerHTML
 				storage.save(system.document_)
