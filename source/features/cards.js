@@ -61,9 +61,9 @@ export function delete_card(editor, selection) {
 	if (u(previous).hasClass('card')) {
 		let card = previous
 		editor.emit(`card-will-exit`, card)
-		u(previous).remove()
+		u(card).remove()
 		editor.emit(`card-did-exit`, card)
-		editor.emit('content:did-change')
+		editor.emit('content:did-change', selection.head.container, selection.tail.container)
 	}
 }
 

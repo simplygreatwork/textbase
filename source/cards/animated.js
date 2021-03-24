@@ -19,16 +19,13 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('card-did-enter:animated', function(card) {
-		console.log('card-did-enter:animated')
 		if (card.id_) window.clearInterval(card.id_)
 		card.id_ = window.setInterval(function() {
 			u(card).text('Animated Card: ' + Math.random())
-			console.log('Animating card...')
 		}, 500)
 	}.bind(this))
 	
 	bus.on('card-will-exit:animated', function(card) {
-		console.log('card-will-exit:animated')
 		window.clearInterval(card.id_)
 	}.bind(this))
 	

@@ -54,9 +54,9 @@ export function delete_atom(editor, selection) {
 	if (u(previous).hasClass('atom')) {
 		let atom = previous
 		editor.emit(`atom-will-exit`, atom)
-		u(previous).remove()
+		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)
-		editor.emit('content:did-change')
+		editor.emit('content:did-change', selection.head.container, selection.tail.container)
 	}
 }
 

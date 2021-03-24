@@ -221,7 +221,7 @@ export class Editor {
 		text = head + string + tail
 		node.text(text.trim())
 		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
-		this.emit('content:did-change', selection.head.container, selection.head.container.nextSibling)
+		this.emit('content:did-change', selection.head.container, selection.tail.container)
 	}
 	
 	split_content(limit, event) {
@@ -245,7 +245,7 @@ export class Editor {
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
 		this.emit('content-did-split', a, b)
-		this.emit('content:did-change', a, b.nextSibling)
+		this.emit('content:did-change', a, b)
 		return [a, b]
 	}
 	
@@ -331,7 +331,8 @@ export class Editor {
 				})
 				block.remove()
 				set_caret(this, { container: selectable, offset: selectable.textContent.length })
-				this.emit('content:did-change', block_.first())
+				block_ = block_.first()
+				this.emit('content:did-change', block_, block_)
 				break
 			}
 		}

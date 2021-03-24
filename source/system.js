@@ -467,8 +467,8 @@ export class System {
 		
 		bus.on('content:did-change', function(begin, end) {
 			logger('system').log('content:did-change')
-			document.querySelector('.structure-html').textContent = serialize(editor)
 			this.scanner.scan(begin, end)
+			document.querySelector('.structure-html').textContent = serialize(editor)
 		}.bind(this))
 		
 		bus.on('content:valid', function(html) {
