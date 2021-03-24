@@ -29,7 +29,4 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 
 ## Known Issues
 
-- After each edit, a scanner validates the integrity of the document and fixes any problems.
-	- The scanner is **designed** to validate and correct only changed sections of the document.
-	- However, this is not yet in full effect so some edits may appear to be slow until this aspect is refined.
-	- e.g. "content-did-change", begin_node, end_node
+- Leading nodes in a block are being lost after redo of formatted content which had been split.

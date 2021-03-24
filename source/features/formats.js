@@ -43,7 +43,7 @@ function apply_format(editor, selection, format) {
 	selection_each_text(editor, selection, function(node, index) {
 		u(node).parent().addClass(format)
 	})
-	editor.emit('format:did-add', format)
+	editor.emit('format-did-add', format)
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
@@ -52,7 +52,7 @@ function remove_format(editor, selection, format) {
 	selection_each_text(editor, selection, function(node, index) {
 		u(node).parent().removeClass(format)
 	})
-	editor.emit('format:did-remove', format)
+	editor.emit('format-did-remove', format)
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
@@ -68,7 +68,7 @@ export function remove_formats(editor, formats) {
 		})
 	})
 	formats.forEach(function(format) {
-		editor.emit('format:did-remove', format)
+		editor.emit('format-did-remove', format)
 	})
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }

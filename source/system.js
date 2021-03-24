@@ -277,11 +277,11 @@ export class System {
 			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 		}.bind(this))
 		
-		bus.on('format:did-add', function(event) {
+		bus.on('format-did-add', function(event) {
 			this.history.capture()
 		}.bind(this))
 		
-		bus.on('format:did-remove', function(event) {
+		bus.on('format-did-remove', function(event) {
 			this.history.capture()
 		}.bind(this))
 	}
