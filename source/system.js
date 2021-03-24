@@ -47,7 +47,7 @@ export class System {
 		
 		this.document_ = document_
 		u('.content').empty().append(u(document_.content))
-		this.bus.emit('document:did-install', document_)
+		this.bus.emit('document-did-install', document_)
 	}
 	
 	configure(bus, editor, toolbar) {
@@ -65,16 +65,16 @@ export class System {
 	
 	configure_documents(bus, editor, toolbar) {
 		
-		bus.on('document:did-install', function(document_) {
-			logger('system').log('document:did-install')
+		bus.on('document-did-install', function(document_) {
+			logger('system').log('document-did-install')
 			this.history.enable()
 			this.scanner.scan(document.querySelector('.content'))
 			activate_atoms(editor, bus)
 			activate_cards(editor, bus)
 		}.bind(this))
 		
-		bus.on('document:did-uninstall', function(document_) {
-			logger('system').log('document:did-uninstall')
+		bus.on('document-did-uninstall', function(document_) {
+			logger('system').log('document-did-uninstall')
 			this.history.disable()
 			deactivate_atoms(editor, bus)
 			deactivate_cards(editor, bus)
@@ -86,32 +86,32 @@ export class System {
 		let selections = []
 		let selection = null
 		
-		bus.on('selection:did-change', function(editor) {
+		bus.on('selection-did-change', function(editor) {
 			if (! this.history.enabled) return
 			let selection = get_selection(editor)
 			selections.push(selection)
 		}.bind(this))
 		
-		bus.on('history:did-begin-mutations', function(data) {
+		bus.on('history-did-begin-mutations', function(data) {
 			if (selections.length > 0) {
 				selection = selections[selections.length - 1]
 				selections = []
 			}
 		}.bind(this))
 		
-		bus.on('history:did-capture', function(record) {
+		bus.on('history-did-capture', function(record) {
 			record.selection.before = selection
 			record.selection.after = get_selection(editor)
 		}.bind(this))
 		
-		bus.on('history:did-undo', function() {
+		bus.on('history-did-undo', function() {
 			let record = this.history.records[this.history.index]
 			if (record && record.selection && record.selection.before) {
 				set_selection(editor, record.selection.before)
 			}
 		}.bind(this))
 		
-		bus.on('history:did-redo', function() {
+		bus.on('history-did-redo', function() {
 			let record = this.history.records[this.history.index + 1]
 			if (record && record.selection && record.selection.after) {
 				set_selection(editor, record.selection.after)
@@ -395,22 +395,22 @@ export class System {
 	
 	configure_atoms(bus, editor, toolbar) {
 		
-		bus.on('history:will-undo', function(added, removed) {
+		bus.on('history-will-undo', function(added, removed) {
 			watch_atoms_will_enter(added, bus)
 			watch_atoms_will_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:did-undo', function(added, removed) {
+		bus.on('history-did-undo', function(added, removed) {
 			watch_atoms_did_enter(added, bus)
 			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:will-redo', function(added, removed) {
+		bus.on('history-will-redo', function(added, removed) {
 			watch_atoms_will_enter(added, bus)
 			watch_atoms_will_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:did-redo', function(added, removed) {
+		bus.on('history-did-redo', function(added, removed) {
 			watch_atoms_did_enter(added, bus)
 			watch_atoms_did_exit(removed, bus)
 		}.bind(this))
@@ -421,22 +421,22 @@ export class System {
 	
 	configure_cards(bus, editor, toolbar) {
 		
-		bus.on('history:will-undo', function(added, removed) {
+		bus.on('history-will-undo', function(added, removed) {
 			watch_cards_will_enter(added, bus)
 			watch_cards_will_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:did-undo', function(added, removed) {
+		bus.on('history-did-undo', function(added, removed) {
 			watch_cards_did_enter(added, bus)
 			watch_cards_did_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:will-redo', function(added, removed) {
+		bus.on('history-will-redo', function(added, removed) {
 			watch_cards_will_enter(added, bus)
 			watch_cards_will_exit(removed, bus)
 		}.bind(this))
 		
-		bus.on('history:did-redo', function(added, removed) {
+		bus.on('history-did-redo', function(added, removed) {
 			watch_cards_did_enter(added, bus)
 			watch_cards_did_exit(removed, bus)
 		}.bind(this))
@@ -459,8 +459,8 @@ export class System {
 			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
 		
-		bus.on('selection:did-change', function(event, editor) {
-			logger('system').log('selection:did-change')
+		bus.on('selection-did-change', function(event, editor) {
+			logger('system').log('selection-did-change')
 			document.querySelector('.structure-html').textContent = serialize(editor)
 		}.bind(this))
 		

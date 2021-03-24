@@ -31,7 +31,7 @@ export class History {
 		this.observer = new MutationObserver(function(mutations) {
 			
 			if (this.mutations.length === 0 && mutations.length > 0) {
-				this.bus.emit('history:did-begin-mutations')
+				this.bus.emit('history-did-begin-mutations')
 			}
 			mutations.forEach(function(mutation) {
 				if (! this.is_observable(mutation.target)) return
@@ -97,7 +97,7 @@ export class History {
 			})
 			this.mutations = []
 			this.index = this.records.length - 1
-			this.bus.emit('history:did-capture', this.records[this.index])
+			this.bus.emit('history-did-capture', this.records[this.index])
 		}
 	}
 	
@@ -140,7 +140,7 @@ export class History {
 				})
 			}
 		})
-		this.bus.emit('history:will-undo', added, removed)
+		this.bus.emit('history-will-undo', added, removed)
 	}
 	
 	will_redo(record) {
@@ -157,7 +157,7 @@ export class History {
 				})
 			}
 		})
-		this.bus.emit('history:will-redo', added, removed)
+		this.bus.emit('history-will-redo', added, removed)
 	}
 	
 	perform_undo(record) {
@@ -178,7 +178,7 @@ export class History {
 					break
 			}
 		}.bind(this))
-		this.bus.emit('history:did-undo', added, removed)
+		this.bus.emit('history-did-undo', added, removed)
 	}
 	
 	perform_redo(record) {
@@ -199,7 +199,7 @@ export class History {
 					break
 			}
 		}.bind(this))
-		this.bus.emit('history:did-redo', added, removed)
+		this.bus.emit('history-did-redo', added, removed)
 	}
 	
 	mutate_character_data(mutation, value) {

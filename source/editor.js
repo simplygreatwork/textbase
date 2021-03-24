@@ -183,12 +183,12 @@ export class Editor {
 		document.addEventListener('selectionchange', function(event) {
 			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
 				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
-					this.emit('selection:did-change', event, this)
+					this.emit('selection-did-change', event, this)
 				}
 			}
 		}.bind(this))
 		
-		this.on('selection:did-change', function(event, editor) {
+		this.on('selection-did-change', function(event, editor) {
 			normalize_selection(this)
 		}.bind(this))
 	}

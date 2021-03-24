@@ -165,7 +165,7 @@ export function normalize_selection(editor) {
 		let iterator = text_iterator(editor.element, selection.tail.container)
 		let next = iterator.nextNode()
 		selection.range.setEnd(next, 0)
-		editor.emit('selection:did-change', null, editor)
+		editor.emit('selection-did-change', null, editor)
 	}
 }
 

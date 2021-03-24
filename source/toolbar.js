@@ -11,8 +11,8 @@ export class Toolbar {
 	constructor(bus) {
 		
 		this.bus = bus
-		bus.on('selection:did-change', function(event, editor) {
-			logger('toolbar').log('toolbar:selection:did-change')
+		bus.on('selection-did-change', function(event, editor) {
+			logger('toolbar').log('toolbar:selection-did-change')
 			let blocks = a_block_element
 			let active_formats = find_active_formats(editor)
 			let applicable_formats = find_applicable_formats(editor)
