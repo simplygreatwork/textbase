@@ -221,7 +221,7 @@ export class Editor {
 		text = head + string + tail
 		node.text(text.trim())
 		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
-		this.emit('content:did-change', selection.head.container, selection.tail.container)
+		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 	
 	split_content(limit, event) {
@@ -245,7 +245,7 @@ export class Editor {
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
 		this.emit('content-did-split', a, b)
-		this.emit('content:did-change', a, b)
+		this.emit('content-did-change', a, b)
 		return [a, b]
 	}
 	
@@ -283,10 +283,10 @@ export class Editor {
 		if (text.length === 0) { 
 			let previous = find_previous_inline_sibling(this, selection)
 			if (previous) set_caret(this, { container: previous, offset: previous.textContent.length })
-			this.emit('content:did-change', previous, node)
+			this.emit('content-did-change', previous, node)
 		} else {
 			set_caret(this, { container: node, offset: offset - 1 })
-			this.emit('content:did-change', node, node)
+			this.emit('content-did-change', node, node)
 		}
 	}
 	
@@ -332,7 +332,7 @@ export class Editor {
 				block.remove()
 				set_caret(this, { container: selectable, offset: selectable.textContent.length })
 				block_ = block_.first()
-				this.emit('content:did-change', block_, block_)
+				this.emit('content-did-change', block_, block_)
 				break
 			}
 		}
@@ -358,7 +358,7 @@ export class Editor {
 		} else {
 			set_caret(this, { container: selection.head.container, offset: offset })
 		}
-		this.emit('content:did-change', selection.head.container, selection.tail.container)
+		this.emit('content-did-change', selection.head.container, selection.tail.container)
 		this.emit('content:did-delete', fragment)
 	}
 	

@@ -23,10 +23,10 @@ export class Application {
 		}.bind(this))
 		
 		bus.on('storage-did-save', function(status) {
-			logger('trace').log('document:did-save: ' + status)
+			logger('trace').log('storage-did-save: ' + status)
 		}.bind(this))
 		
-		bus.on('content:did-change', function(begin, end) {
+		bus.on('content-did-change', function(begin, end) {
 			this.debounce(function() {
 				system.document_.content = document.querySelector('.content').innerHTML
 				storage.save(system.document_)

@@ -37,7 +37,7 @@ export function insert_card(editor, string) {
 	u(parts[0]).after(card)
 	card = card.first()
 	editor.emit(`card-did-enter`, card)
-	editor.emit('content:did-change', card, card)
+	editor.emit('content-did-change', card, card)
 }
 
 export function can_delete_card(editor, selection) {
@@ -63,7 +63,7 @@ export function delete_card(editor, selection) {
 		editor.emit(`card-will-exit`, card)
 		u(card).remove()
 		editor.emit(`card-did-exit`, card)
-		editor.emit('content:did-change', selection.head.container, selection.tail.container)
+		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 }
 

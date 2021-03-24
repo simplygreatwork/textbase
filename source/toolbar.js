@@ -33,8 +33,8 @@ export class Toolbar {
 		let element = u(html)
 		let action = element.data('action')
 		element.on('click', function() {
-			this.bus.emit('action.request', action)
-			this.bus.emit(`action.request.${action}`)
+			this.bus.emit('action-requested', action)
+			this.bus.emit(`action-requested:${action}`)
 		}.bind(this))
 		u('.toolbar').append(element)
 	}

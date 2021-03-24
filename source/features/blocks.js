@@ -24,7 +24,7 @@ export function toggle_block(editor, type) {						// todo: consolidate with tran
 	})
 	set_selection(editor, selection)
 	editor.emit('block:did-change', type)
-	editor.emit('content:did-change', selection.head.container, selection.tail.container)
+	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
 export function transform_block(editor, node, type) {			// todo: consolidate with toggle_block above
@@ -44,7 +44,7 @@ export function transform_block(editor, node, type) {			// todo: consolidate wit
 	element = element.first()
 	set_selection(editor, selection)
 	editor.emit('block:did-change', type)
-	editor.emit('content:did-change', element, element)
+	editor.emit('content-did-change', element, element)
 }
 
 export function find_active_block(editor, blocks) {
@@ -77,7 +77,7 @@ export function indent(editor, event) {
 		level = parseInt(level) + 1
 		u(node).data('indent', level)
 	})
-	editor.emit('content:did-change', selection.head.container, selection.tail.container)
+	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
 export function dedent(editor, event) {
@@ -93,7 +93,7 @@ export function dedent(editor, event) {
 		u(node).data('indent', level)
 		if (level == 0) node.removeAttribute('data-indent') 
 	})
-	editor.emit('content:did-change', selection.head.container, selection.tail.container)
+	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
 export function align(editor, alignment) {
@@ -109,7 +109,7 @@ export function align(editor, alignment) {
 		node.removeClass('align-justify')
 		node.addClass(class_)
 	})
-	editor.emit('content:did-change', selection.head.container, selection.tail.container)
+	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
 export function block_has_content(block) {

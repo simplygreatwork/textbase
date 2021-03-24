@@ -159,7 +159,7 @@ export class Scanner {
 					tail: selection.tail
 				})
 			}
-			this.editor.emit('content:did-change', element.previousSibling, element)
+			this.editor.emit('content-did-change', element.previousSibling, element)
 		}.bind(this))
 		
 		bus.on('detected:empty-span', function(element) {
@@ -175,14 +175,14 @@ export class Scanner {
 					tail: { container: next, offset: 0 }
 				})
 			}
-			this.editor.emit('content:did-change', next.previousSibling, next)
+			this.editor.emit('content-did-change', next.previousSibling, next)
 		}.bind(this))
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html(`<span>&#x200B;</span>`)
 			u(element).html(`<span>${zero_width_whitespace}</span>`)
-			this.editor.emit('content:did-change')
+			this.editor.emit('content-did-change')
 		}.bind(this))
 		
 		bus.on('detected:atom', function(data) {

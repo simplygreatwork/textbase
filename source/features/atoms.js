@@ -36,7 +36,7 @@ export function insert_atom(editor, string) {
 	u(edges[1]).after(atom)
 	atom = atom.first()
 	editor.emit(`atom-did-enter`, atom)
-	editor.emit('content:did-change', edges[1], edges[0])
+	editor.emit('content-did-change', edges[1], edges[0])
 }
 
 export function can_delete_atom(editor, selection) {
@@ -56,7 +56,7 @@ export function delete_atom(editor, selection) {
 		editor.emit(`atom-will-exit`, atom)
 		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)
-		editor.emit('content:did-change', selection.head.container, selection.tail.container)
+		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 }
 

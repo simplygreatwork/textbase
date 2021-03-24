@@ -90,7 +90,7 @@ function paste_internally(content, editor) {
 		})
 		set_caret(editor, { container: edges[0], offset: 0 })
 		normalize_selection(editor)
-		editor.emit('content:did-change', edges[1], edges[0])
+		editor.emit('content-did-change', edges[1], edges[0])
 	}
 }
 
