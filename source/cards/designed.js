@@ -10,7 +10,7 @@ export function initialize_designed_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-designed">Card: Designed</button>`)
 	
-	bus.on('action-requested.card-designed', function() {
+	bus.on('action-requested:card-designed', function() {
 		insert_card(editor, `
 			<div class="card" data-card-type="designed">Hello</div>
 		`)

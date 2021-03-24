@@ -8,7 +8,7 @@ export function initialize_animated_atoms(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="atom-animated">Atom: Animated</button>`)
 	
-	bus.on('action-requested.atom-animated', function() {
+	bus.on('action-requested:atom-animated', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="animated"></span>
 		`)

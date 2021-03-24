@@ -8,7 +8,7 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-image">Card: Image</button>`)
 	
-	bus.on('action-requested.card-image', function() {
+	bus.on('action-requested:card-image', function() {
 		insert_card(editor, `
 			<div class="card" data-card-type="image">
 				<img style="object-fit:contain;" src="https://www.philosophytalk.org/sites/default/files/styles/large_blog__900x400_/public/graham-holtshausen-fUnfEz3VLv4-unsplash.jpg">
