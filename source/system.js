@@ -10,6 +10,7 @@ import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
 import { find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
+import { block_has_content, transform_block } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
@@ -385,12 +386,10 @@ export class System {
 			align(editor, 'justify')
 		}.bind(this))
 		
-		bus.on('content-will-split', function() {
-			return
-		}.bind(this))
-		
 		bus.on('content-did-split', function(a, b) {
-			return															// todo: transform a second empty list item to paragraph
+			if (block_has_content(a)) return
+			if (block_has_content(b)) return
+			transform_block(editor, b, 'p')
 		}.bind(this))
 	}
 	
