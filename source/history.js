@@ -30,15 +30,16 @@ export class History {
 		
 		this.observer = new MutationObserver(function(mutations) {
 			
+			logger('history').log('--- OBSERVED MUTATIONS ---')
 			if (this.mutations.length === 0 && mutations.length > 0) {
+				logger('history').log('Beginning mutations...')
 				this.bus.emit('history-did-begin-mutations')
 			}
 			mutations.forEach(function(mutation) {
 				if (! this.is_observable(mutation.target)) return
 				switch (mutation.type) {
 					case 'characterData':
-						logger('history').log('observed mutation of characterData')
-						logger('history').log('mutation.target.textContent: ' + mutation.target.textContent)
+						logger('history').log(`Observed mutation of character data "${mutation.target.textContent}" at mutation target's parent ${mutation.target.parentNode.outerHTML}`)
 						mutation.newValue = mutation.target.textContent
 						const lastMutation = this.mutations[this.mutations.length - 1]
 						if (lastMutation && lastMutation.type === 'characterData' && lastMutation.target === mutation.target && lastMutation.newValue === mutation.oldValue) {
@@ -47,14 +48,16 @@ export class History {
 						}
 						break
 					case 'attributes':
-						logger('history').log('observed mutation of attributes')
-						logger('history').log('mutation.attributeName: ' + mutation.attributeName)
 						mutation.newValue = mutation.target.getAttribute(mutation.attributeName)
+						logger('history').log(`Observed mutation of attribute "${mutation.attributeName}" set to "${mutation.newValue}" at mutation target's parent ${mutation.target.parentNode.outerHTML}`)
 						break
 					case 'childList':
-						logger('history').log('observed mutation of childList')
-						logger('history').log('mutation.addedNodes.length: ' + mutation.addedNodes.length)
-						logger('history').log('mutation.removedNodes.length: ' + mutation.removedNodes.length)
+						Array.from(mutation.addedNodes).forEach(function(node) {
+							logger('history').log(`Observed mutation of child node "${node.outerHTML}" added to "${mutation.target.outerHTML}"`)
+						})
+						Array.from(mutation.removedNodes).forEach(function(node) {
+							logger('history').log(`Observed mutation of child node "${node.outerHTML}" removed from "${mutation.target.outerHTML}"`)
+						})
 						break
 				}
 				this.mutations.push(mutation)
@@ -162,7 +165,7 @@ export class History {
 	
 	perform_undo(record) {
 		
-		logger('history').log('perform_undo')
+		logger('history').log('--- PERFORM UNDO ---')
 		let added = []
 		let removed = []
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
@@ -183,7 +186,7 @@ export class History {
 	
 	perform_redo(record) {
 		
-		logger('history').log('perform_redo')
+		logger('history').log('--- PERFORM REDO ---')
 		let added = []
 		let removed = []
 		record.mutations.forEach(function(mutation) {
@@ -204,38 +207,38 @@ export class History {
 	
 	mutate_character_data(mutation, value) {
 		
-		logger('history').log('mutate_character_data')
+		logger('history').log(`Setting character data to "${value}" at mutation target's parent "${mutation.target.parentNode.outerHTML}"`)
 		mutation.target.textContent = value
 	}
 	
 	mutate_attributes(mutation, value) {
 		
-		logger('history').log('mutate_attributes')
 		if (value || value === false || value === 0) {
+			logger('history').log(`Setting attribute "${mutation.attributeName}" to "${value}" for mutation target "${mutation.target.outerHTML}`)
 			mutation.target.setAttribute(mutation.attributeName, value)
 		} else {
+			logger('history').log(`Removing attribute "${mutation.attributeName}" for mutation target "${mutation.target.outerHTML}`)
 			mutation.target.removeAttribute(mutation.attributeName)
 		}
 	}
 	
 	mutate_child_list(mutation, add_nodes, remove_nodes, added, removed) {
 		
-		logger('history').log('mutate_child_list')
 		if (mutation.nextSibling) {
 			Array.from(add_nodes).forEach(function(node) {
-				logger('history').log('adding: ' + node.outerHTML)
+				logger('history').log(`Inserting node before next sibling "${node.outerHTML}" at parent "${mutation.nextSibling.parentNode.outerHTML}"`)
 				mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
 				added.push(node)
 			})
 		} else {
 			Array.from(add_nodes).forEach(function(node) {
-				logger('history').log('adding: ' + node.outerHTML)
+				logger('history').log(`Appending node "${node.outerHTML}" to parent "${mutation.target.outerHTML}"`)
 				mutation.target.appendChild(node)
 				added.push(node)
 			})
 		}
 		Array.from(remove_nodes).forEach(function(node) {
-			logger('history').log('removing: ' + node.outerHTML)
+			logger('history').log(`Removing node "${node.outerHTML}" from parent "${node.parentNode.outerHTML}"`)
 			removed.push(node)
 			node.parentNode.removeChild(node)
 		})

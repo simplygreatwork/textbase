@@ -510,25 +510,5 @@ export class System {
 		bus.on('clipboard:did-paste', function() {
 			logger('system').log('clipboard:did-paste')
 		})
-		
-		bus.on('caret:did-change', function() {
-			logger('system').log('caret:did-change')
-		})
-		
-		bus.on('command:did-invoke', function() {
-			logger('system').log('command:did-invoke')
-		})
-		
-		bus.on('command:did-add', function() {
-			logger('system').log('command:did-add')
-		})
-		
-		bus.on('command:did-remove', function() {
-			logger('system').log('command:did-remove')
-		})
-		
-		bus.on('key:enter', function() {
-			logger('system').log('key:enter')
-		})
 	}
 }
