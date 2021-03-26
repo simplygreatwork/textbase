@@ -41,7 +41,7 @@ export function insert_atom(editor, string) {
 
 export function can_delete_atom(editor, selection) {
 	
-	console.log('can_delete_atom')
+	logger('trace').log('can_delete_atom')
 	if (selection.head.offset > 0) return false
 	let element = u(selection.head.container).parent().first()
 	let iterator = element_iterator(editor.element, element)
@@ -53,9 +53,9 @@ export function can_delete_atom(editor, selection) {
 
 export function delete_atom(editor, selection) {
 	
+	logger('trace').log('delete_atom')
 	let atom = can_delete_atom(editor, selection)
 	if (atom) {
-		console.log('removing atom')
 		editor.emit(`atom-will-exit`, atom)
 		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)
