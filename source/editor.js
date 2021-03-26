@@ -246,7 +246,7 @@ export class Editor {
 	
 	delete_(event) {
 		
-		event.preventDefault()
+		if (event) event.preventDefault()
 		this.bus.emit('delete-requested', { consumed: false})
 	}
 	

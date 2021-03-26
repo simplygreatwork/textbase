@@ -19,4 +19,12 @@ export function initialize_recognizers(editor, bus) {
 			console.log('shift-space detected in text node by second recognizer: ' + node.text())
 		}
 	}.bind(this))
+	
+	bus.on('keydown:shift-space', function(event) {
+		let selection = get_selection(editor)
+		let node = u(selection.head.container)
+		if (node.is(a_text_node)) {							// todo: need to swallow the key down event
+			console.log('node.text: ' + node.text())
+		}
+	}.bind(this))
 }
