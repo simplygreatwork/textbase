@@ -233,15 +233,10 @@ export class Editor {
 		this.emit('content-will-split')
 		if (! selection.range.collapsed) this.delete_(event)
 		let range = selection.range.cloneRange()
-		let node = u(selection.head.container).closest(u(limit)).first()
-		range.setStartBefore(node)
-		let fragment_a = range.extractContents()
-		range.setEndAfter(node)
-		let fragment_b = range.extractContents()
-		let a = fragment_a.firstElementChild
-		let b = fragment_b.firstElementChild
-		range.insertNode(b)
-		range.insertNode(a)
+		let a = u(selection.head.container).closest(u(limit)).first()
+		range.setEndAfter(a)
+		let b = range.extractContents().firstElementChild.cloneNode(true)			// without clone, redo breaks
+		u(a).after(b)
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
 		this.emit('content-did-split', a, b)

@@ -358,10 +358,6 @@ export class System {
 			dedent(editor, event)
 		}.bind(this))
 		
-		bus.on('block:did-change', function(event) {
-			this.history.capture()
-		}.bind(this))
-		
 		toolbar.append(`<button data-action="align-left">Align Left</button>`)
 		
 		bus.on('action-requested:align-left', function() {
@@ -384,6 +380,10 @@ export class System {
 		
 		bus.on('action-requested:align-justify', function() {
 			align(editor, 'justify')
+		}.bind(this))
+		
+		bus.on('block:did-change', function(event) {
+			this.history.capture()
 		}.bind(this))
 		
 		bus.on('content-did-split', function(a, b) {

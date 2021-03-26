@@ -39,7 +39,7 @@ export class History {
 				if (! this.is_observable(mutation.target)) return
 				switch (mutation.type) {
 					case 'characterData':
-						logger('history').log(`Observed mutation of character data "${mutation.target.textContent}" at mutation target's parent ${mutation.target.parentNode.outerHTML}`)
+						logger('history').log(`Observed mutation of character data "${mutation.target.textContent}" at mutation target's parent ${mutation.target.parentNode ? mutation.target.parentNode.outerHTML : null}`)
 						mutation.newValue = mutation.target.textContent
 						const lastMutation = this.mutations[this.mutations.length - 1]
 						if (lastMutation && lastMutation.type === 'characterData' && lastMutation.target === mutation.target && lastMutation.newValue === mutation.oldValue) {
@@ -49,14 +49,14 @@ export class History {
 						break
 					case 'attributes':
 						mutation.newValue = mutation.target.getAttribute(mutation.attributeName)
-						logger('history').log(`Observed mutation of attribute "${mutation.attributeName}" set to "${mutation.newValue}" at mutation target's parent ${mutation.target.parentNode.outerHTML}`)
+						logger('history').log(`Observed mutation of attribute "${mutation.attributeName}" set to "${mutation.newValue}" at mutation target's parent ${mutation.target.parentNode ? mutation.target.parentNode.outerHTML : null}`)
 						break
 					case 'childList':
 						Array.from(mutation.addedNodes).forEach(function(node) {
-							logger('history').log(`Observed mutation of child node "${node.outerHTML}" added to "${mutation.target.outerHTML}"`)
+							logger('history').log(`Observed mutation of child node "${node.outerHTML}" added to "${mutation.target ? mutation.target.outerHTML : null}"`)
 						})
 						Array.from(mutation.removedNodes).forEach(function(node) {
-							logger('history').log(`Observed mutation of child node "${node.outerHTML}" removed from "${mutation.target.outerHTML}"`)
+							logger('history').log(`Observed mutation of child node "${node.outerHTML}" removed from "${ mutation.target ? mutation.target.outerHTML : null}"`)
 						})
 						break
 				}
@@ -207,17 +207,17 @@ export class History {
 	
 	mutate_character_data(mutation, value) {
 		
-		logger('history').log(`Setting character data to "${value}" at mutation target's parent "${mutation.target.parentNode.outerHTML}"`)
+		logger('history').log(`Setting character data to "${value}" at mutation target's parent "${mutation.target.parentNode ? mutation.target.parentNode.outerHTML : null}"`)
 		mutation.target.textContent = value
 	}
 	
 	mutate_attributes(mutation, value) {
 		
 		if (value || value === false || value === 0) {
-			logger('history').log(`Setting attribute "${mutation.attributeName}" to "${value}" for mutation target "${mutation.target.outerHTML}`)
+			logger('history').log(`Setting attribute "${mutation.attributeName}" to "${value}" for mutation target "${mutation.target ? mutation.target.outerHTML : null}`)
 			mutation.target.setAttribute(mutation.attributeName, value)
 		} else {
-			logger('history').log(`Removing attribute "${mutation.attributeName}" for mutation target "${mutation.target.outerHTML}`)
+			logger('history').log(`Removing attribute "${mutation.attributeName}" for mutation target "${mutation.target ? mutation.target.outerHTML : null}`)
 			mutation.target.removeAttribute(mutation.attributeName)
 		}
 	}
@@ -226,21 +226,22 @@ export class History {
 		
 		if (mutation.nextSibling) {
 			Array.from(add_nodes).forEach(function(node) {
-				logger('history').log(`Inserting node before next sibling "${node.outerHTML}" at parent "${mutation.nextSibling.parentNode.outerHTML}"`)
 				mutation.nextSibling.parentNode.insertBefore(node, mutation.nextSibling)
 				added.push(node)
+				logger('history').log(`Inserted node before next sibling "${node.outerHTML}" at parent "${mutation.nextSibling.parentNode ? mutation.nextSibling.parentNode.outerHTML : null}"`)
 			})
 		} else {
 			Array.from(add_nodes).forEach(function(node) {
-				logger('history').log(`Appending node "${node.outerHTML}" to parent "${mutation.target.outerHTML}"`)
 				mutation.target.appendChild(node)
 				added.push(node)
+				logger('history').log(`Appended node "${node.outerHTML}" to parent "${mutation.target ? mutation.target.outerHTML : null}"`)
 			})
 		}
 		Array.from(remove_nodes).forEach(function(node) {
-			logger('history').log(`Removing node "${node.outerHTML}" from parent "${node.parentNode.outerHTML}"`)
 			removed.push(node)
-			node.parentNode.removeChild(node)
+			let parent = node.parentNode
+			parent.removeChild(node)
+			logger('history').log(`Removed node "${node.outerHTML}" from parent "${parent ? parent.outerHTML : null}"`)
 		})
 	}
 }
