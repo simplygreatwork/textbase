@@ -10,10 +10,8 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	
 	bus.on('action-requested:card-image', function() {
 		insert_card(editor, `
-			<div class="card" data-card-type="image">
-				<div style="clip: auto;">
-					<img style="height:100px;" src="https://www.philosophytalk.org/sites/default/files/styles/large_blog__900x400_/public/graham-holtshausen-fUnfEz3VLv4-unsplash.jpg">
-				</div>
+			<div class="card" data-card-type="image" style="height:200px;">
+				<img style="width:100%;height:100%;object-fit:none;" src="https://www.philosophytalk.org/sites/default/files/styles/large_blog__900x400_/public/graham-holtshausen-fUnfEz3VLv4-unsplash.jpg">
 			</div>
 		`)
 	}.bind(this))

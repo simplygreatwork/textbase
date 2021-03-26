@@ -77,13 +77,13 @@ export function selection_edge(editor, selection) {
 	range.setStart(selection.tail.container, selection.tail.offset)
 	range.setEndAfter(node)
 	fragment = range.extractContents()
-	edges[0] = fragment.children[0]
+	edges[0] = fragment.firstElementChild
 	range.insertNode(fragment)
 	node = u(selection.head.container).closest(u(an_inline_element)).first()
 	range.setStartBefore(node)
 	range.setEnd(selection.head.container, selection.head.offset)
 	fragment = range.extractContents()
-	edges[1] = fragment.children[0]
+	edges[1] = fragment.firstElementChild
 	range.insertNode(fragment)
 	select_range(editor, edges[1].nextSibling, edges[0].previousSibling)
 	return edges

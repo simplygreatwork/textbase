@@ -47,19 +47,18 @@ export function can_delete_card(editor, selection) {
 	let element = find_previous_element(editor.element, selection.head.container)
 	if (element && u(element).is(an_inline_element)) return false
 	let block = find_previous_block(editor.element, selection.head.container)
-	if (block && u(block).hasClass('card')) return true
+	if (! block) return false
+	let card = u(block).closest('.card').first()
+	if (! card) return false
+	if (card) return card
 	return false
 }
 
 export function delete_card(editor, selection) {
 	
 	logger('trace').log('delete_card')
-	let node = selection.head.container
-	let block = u(node).closest(u(a_block_element))
-	let iterator = element_iterator(editor.element, block.first())
-	let previous = iterator.previousNode()
-	if (u(previous).hasClass('card')) {
-		let card = previous
+	let card = can_delete_card(editor, selection)
+	if (card) {
 		editor.emit(`card-will-exit`, card)
 		u(card).remove()
 		editor.emit(`card-did-exit`, card)
