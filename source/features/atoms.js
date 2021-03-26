@@ -41,18 +41,21 @@ export function insert_atom(editor, string) {
 
 export function can_delete_atom(editor, selection) {
 	
+	console.log('can_delete_atom')
 	if (selection.head.offset > 0) return false
-	let iterator = element_iterator(editor.element, selection.head.container)
+	let element = u(selection.head.container).parent().first()
+	let iterator = element_iterator(editor.element, element)
 	let previous = iterator.previousNode()
-	return u(previous).hasClass('atom') ? true : false
+	let atom = u(previous).closest('.atom').first()
+	if (atom) return atom
+	else return false
 }
 
 export function delete_atom(editor, selection) {
 	
-	let iterator = element_iterator(editor.element, selection.head.container)
-	let previous = iterator.previousNode()
-	if (u(previous).hasClass('atom')) {
-		let atom = previous
+	let atom = can_delete_atom(editor, selection)
+	if (atom) {
+		console.log('removing atom')
 		editor.emit(`atom-will-exit`, atom)
 		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)

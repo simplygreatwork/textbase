@@ -45,13 +45,13 @@ export function can_delete_card(editor, selection) {
 	logger('trace').log('can_delete_card')
 	if (selection.head.offset > 0) return false
 	let element = find_previous_element(editor.element, selection.head.container)
-	if (element && u(element).is(an_inline_element)) return false
+	if (! element) return false
+	if (u(element).is(an_inline_element)) return false
 	let block = find_previous_block(editor.element, selection.head.container)
 	if (! block) return false
 	let card = u(block).closest('.card').first()
-	if (! card) return false
 	if (card) return card
-	return false
+	else return false
 }
 
 export function delete_card(editor, selection) {

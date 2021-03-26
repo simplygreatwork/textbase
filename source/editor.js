@@ -72,6 +72,28 @@ export class Editor {
 		bus.on('delete-requested', function(event) {
 			if (event.consumed) return
 			let selection = get_selection(this)
+			if (selection.range.collapsed) {
+				if (can_delete_atom(this, selection)) {
+					delete_atom(this, selection)
+					event.consumed = true
+				}
+			}
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
+			if (selection.range.collapsed) {
+				if (can_delete_card(this, selection)) {
+					delete_card(this, selection)
+					event.consumed = true
+				}
+			}
+		}.bind(this))
+		
+		bus.on('delete-requested', function(event) {
+			if (event.consumed) return
+			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
 				event.consumed = true
@@ -94,28 +116,6 @@ export class Editor {
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
 				event.consumed = true
-			}
-		}.bind(this))
-		
-		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
-			let selection = get_selection(this)
-			if (selection.range.collapsed) {
-				if (can_delete_atom(this, selection)) {
-					delete_atom(this, selection)
-					event.consumed = true
-				}
-			}
-		}.bind(this))
-		
-		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
-			let selection = get_selection(this)
-			if (selection.range.collapsed) {
-				if (can_delete_card(this, selection)) {
-					delete_card(this, selection)
-					event.consumed = true
-				}
 			}
 		}.bind(this))
 		
