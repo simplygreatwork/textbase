@@ -17,20 +17,16 @@ export class Editor {
 		
 		this.bus = bus
 		this.element = element
-		this.initialize_content()
-		this.initialize_keymap()
+		this.initialize_keymap(element)
 		this.initialize_events(bus)
 		this.initialize_selection()
 	}
 	
-	initialize_content() {
+	initialize_keymap(element) {
 		
-		this.content = this.element.querySelector('.content')
-	}
-	
-	initialize_keymap() {
+		let content = u(element).find('.content')
 		
-		u(this.content).on('keydown', function(event) {
+		content.on('keydown', function(event) {
 			this.emit('keydown', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keydown:alphanumeric', event)
@@ -46,7 +42,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		u(this.content).on('keyup', function(event) {
+		content.on('keyup', function(event) {
 			this.emit('keyup', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keyup:alphanumeric', event)
@@ -62,7 +58,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		u(this.content).on('mousedown', function(event) {
+		content.on('mousedown', function(event) {
 			this.emit('editor:mousedown', event)
 		}.bind(this))
 	}
@@ -232,10 +228,11 @@ export class Editor {
 		let selection = get_selection(this)
 		this.emit('content-will-split')
 		if (! selection.range.collapsed) this.delete_(event)
+		selection = get_selection(this)
 		let range = selection.range.cloneRange()
 		let a = u(selection.head.container).closest(u(limit)).first()
 		range.setEndAfter(a)
-		let b = range.extractContents().firstElementChild.cloneNode(true)			// without clone, redo breaks
+		let b = range.extractContents().firstElementChild.cloneNode(true)			// without clone, redo loses nodes
 		u(a).after(b)
 		set_caret(this, { container: b, offset: 0 })
 		normalize_selection(this)
