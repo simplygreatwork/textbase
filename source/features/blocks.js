@@ -23,7 +23,7 @@ export function toggle_block(editor, type) {						// todo: consolidate with tran
 		})
 	})
 	set_selection(editor, selection)
-	editor.emit('block:did-change', type)
+	editor.emit('block-did-change', type)
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
@@ -43,7 +43,7 @@ export function transform_block(editor, node, type) {			// todo: consolidate wit
 	})
 	element = element.first()
 	set_selection(editor, selection)
-	editor.emit('block:did-change', type)
+	editor.emit('block-did-change', type)
 	editor.emit('content-did-change', element, element)
 }
 

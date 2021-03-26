@@ -17,16 +17,20 @@ export class Editor {
 		
 		this.bus = bus
 		this.element = element
-		this.initialize_keymap(element)
+		this.initialize_content()
+		this.initialize_keymap()
 		this.initialize_events(bus)
 		this.initialize_selection()
 	}
 	
-	initialize_keymap(element) {
+	initialize_content() {
 		
-		let content = u(element).find('.content')
+		this.content = this.element.querySelector('.content')
+	}
+	
+	initialize_keymap() {
 		
-		content.on('keydown', function(event) {
+		u(this.content).on('keydown', function(event) {
 			this.emit('keydown', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keydown:alphanumeric', event)
@@ -42,7 +46,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		content.on('keyup', function(event) {
+		u(this.content).on('keyup', function(event) {
 			this.emit('keyup', event)
 			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
 				this.emit('keyup:alphanumeric', event)
@@ -58,7 +62,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		content.on('mousedown', function(event) {
+		u(this.content).on('mousedown', function(event) {
 			this.emit('editor:mousedown', event)
 		}.bind(this))
 	}

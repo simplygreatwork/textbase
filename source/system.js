@@ -382,7 +382,7 @@ export class System {
 			align(editor, 'justify')
 		}.bind(this))
 		
-		bus.on('block:did-change', function(event) {
+		bus.on('block-did-change', function(event) {
 			this.history.capture()
 		}.bind(this))
 		
