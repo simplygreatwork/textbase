@@ -289,9 +289,7 @@ export class Editor {
 		
 		let result = false
 		if (selection.range.collapsed) {
-			if (selection.head.offset > 0) {
-				result = false
-			} else {
+			if (selection.head.offset === 0) {
 				let iterator = text_iterator(this.element, selection.head.container)
 				let previous = iterator.previousNode()
 				if (u(previous).parent().is(an_inline_element)) {
