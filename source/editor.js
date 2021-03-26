@@ -225,10 +225,12 @@ export class Editor {
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
 		if (event) event.preventDefault()
-		let selection = get_selection(this)
 		this.emit('content-will-split')
-		if (! selection.range.collapsed) this.delete_(event)
-		selection = get_selection(this)
+		let selection = get_selection(this)
+		if (! selection.range.collapsed) {
+			this.delete_(event)
+			selection = get_selection(this)
+		}
 		let range = selection.range.cloneRange()
 		let a = u(selection.head.container).closest(u(limit)).first()
 		range.setEndAfter(a)
