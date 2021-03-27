@@ -41,22 +41,22 @@ export function configure_cards(bus, editor) {
 	
 	bus.on('card-will-enter', function(card) {
 		let type = u(card).data('card-type')
-		bus.emit('card-will-enter:' + type, card)
+		bus.emit(`card-will-enter:${type}`, card)
 	})
 	
 	bus.on('card-did-enter', function(card) {
 		let type = u(card).data('card-type')
-		bus.emit('card-did-enter:' + type, card)
+		bus.emit(`card-did-enter:${type}`, card)
 	})
 	
 	bus.on('card-will-exit', function(card) {
 		let type = u(card).data('card-type')
-		bus.emit('card-will-exit:' + type, card)
+		bus.emit(`card-will-exit:${type}`, card)
 	})
 	
 	bus.on('card-did-exit', function(card) {
 		let type = u(card).data('card-type')
-		bus.emit('card-did-exit:' + type, card)
+		bus.emit(`card-did-exit:${type}`, card)
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {

@@ -40,22 +40,22 @@ export function configure_atoms(bus, editor) {
 	
 	bus.on('atom-will-enter', function(atom) {
 		let type = u(atom).data('atom-type')
-		bus.emit('atom-will-enter:' + type, atom)
+		bus.emit(`atom-will-enter:${type}`, atom)
 	})
 	
 	bus.on('atom-did-enter', function(atom) {
 		let type = u(atom).data('atom-type')
-		bus.emit('atom-did-enter:' + type, atom)
+		bus.emit(`atom-did-enter:${type}`, atom)
 	})
 	
 	bus.on('atom-will-exit', function(atom) {
 		let type = u(atom).data('atom-type')
-		bus.emit('atom-will-exit:' + type, atom)
+		bus.emit(`atom-will-exit:${type}`, atom)
 	})
 	
 	bus.on('atom-did-exit', function(atom) {
 		let type = u(atom).data('atom-type')
-		bus.emit('atom-did-exit:' + type, atom)
+		bus.emit(`atom-did-exit:${type}`, atom)
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
