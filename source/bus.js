@@ -5,12 +5,29 @@ export class Bus {
 		
 		this.channels = this.channels || {}
 		if (this.channels[key] === undefined) this.channels[key] = []
-		if (where == 'before') this.channels[key].unshift(func)
-		else this.channels[key].push(func)
+		this.channels[key].push(func)
 		return function off() {
 			let index = this.channels[key].indexOf(func)
 			this.channels[key].splice(index, 1)
 		}.bind(this)
+	}
+	
+	before(key, func) {
+		
+		this.channels = this.channels || {}
+		if (this.channels[key] === undefined) this.channels[key] = []
+		this.channels[key].unshift(func)
+		return function off() {
+			let index = this.channels[key].indexOf(func)
+			this.channels[key].splice(index, 1)
+		}.bind(this)
+	}
+	
+	replace(key, index, fn) {
+		
+		if (index < this.channels[key].length) {
+			this.channels[key][index] = fn
+		}
 	}
 	
 	emit(key) {
@@ -22,13 +39,6 @@ export class Bus {
 				this.channels[key][index].apply(this, Array.from(arguments).splice(1))
 				index++
 			}
-		}
-	}
-	
-	replace(key, index, fn) {
-		
-		if (index < this.channels[key].length) {
-			this.channels[key][index] = fn
 		}
 	}
 }

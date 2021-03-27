@@ -16,7 +16,7 @@ export function configure_cards(bus, editor) {
 		deactivate_cards(bus, editor)
 	})
 	
-	bus.on('delete-requested', function(event) {
+	bus.before('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
@@ -25,7 +25,7 @@ export function configure_cards(bus, editor) {
 				event.consumed = true
 			}
 		}
-	}, 'before')
+	})
 	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-card-type]').each(function(each) {
