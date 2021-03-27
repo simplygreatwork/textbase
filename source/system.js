@@ -43,13 +43,6 @@ export class System {
 		this.configure(this.bus, this.editor, this.toolbar)
 	}
 	
-	install_document(document_) {
-		
-		this.document_ = document_
-		u('.content').empty().append(u(document_.content))
-		this.bus.emit('document-did-install', document_)
-	}
-	
 	configure(bus, editor, toolbar) {
 		
 		this.configure_editable_nodes()
@@ -519,7 +512,16 @@ export class System {
 			logger('system').log('clipboard:did-paste')
 		})
 	}
+	
+	install_document(document_) {
+		
+		this.document_ = document_
+		u('.content').empty().append(u(document_.content))
+		this.bus.emit('document-did-install', document_)
+	}
 }
+
+// todo: will evenutally need to be based fully on contentEditable - because some cards and atoms will have editable content requiring history support
 
 function is_editable_node(node, context) {
 	
