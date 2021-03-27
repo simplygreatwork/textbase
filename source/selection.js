@@ -109,7 +109,7 @@ export function selection_each_text(editor, selection, fn) {
 	let index = 0
 	while (node) {
 		if (u(node).text().trim().length > 0) {
-			if (! is_atom_or_card(u(node).parent())) {
+			if (is_editable_node(u(node).parent().first(), editor)) {
 				fn(node, index)
 			}
 		}
@@ -128,18 +128,25 @@ export function selection_each_block(editor, selection, fn) {
 		if (array.indexOf(element) === -1) array.push(element)
 	})
 	array.forEach(function(each) {
-		if (! is_atom_or_card(each)) {
+		if (is_editable_node(each, editor)) {
 			fn(each)
 		}
 	})
 }
 
+function is_editable_node(node, editor) {
+	
+	return editor.is_editable_node(node)
+}
+
 function is_atom_or_card(node) {
 	
-	if (u(node).is('.atom')) return true
-	if (u(node).is('.card')) return true
-	if (u(node).closest('.atom').first()) return true
-	if (u(node).closest('.card').first()) return true
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.is(u('[data-atom-type]'))) return true
+	if (node.closest(u('[data-atom-type]')).first()) return true
+	if (node.is(u('[data-card-type]'))) return true
+	if (node.closest(u('[data-card-type]')).first()) return true
 	return false
 }
 

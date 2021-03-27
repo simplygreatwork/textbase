@@ -335,7 +335,11 @@ export class Editor {
 	}
 	
 	can_delete_content(selection) {
-		return ! selection.range.collapsed
+		
+		let result = false
+		if (! selection.range.collapsed) result = true
+		if (! this.is_editable()) result = false
+		return result
 	}
 	
 	delete_content(selection) {
@@ -360,8 +364,15 @@ export class Editor {
 	
 	is_editable() {
 		
+		let result = true
 		let selection = get_selection(this)
-		return u(selection.head.container).parent().first().contentEditable == 'inherit'
+		if (! this.is_editable_node(selection.head.container)) result = false 
+		if (! this.is_editable_node(selection.tail.container)) result = false 
+		return result
+	}
+	
+	is_editable_node(node) {
+		return true
 	}
 	
 	on() {

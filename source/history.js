@@ -65,10 +65,11 @@ export class History {
 		}.bind(this))
 	}
 	
-	is_observable(target) {
-		
-		if (target && ((u(target).is(u('.card'))) || u(target).closest(u('.card')) == false)) return false
-		if (target && ((u(target).is(u('.atom'))) || u(target).closest(u('.atom')) == false)) return false
+	is_observable(node) {
+		return this.is_editable_node(node)
+	}
+	
+	is_editable_node(node) {
 		return true
 	}
 	

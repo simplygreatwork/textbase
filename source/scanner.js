@@ -26,37 +26,41 @@ export class Scanner {
 		this.walker.walk(this.editor.element, begin, end)
 	}
 	
+	is_editable_node() {
+		return true
+	}
+	
 	configure(walker, bus) {
 		
 		walker.on('text', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.nodeValue.length === 0) {
 				bus.emit('detected:text-node-without-content', element)
 			} else {
 				bus.emit('detected:text-node-with-content', element)
 			}
-		})
+		}.bind(this))
 		
 		walker.on('text', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.nodeValue.indexOf('\n') === -1) {
 				if (! u(element.parentElement).is('span')) {
 					bus.emit('detected:text-node-without-span-parent', element)
 				}
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:span-with-no-text-content', element)
 				}
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (u(element.nextSibling).is(u('span'))) {
 					if (Array.from(element.classList).sort().toString() == Array.from(element.nextSibling.classList).sort().toString()) {
@@ -64,10 +68,10 @@ export class Scanner {
 					}
 				}
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (element.firstChild && element.firstChild.textContent.length === 0) {
 					if (element.parentElement && element.parentElement.childNodes.length > 1) {
@@ -75,42 +79,42 @@ export class Scanner {
 					}
 				}
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('p,h1,h2,li')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:block-element-with-no-span', element)
 				}
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
 			if (element.matches('.atom')) {
 				bus.emit('detected:atom', element)
 			}
-		})
+		}.bind(this))
 
 		walker.on('element', function(element) {
 			if (element.matches('.card')) {
 				bus.emit('detected:card', element)
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('[content-editable=false]')) {
 				bus.emit('detected:content-editable-false', element)
 			}
-		})
+		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable(element)) return
+			if (! this.is_editable_node(element)) return
 			if (element.matches('article')) {
 				bus.emit('detected:other', element)
 			}
-		})
+		}.bind(this))
 		
 		bus.on('detected:text-node-without-content', function(node) {
 			node.textContent = zero_width_whitespace
@@ -197,16 +201,4 @@ export class Scanner {
 			logger('scanner').log('detected:other')
 		}.bind(this))
 	}
-}
-
-function is_editable(node) {
-	
-	node = u(node)
-	if (node.is(an_element_node) && node.is('.atom')) return false
-	if (node.is(an_element_node) && node.closest('.atom').length > 0) return false
-	if (node.is(a_text_node) && node.parent().closest('.atom') && node.parent().closest('.atom').length  > 0) return false
-	if (node.is(an_element_node) && node.is('.card')) return false
-	if (node.is(an_element_node) && node.closest('.card').length > 0) return false
-	if (node.is(a_text_node) && node.parent().closest('.card') && node.parent().closest('.card').length  > 0) return false
-	return true
 }

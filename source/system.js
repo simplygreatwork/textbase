@@ -14,10 +14,10 @@ import { find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
-import { activate_atoms, deactivate_atoms, insert_atom } from './features/atoms.js'
+import { is_atom, activate_atoms, deactivate_atoms, insert_atom } from './features/atoms.js'
 import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
 import { watch_atoms_will_exit, watch_atoms_did_exit } from './features/atoms.js'
-import { activate_cards, deactivate_cards, insert_card } from './features/cards.js'
+import { is_card, activate_cards, deactivate_cards, insert_card } from './features/cards.js'
 import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
 import { watch_cards_will_exit, watch_cards_did_exit } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
@@ -36,7 +36,7 @@ export class System {
 	constructor() {
 		
 		this.bus = new Bus()
-		this.editor = new Editor(this.bus, document.querySelector('.editor') )
+		this.editor = new Editor(this.bus, document.querySelector('.editor'))
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.scanner = new Scanner(this.editor)
@@ -52,6 +52,7 @@ export class System {
 	
 	configure(bus, editor, toolbar) {
 		
+		this.configure_editable_nodes()
 		this.configure_documents(bus, editor, toolbar)
 		this.configure_history(bus, editor, toolbar)
 		this.configure_basics(bus, editor, toolbar)
@@ -61,6 +62,13 @@ export class System {
 		this.configure_cards(bus, editor, toolbar)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
+	}
+	
+	configure_editable_nodes() {
+		
+		this.editor.is_editable_node = is_editable_node
+		this.history.is_editable_node = is_editable_node
+		this.scanner.is_editable_node = is_editable_node
 	}
 	
 	configure_documents(bus, editor, toolbar) {
@@ -510,5 +518,20 @@ export class System {
 		bus.on('clipboard:did-paste', function() {
 			logger('system').log('clipboard:did-paste')
 		})
+	}
+}
+
+function is_editable_node(node, context) {
+	
+	if (true) {
+		if (is_atom(node)) return false
+		if (is_card(node)) return false
+		return true
+	} else {
+		if (true) {
+			return u(node).parent().first().contentEditable == 'inherit'
+		} else {
+			return node.isContentEditable
+		}
 	}
 }

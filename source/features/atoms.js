@@ -1,9 +1,18 @@
 
 import { get_selection, selection_edge } from '../selection.js'
-import { an_element_node, element_iterator } from '../basics.js'
+import { a_text_node, an_element_node, element_iterator } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
+
+export function is_atom(node) {
+	
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.is(u('[data-atom-type]'))) return true
+	if (node.closest(u('[data-atom-type]')).first()) return true
+	return false
+}
 
 export function activate_atoms(editor, bus) {
 	

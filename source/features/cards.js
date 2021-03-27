@@ -1,10 +1,19 @@
 
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
-import { an_element_node, element_iterator, text_iterator } from '../basics.js'
+import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { get_selection } from '../selection.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
+
+export function is_card(node) {
+	
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.is(u('[data-card-type]'))) return true
+	if (node.closest(u('[data-card-type]')).first()) return true
+	return false
+}
 
 export function activate_cards(editor, bus) {
 	
