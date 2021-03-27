@@ -14,10 +14,12 @@ import { find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
-import { is_atom, activate_atoms, deactivate_atoms, insert_atom } from './features/atoms.js'
+import { insert_atom, is_atom } from './features/atoms.js'
+import { activate_atoms, deactivate_atoms } from './features/atoms.js'
 import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
 import { watch_atoms_will_exit, watch_atoms_did_exit } from './features/atoms.js'
-import { is_card, activate_cards, deactivate_cards, insert_card } from './features/cards.js'
+import { insert_card, is_card } from './features/cards.js'
+import { activate_cards, deactivate_cards } from './features/cards.js'
 import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
 import { watch_cards_will_exit, watch_cards_did_exit } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
@@ -521,7 +523,7 @@ export class System {
 	}
 }
 
-// todo: will evenutally need to be based fully on contentEditable - because some cards and atoms will have editable content requiring history support
+// todo: eventually will need to be based fully on contentEditable - because some cards and atoms will have editable content requiring history support
 // todo: investigate binding contexts when invoking is_editable_node to be able to tailor the result if/as needed for consistency
 
 function is_editable_node(node, context) {
