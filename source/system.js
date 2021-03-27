@@ -522,6 +522,7 @@ export class System {
 }
 
 // todo: will evenutally need to be based fully on contentEditable - because some cards and atoms will have editable content requiring history support
+// todo: investigate binding contexts when invoking is_editable_node to be able to tailor the result if/as needed for consistency
 
 function is_editable_node(node, context) {
 	
