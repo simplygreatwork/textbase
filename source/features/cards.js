@@ -8,6 +8,14 @@ const logger = Logger()
 
 export function configure_cards(bus, editor) {
 	
+	bus.on('document-did-install', function(document_) {
+		activate_cards(bus, editor)
+	}.bind(this))
+	
+	bus.on('document-did-uninstall', function(document_) {
+		deactivate_cards(bus, editor)
+	})
+	
 	bus.on('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
@@ -81,7 +89,7 @@ export function is_card(node) {
 	return false
 }
 
-export function activate_cards(editor, bus) {
+export function activate_cards(bus, editor) {
 	
 	u(editor.element).find('[data-card-type]').each(function(card) {
 		bus.emit('card-will-enter', card)
@@ -89,7 +97,7 @@ export function activate_cards(editor, bus) {
 	})
 }
 
-export function deactivate_cards(editor, bus) {
+export function deactivate_cards(bus, editor) {
 	
 	u(editor.element).find('[data-card-type]').each(function(card) {
 		bus.emit('card-will-exit', card)

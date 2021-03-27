@@ -15,13 +15,7 @@ import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
 import { configure_atoms, insert_atom, is_atom } from './features/atoms.js'
-import { activate_atoms, deactivate_atoms } from './features/atoms.js'
-import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
-import { watch_atoms_will_exit, watch_atoms_did_exit } from './features/atoms.js'
 import { configure_cards, insert_card, is_card } from './features/cards.js'
-import { activate_cards, deactivate_cards } from './features/cards.js'
-import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
-import { watch_cards_will_exit, watch_cards_did_exit } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
 import { initialize_animated_atoms } from './atoms/animated.js'
 import { initialize_sample_cards } from './cards/sample.js'
@@ -72,15 +66,11 @@ export class System {
 			logger('system').log('document-did-install')
 			this.history.enable()
 			this.scanner.scan(document.querySelector('.content'))
-			activate_atoms(editor, bus)
-			activate_cards(editor, bus)
 		}.bind(this))
 		
 		bus.on('document-did-uninstall', function(document_) {
 			logger('system').log('document-did-uninstall')
 			this.history.disable()
-			deactivate_atoms(editor, bus)
-			deactivate_cards(editor, bus)
 		})
 	}
 	

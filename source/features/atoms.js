@@ -7,6 +7,14 @@ const logger = Logger()
 
 export function configure_atoms(bus, editor) {
 	
+	bus.on('document-did-install', function(document_) {
+		activate_atoms(bus, editor)
+	}.bind(this))
+	
+	bus.on('document-did-uninstall', function(document_) {
+		deactivate_atoms(bus, editor)
+	})
+	
 	bus.on('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
@@ -80,7 +88,7 @@ export function is_atom(node) {
 	return false
 }
 
-export function activate_atoms(editor, bus) {
+export function activate_atoms(bus, editor) {
 	
 	u(editor.element).find('[data-atom-type]').each(function(atom) {
 		bus.emit('atom-will-enter', atom)
@@ -88,7 +96,7 @@ export function activate_atoms(editor, bus) {
 	})
 }
 
-export function deactivate_atoms(editor, bus) {
+export function deactivate_atoms(bus, editor) {
 	
 	u(editor.element).find('[data-atom-type]').each(function(atom) {
 		bus.emit('atom-will-exit', atom)
