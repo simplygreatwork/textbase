@@ -186,7 +186,7 @@ export class Scanner {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html(`<span>&#x200B;</span>`)
 			u(element).html(`<span>${zero_width_whitespace}</span>`)
-			this.editor.emit('content-did-change')
+			this.editor.emit('content-did-change')								// todo: ('content-did-change', element, element)
 		}.bind(this))
 		
 		bus.on('detected:atom', function(data) {

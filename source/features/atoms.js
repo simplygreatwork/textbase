@@ -5,6 +5,72 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
+export function configure_atoms(bus, editor) {
+	
+	bus.on('delete-requested', function(event) {
+		if (event.consumed) return
+		let selection = get_selection(editor)
+		if (selection.range.collapsed) {
+			if (can_delete_atom(editor, selection)) {
+				delete_atom(editor, selection)
+				event.consumed = true
+			}
+		}
+	})
+	
+	bus.on('content-will-delete', function(fragment) {
+		u(fragment).find('[data-atom-type]').each(function(each) {
+			bus.emit('atom-will-exit', each)
+		})
+	})
+	
+	bus.on('content-did-delete', function(fragment) {
+		u(fragment).find('[data-atom-type]').each(function(each) {
+			bus.emit('atom-did-exit', each)
+		})
+	})
+	
+	bus.on('atom-will-enter', function(atom) {
+		let type = u(atom).data('atom-type')
+		bus.emit('atom-will-enter:' + type, atom)
+	})
+	
+	bus.on('atom-did-enter', function(atom) {
+		let type = u(atom).data('atom-type')
+		bus.emit('atom-did-enter:' + type, atom)
+	})
+	
+	bus.on('atom-will-exit', function(atom) {
+		let type = u(atom).data('atom-type')
+		bus.emit('atom-will-exit:' + type, atom)
+	})
+	
+	bus.on('atom-did-exit', function(atom) {
+		let type = u(atom).data('atom-type')
+		bus.emit('atom-did-exit:' + type, atom)
+	})
+	
+	bus.on('history-will-undo', function(added, removed) {
+		watch_atoms_will_enter(added, bus)
+		watch_atoms_will_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-did-undo', function(added, removed) {
+		watch_atoms_did_enter(added, bus)
+		watch_atoms_did_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-will-redo', function(added, removed) {
+		watch_atoms_will_enter(added, bus)
+		watch_atoms_will_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-did-redo', function(added, removed) {
+		watch_atoms_did_enter(added, bus)
+		watch_atoms_did_exit(removed, bus)
+	}.bind(this))
+}
+
 export function is_atom(node) {
 	
 	node = u(node)

@@ -14,11 +14,11 @@ import { find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
-import { insert_atom, is_atom } from './features/atoms.js'
+import { configure_atoms, insert_atom, is_atom } from './features/atoms.js'
 import { activate_atoms, deactivate_atoms } from './features/atoms.js'
 import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
 import { watch_atoms_will_exit, watch_atoms_did_exit } from './features/atoms.js'
-import { insert_card, is_card } from './features/cards.js'
+import { configure_cards, insert_card, is_card } from './features/cards.js'
 import { activate_cards, deactivate_cards } from './features/cards.js'
 import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
 import { watch_cards_will_exit, watch_cards_did_exit } from './features/cards.js'
@@ -53,8 +53,8 @@ export class System {
 		this.configure_basics(bus, editor, toolbar)
 		this.configure_formats(bus, editor, toolbar)
 		this.configure_blocks(bus, editor, toolbar)
-		this.configure_atoms(bus, editor, toolbar)
-		this.configure_cards(bus, editor, toolbar)
+		this.configure_atoms_(bus, editor, toolbar)
+		this.configure_cards_(bus, editor, toolbar)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
 	}
@@ -396,54 +396,16 @@ export class System {
 		}.bind(this))
 	}
 	
-	configure_atoms(bus, editor, toolbar) {
+	configure_atoms_(bus, editor, toolbar) {
 		
-		bus.on('history-will-undo', function(added, removed) {
-			watch_atoms_will_enter(added, bus)
-			watch_atoms_will_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-did-undo', function(added, removed) {
-			watch_atoms_did_enter(added, bus)
-			watch_atoms_did_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-will-redo', function(added, removed) {
-			watch_atoms_will_enter(added, bus)
-			watch_atoms_will_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-did-redo', function(added, removed) {
-			watch_atoms_did_enter(added, bus)
-			watch_atoms_did_exit(removed, bus)
-		}.bind(this))
-		
+		configure_atoms(bus, editor)
 		initialize_sample_atoms(bus, editor, toolbar)
 		initialize_animated_atoms(bus, editor, toolbar)
 	}
 	
-	configure_cards(bus, editor, toolbar) {
+	configure_cards_(bus, editor, toolbar) {
 		
-		bus.on('history-will-undo', function(added, removed) {
-			watch_cards_will_enter(added, bus)
-			watch_cards_will_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-did-undo', function(added, removed) {
-			watch_cards_did_enter(added, bus)
-			watch_cards_did_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-will-redo', function(added, removed) {
-			watch_cards_will_enter(added, bus)
-			watch_cards_will_exit(removed, bus)
-		}.bind(this))
-		
-		bus.on('history-did-redo', function(added, removed) {
-			watch_cards_did_enter(added, bus)
-			watch_cards_did_exit(removed, bus)
-		}.bind(this))
-		
+		configure_cards(bus, editor)
 		initialize_sample_cards(bus, editor, toolbar)
 		initialize_animated_cards(bus, editor, toolbar)
 		initialize_image_cards(bus, editor, toolbar)
@@ -473,45 +435,45 @@ export class System {
 			document.querySelector('.structure-html').textContent = serialize(editor)
 		}.bind(this))
 		
-		bus.on('content:valid', function(html) {
+		bus.on('content-did-insert', function() {
+			logger('system').log('content-did-insert')
+		})
+		
+		bus.on('content-did-delete', function(fragment) {
+			if (false) logger('system').log('content-did-delete: ' + fragment)
+		})
+		
+		bus.on('content-valid', function(html) {
 			return
 		}.bind(this))
 		
-		bus.on('content:invalid', function(result) {
-			console.log('content:invalid: ' + JSON.stringify(result))
+		bus.on('content-invalid', function(result) {
+			console.log('content-invalid: ' + JSON.stringify(result))
 			u('.structure').addClass('invalid')
 		}.bind(this))
 		
-		bus.on('content:did-insert', function() {
-			logger('system').log('content:did-insert')
+		bus.on('clipboard-will-cut', function() {
+			logger('system').log('clipboard-will-cut')
 		})
 		
-		bus.on('content:did-delete', function(fragment) {
-			if (false) logger('system').log('content:did-delete: ' + fragment)
+		bus.on('clipboard-did-cut', function() {
+			logger('system').log('clipboard-did-cut')
 		})
 		
-		bus.on('clipboard:will-cut', function() {
-			logger('system').log('clipboard:will-cut')
+		bus.on('clipboard-will-copy', function() {
+			logger('system').log('clipboard-will-copy')
 		})
 		
-		bus.on('clipboard:did-cut', function() {
-			logger('system').log('clipboard:did-cut')
+		bus.on('clipboard-did-copy', function() {
+			logger('system').log('clipboard-did-copy')
 		})
 		
-		bus.on('clipboard:will-copy', function() {
-			logger('system').log('clipboard:will-copy')
+		bus.on('clipboard-will-paste', function() {
+			logger('system').log('clipboard-will-paste')
 		})
 		
-		bus.on('clipboard:did-copy', function() {
-			logger('system').log('clipboard:did-copy')
-		})
-		
-		bus.on('clipboard:will-paste', function() {
-			logger('system').log('clipboard:will-paste')
-		})
-		
-		bus.on('clipboard:did-paste', function() {
-			logger('system').log('clipboard:did-paste')
+		bus.on('clipboard-did-paste', function() {
+			logger('system').log('clipboard-did-paste')
 		})
 	}
 	

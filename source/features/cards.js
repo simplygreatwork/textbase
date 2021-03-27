@@ -6,6 +6,72 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
+export function configure_cards(bus, editor) {
+	
+	bus.on('delete-requested', function(event) {
+		if (event.consumed) return
+		let selection = get_selection(editor)
+		if (selection.range.collapsed) {
+			if (can_delete_card(editor, selection)) {
+				delete_card(editor, selection)
+				event.consumed = true
+			}
+		}
+	})
+	
+	bus.on('content-will-delete', function(fragment) {
+		u(fragment).find('[data-card-type]').each(function(each) {
+			bus.emit('card-will-exit', each)
+		})
+	})
+	
+	bus.on('content-did-delete', function(fragment) {
+		u(fragment).find('[data-card-type]').each(function(each) {
+			bus.emit('card-did-exit', each)
+		})
+	})
+	
+	bus.on('card-will-enter', function(card) {
+		let type = u(card).data('card-type')
+		bus.emit('card-will-enter:' + type, card)
+	})
+	
+	bus.on('card-did-enter', function(card) {
+		let type = u(card).data('card-type')
+		bus.emit('card-did-enter:' + type, card)
+	})
+	
+	bus.on('card-will-exit', function(card) {
+		let type = u(card).data('card-type')
+		bus.emit('card-will-exit:' + type, card)
+	})
+	
+	bus.on('card-did-exit', function(card) {
+		let type = u(card).data('card-type')
+		bus.emit('card-did-exit:' + type, card)
+	})
+	
+	bus.on('history-will-undo', function(added, removed) {
+		watch_cards_will_enter(added, bus)
+		watch_cards_will_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-did-undo', function(added, removed) {
+		watch_cards_did_enter(added, bus)
+		watch_cards_did_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-will-redo', function(added, removed) {
+		watch_cards_will_enter(added, bus)
+		watch_cards_will_exit(removed, bus)
+	}.bind(this))
+	
+	bus.on('history-did-redo', function(added, removed) {
+		watch_cards_did_enter(added, bus)
+		watch_cards_did_exit(removed, bus)
+	}.bind(this))
+}
+
 export function is_card(node) {
 	
 	node = u(node)

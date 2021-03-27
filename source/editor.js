@@ -5,8 +5,6 @@ import { find_previous_inline_sibling } from './basics.js'
 import { find_next_block } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
-import { can_insert_atom, insert_atom, can_delete_atom, delete_atom } from './features/atoms.js'
-import { can_insert_card, insert_card, can_delete_card, delete_card } from './features/cards.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -72,28 +70,6 @@ export class Editor {
 		bus.on('delete-requested', function(event) {
 			if (event.consumed) return
 			let selection = get_selection(this)
-			if (selection.range.collapsed) {
-				if (can_delete_atom(this, selection)) {
-					delete_atom(this, selection)
-					event.consumed = true
-				}
-			}
-		}.bind(this))
-		
-		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
-			let selection = get_selection(this)
-			if (selection.range.collapsed) {
-				if (can_delete_card(this, selection)) {
-					delete_card(this, selection)
-					event.consumed = true
-				}
-			}
-		}.bind(this))
-		
-		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
-			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
 				event.consumed = true
@@ -117,64 +93,6 @@ export class Editor {
 				this.delete_content(selection)
 				event.consumed = true
 			}
-		}.bind(this))
-		
-		bus.on('content:will-delete', function(fragment) {
-			u(fragment).find('[data-atom-type]').each(function(each) {
-				bus.emit('atom-will-exit', each)
-			}.bind(this))
-			u(fragment).find('[data-card-type]').each(function(each) {
-				bus.emit('card-will-exit', each)
-			}.bind(this))
-		}.bind(this))
-		
-		bus.on('content:did-delete', function(fragment) {
-			u(fragment).find('[data-atom-type]').each(function(each) {
-				bus.emit('atom-did-exit', each)
-			}.bind(this))
-			u(fragment).find('[data-card-type]').each(function(each) {
-				bus.emit('card-did-exit', each)
-			}.bind(this))
-		}.bind(this))
-		
-		bus.on('atom-will-enter', function(atom) {
-			let type = u(atom).data('atom-type')
-			bus.emit('atom-will-enter:' + type, atom)
-		}.bind(this))
-		
-		bus.on('atom-did-enter', function(atom) {
-			let type = u(atom).data('atom-type')
-			bus.emit('atom-did-enter:' + type, atom)
-		}.bind(this))
-		
-		bus.on('atom-will-exit', function(atom) {
-			let type = u(atom).data('atom-type')
-			bus.emit('atom-will-exit:' + type, atom)
-		}.bind(this))
-		
-		bus.on('atom-did-exit', function(atom) {
-			let type = u(atom).data('atom-type')
-			bus.emit('atom-did-exit:' + type, atom)
-		}.bind(this))
-		
-		bus.on('card-will-enter', function(card) {
-			let type = u(card).data('card-type')
-			bus.emit('card-will-enter:' + type, card)
-		}.bind(this))	
-		
-		bus.on('card-did-enter', function(card) {
-			let type = u(card).data('card-type')
-			bus.emit('card-did-enter:' + type, card)
-		}.bind(this))
-		
-		bus.on('card-will-exit', function(card) {
-			let type = u(card).data('card-type')
-			bus.emit('card-will-exit:' + type, card)
-		}.bind(this))
-		
-		bus.on('card-did-exit', function(card) {
-			let type = u(card).data('card-type')
-			bus.emit('card-did-exit:' + type, card)
 		}.bind(this))
 	}
 	
@@ -200,7 +118,7 @@ export class Editor {
 	insert_character(event) {
 		
 		logger('trace').log('insert_character')
-		event.preventDefault()
+		if (event) event.preventDefault()
 		this.insert_string(event.key)
 	}
 	
@@ -348,7 +266,7 @@ export class Editor {
 		let fragment = selection.range.cloneContents()
 		let div = document.createElement('div')
 		div.appendChild(fragment.cloneNode(true))
-		this.emit('content:will-delete', fragment)
+		this.emit('content-will-delete', fragment)
 		let offset = selection.head.offset
 		let contents = selection.range.deleteContents()
 		if (u(div).find(a_block_element).length) {
@@ -359,7 +277,7 @@ export class Editor {
 			set_caret(this, { container: selection.head.container, offset: offset })
 		}
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
-		this.emit('content:did-delete', fragment)
+		this.emit('content-did-delete', fragment)
 	}
 	
 	is_editable() {
