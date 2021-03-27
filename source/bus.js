@@ -1,11 +1,12 @@
 
 export class Bus {
 	
-	on(key, func) {
+	on(key, func, where) {
 		
 		this.channels = this.channels || {}
 		if (this.channels[key] === undefined) this.channels[key] = []
-		this.channels[key].push(func)
+		if (where == 'before') this.channels[key].unshift(func)
+		else this.channels[key].push(func)
 		return function off() {
 			let index = this.channels[key].indexOf(func)
 			this.channels[key].splice(index, 1)

@@ -25,7 +25,7 @@ export function configure_cards(bus, editor) {
 				event.consumed = true
 			}
 		}
-	})
+	}, 'before')
 	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-card-type]').each(function(each) {

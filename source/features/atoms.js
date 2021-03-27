@@ -24,7 +24,7 @@ export function configure_atoms(bus, editor) {
 				event.consumed = true
 			}
 		}
-	})
+	}, 'before')
 	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-atom-type]').each(function(each) {
