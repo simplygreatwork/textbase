@@ -168,7 +168,7 @@ export class Editor {
 	delete_(event) {
 		
 		if (event) event.preventDefault()
-		this.bus.emit('delete-requested', { consumed: false})
+		this.bus.emit('delete-requested', { consumed: false })
 	}
 	
 	can_delete_character(selection) {
