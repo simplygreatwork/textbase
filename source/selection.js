@@ -135,7 +135,6 @@ export function selection_each_block(editor, selection, fn) {
 }
 
 function is_editable_node(node, editor) {
-	
 	return editor.is_editable_node(node)
 }
 
