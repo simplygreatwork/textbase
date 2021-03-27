@@ -39,6 +39,14 @@ export function initialize_cards(bus, editor) {
 		})
 	})
 	
+	bus.on('content-will-insert', function(node, bus) {
+		watch_cards_will_enter(node, bus)
+	})
+
+	bus.on('content-did-insert', function(node, bus) {
+		watch_cards_did_enter(node, bus)
+	})
+	
 	bus.on('card-will-enter', function(card) {
 		let type = u(card).data('card-type')
 		bus.emit(`card-will-enter:${type}`, card)

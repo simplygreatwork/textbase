@@ -15,10 +15,12 @@ export function initialize_animated_atoms(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('atom-will-enter:animated', function(atom) {
+		console.log('atom-will-enter:animated')
 		u(atom).text('Animated atom: ' + Math.random())
 	}.bind(this))
 	
 	bus.on('atom-did-enter:animated', function(atom) {
+		console.log('atom-did-enter:animated')
 		if (atom.id_) window.clearInterval(atom.id_)
 		atom.id_ = window.setInterval(function() {
 			u(atom).text('Animated atom: ' + Math.random())

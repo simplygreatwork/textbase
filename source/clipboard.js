@@ -2,8 +2,6 @@
 import { get_selection, set_caret, normalize_selection, selection_edge } from './selection.js'
 import { node_iterator, a_text_node, a_span_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
-import { watch_atoms_will_enter, watch_atoms_did_enter } from './features/atoms.js'
-import { watch_cards_will_enter, watch_cards_did_enter } from './features/cards.js'
 import { sanitize } from './sanitize.js'
 import { Logger } from './logger.js'
 
@@ -73,7 +71,9 @@ function paste_internally(content, editor) {
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
 	if (node.children().length === 0) {
+		bus.emit('content-will-insert', node, bus)
 		editor.insert_string(node.text())
+		bus.emit('content-did-insert', node, bus)
 		editor.emit('content-did-change', edges[1], edges[0])
 		editor.emit('clipboard-did-paste')
 	} else {
@@ -81,12 +81,16 @@ function paste_internally(content, editor) {
 		node.children().each(function(each) {
 			each = u(each)
 			if (each.is(an_inline_element)) {
+				bus.emit('content-will-insert', each, bus)
 				u(edges[0]).before(each)
+				bus.emit('content-did-insert', each, bus)
 			} else if (each.is(a_block_element)) {
 				if (part === null) {
 					part = u(editor.split_content(a_block_element)[0])
 				}
-				insert_block(each, part, bus)
+				bus.emit('content-will-insert', each, bus)
+				part.after(each)
+				bus.emit('content-did-insert', each, bus)
 				part = each
 			}
 		})
@@ -95,15 +99,6 @@ function paste_internally(content, editor) {
 		editor.emit('content-did-change', edges[1], edges[0])
 		editor.emit('clipboard-did-paste')
 	}
-}
-
-function insert_block(node, sibling, bus) {
-	
-	watch_atoms_will_enter(node, bus)
-	watch_cards_will_enter(node, bus)
-	sibling.after(node)
-	watch_atoms_did_enter(node, bus)
-	watch_cards_did_enter(node, bus)
 }
 
 function is_internal_transfer(node) {

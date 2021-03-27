@@ -38,6 +38,14 @@ export function initialize_atoms(bus, editor) {
 		})
 	})
 	
+	bus.on('content-will-insert', function(node, bus) {
+		watch_atoms_will_enter(node, bus)
+	})
+	
+	bus.on('content-did-insert', function(node, bus) {
+		watch_atoms_did_enter(node, bus)
+	})
+	
 	bus.on('atom-will-enter', function(atom) {
 		let type = u(atom).data('atom-type')
 		bus.emit(`atom-will-enter:${type}`, atom)
@@ -148,6 +156,7 @@ export function delete_atom(editor, selection) {
 
 export function watch_atoms_will_enter(nodes, bus) {
 	
+	console.log('watch_atoms_will_enter')
 	logger('trace').log('watch_atoms_will_enter')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
