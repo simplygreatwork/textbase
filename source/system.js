@@ -130,6 +130,15 @@ export class System {
 		bus.on('keydown:arrowdown', function(event) {
 			this.history.capture()
 		}.bind(this))
+		
+		bus.on('clipboard-did-cut', function(event) {
+			this.history.capture()
+		}.bind(this))
+		
+		bus.on('clipboard-did-paste', function(event) {
+			console.log('clipboard-did-paste')
+			this.history.capture()
+		}.bind(this))
 	}
 	
 	configure_basics(bus, editor, toolbar) {

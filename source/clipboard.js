@@ -74,6 +74,8 @@ function paste_internally(content, editor) {
 	selection.range.deleteContents()
 	if (node.children().length === 0) {
 		editor.insert_string(node.text())
+		editor.emit('content-did-change', edges[1], edges[0])
+		editor.emit('clipboard-did-paste')
 	} else {
 		let part = null
 		node.children().each(function(each) {
@@ -91,6 +93,7 @@ function paste_internally(content, editor) {
 		set_caret(editor, { container: edges[0], offset: 0 })
 		normalize_selection(editor)
 		editor.emit('content-did-change', edges[1], edges[0])
+		editor.emit('clipboard-did-paste')
 	}
 }
 
