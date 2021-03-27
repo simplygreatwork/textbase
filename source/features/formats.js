@@ -43,7 +43,7 @@ function apply_format(editor, selection, format) {
 	selection_each_text(editor, selection, function(node, index) {
 		u(node).parent().addClass(format)
 	})
-	editor.emit('format-did-add', format)
+	editor.emit('format-did-apply', format)
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
