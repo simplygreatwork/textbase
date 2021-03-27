@@ -157,6 +157,17 @@ export function watch_atoms_will_enter(nodes, bus) {
 	})
 }
 
+export function watch_atoms_did_enter(nodes, bus) {
+	
+	logger('trace').log('watch_atoms_did_enter')
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
+		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
+			bus.emit('atom-did-enter', node)
+		}
+	})
+}
+
 export function watch_atoms_will_exit(nodes, bus) {
 	
 	logger('trace').log('watch_atoms_will_exit')
@@ -168,16 +179,6 @@ export function watch_atoms_will_exit(nodes, bus) {
 	})
 }
 
-export function watch_atoms_did_enter(nodes, bus) {
-	
-	logger('trace').log('watch_atoms_did_enter')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
-	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
-			bus.emit('atom-did-enter', node)
-		}
-	})
-}
 
 export function watch_atoms_did_exit(nodes, bus) {
 	

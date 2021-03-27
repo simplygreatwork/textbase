@@ -160,17 +160,6 @@ export function watch_cards_will_enter(nodes, bus) {		// todo: actually need to 
 	})
 }
 
-export function watch_cards_will_exit(nodes, bus) {
-	
-	logger('trace').log('watch_cards_will_exit')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
-	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
-			bus.emit('card-will-exit', node)
-		}
-	})
-}
-
 export function watch_cards_did_enter(nodes, bus) {
 	
 	logger('trace').log('watch_cards_did_enter')
@@ -178,6 +167,17 @@ export function watch_cards_did_enter(nodes, bus) {
 	nodes.forEach(function(node) {
 		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
 			bus.emit('card-did-enter', node)
+		}
+	})
+}
+
+export function watch_cards_will_exit(nodes, bus) {
+	
+	logger('trace').log('watch_cards_will_exit')
+	if (! Array.isArray(nodes)) nodes = [nodes] 
+	nodes.forEach(function(node) {
+		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
+			bus.emit('card-will-exit', node)
 		}
 	})
 }
