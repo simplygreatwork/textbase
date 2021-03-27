@@ -6,7 +6,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function configure_cards(bus, editor) {
+export function initialize_cards(bus, editor) {
 	
 	bus.on('document-did-install', function(document_) {
 		activate_cards(bus, editor)

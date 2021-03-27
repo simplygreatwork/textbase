@@ -5,7 +5,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function configure_atoms(bus, editor) {
+export function initialize_atoms(bus, editor) {
 	
 	bus.on('document-did-install', function(document_) {
 		activate_atoms(bus, editor)

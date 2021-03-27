@@ -14,8 +14,8 @@ import { find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
-import { configure_atoms, insert_atom, is_atom } from './features/atoms.js'
-import { configure_cards, insert_card, is_card } from './features/cards.js'
+import { initialize_atoms, insert_atom, is_atom } from './features/atoms.js'
+import { initialize_cards, insert_card, is_card } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
 import { initialize_animated_atoms } from './atoms/animated.js'
 import { initialize_sample_cards } from './cards/sample.js'
@@ -47,8 +47,8 @@ export class System {
 		this.configure_basics(bus, editor, toolbar)
 		this.configure_formats(bus, editor, toolbar)
 		this.configure_blocks(bus, editor, toolbar)
-		this.configure_atoms_(bus, editor, toolbar)
-		this.configure_cards_(bus, editor, toolbar)
+		this.configure_atoms(bus, editor, toolbar)
+		this.configure_cards(bus, editor, toolbar)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
 	}
@@ -386,16 +386,16 @@ export class System {
 		}.bind(this))
 	}
 	
-	configure_atoms_(bus, editor, toolbar) {
+	configure_atoms(bus, editor, toolbar) {
 		
-		configure_atoms(bus, editor)
+		initialize_atoms(bus, editor)
 		initialize_sample_atoms(bus, editor, toolbar)
 		initialize_animated_atoms(bus, editor, toolbar)
 	}
 	
-	configure_cards_(bus, editor, toolbar) {
+	configure_cards(bus, editor, toolbar) {
 		
-		configure_cards(bus, editor)
+		initialize_cards(bus, editor)
 		initialize_sample_cards(bus, editor, toolbar)
 		initialize_animated_cards(bus, editor, toolbar)
 		initialize_image_cards(bus, editor, toolbar)
