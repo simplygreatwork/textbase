@@ -91,13 +91,13 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (element.matches('.atom')) {
+			if (element.matches('[data-atom-type]')) {
 				bus.emit('detected:atom', element)
 			}
 		}.bind(this))
 
 		walker.on('element', function(element) {
-			if (element.matches('.card')) {
+			if (element.matches('[data-card-type]')) {
 				bus.emit('detected:card', element)
 			}
 		}.bind(this))

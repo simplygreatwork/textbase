@@ -15,22 +15,22 @@ export function initialize_sample_cards(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('card-will-enter:sample', function(card) {
-		logger('application').log('card-will-enter:sample')
+		logger('system').log('card-will-enter:sample')
 		u(card).text('Sample Card')
 	}.bind(this))
 	
 	bus.on('card-did-enter:sample', function(card) {
-		logger('application').log('card-did-enter:sample')
+		logger('system').log('card-did-enter:sample')
 		window.setTimeout(function() {
 			u(card).text('Sample Card !!!')
 		}, 1000)
 	}.bind(this))
 	
 	bus.on('card-will-exit:sample', function(card) {
-		logger('application').log('card-will-exit:sample')
+		logger('system').log('card-will-exit:sample')
 	}.bind(this))
 	
 	bus.on('card-did-exit:sample', function(card) {
-		logger('application').log('card-did-exit:sample')
+		logger('system').log('card-did-exit:sample')
 	}.bind(this))
 }

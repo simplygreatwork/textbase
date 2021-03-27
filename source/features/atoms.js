@@ -16,7 +16,7 @@ export function is_atom(node) {
 
 export function activate_atoms(editor, bus) {
 	
-	u(editor.element).find('.atom').each(function(atom) {
+	u(editor.element).find('[data-atom-type]').each(function(atom) {
 		bus.emit('atom-will-enter', atom)
 		bus.emit('atom-did-enter', atom)
 	})
@@ -24,7 +24,7 @@ export function activate_atoms(editor, bus) {
 
 export function deactivate_atoms(editor, bus) {
 	
-	u(editor.element).find('.atom').each(function(atom) {
+	u(editor.element).find('[data-atom-type]').each(function(atom) {
 		bus.emit('atom-will-exit', atom)
 		bus.emit('atom-did-exit', atom)
 	})
@@ -55,7 +55,7 @@ export function can_delete_atom(editor, selection) {
 	let element = u(selection.head.container).parent().first()
 	let iterator = element_iterator(editor.element, element)
 	let previous = iterator.previousNode()
-	let atom = u(previous).closest('.atom').first()
+	let atom = u(previous).closest('[data-atom-type]').first()
 	if (atom) return atom
 	else return false
 }
@@ -77,7 +77,7 @@ export function watch_atoms_will_enter(nodes, bus) {
 	logger('trace').log('watch_atoms_will_enter')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
 			bus.emit('atom-will-enter', node)
 		}
 	})
@@ -88,7 +88,7 @@ export function watch_atoms_will_exit(nodes, bus) {
 	logger('trace').log('watch_atoms_will_exit')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
 			bus.emit('atom-will-exit', node)
 		}
 	})
@@ -99,7 +99,7 @@ export function watch_atoms_did_enter(nodes, bus) {
 	logger('trace').log('watch_atoms_did_enter')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
 			bus.emit('atom-did-enter', node)
 		}
 	})
@@ -110,7 +110,7 @@ export function watch_atoms_did_exit(nodes, bus) {
 	logger('trace').log('watch_atoms_did_exit')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('.atom')) {
+		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
 			bus.emit('atom-did-exit', node)
 		}
 	})

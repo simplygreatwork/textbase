@@ -120,19 +120,19 @@ export class Editor {
 		}.bind(this))
 		
 		bus.on('content:will-delete', function(fragment) {
-			u(fragment).find('.atom').each(function(each) {
+			u(fragment).find('[data-atom-type]').each(function(each) {
 				bus.emit('atom-will-exit', each)
 			}.bind(this))
-			u(fragment).find('.card').each(function(each) {
+			u(fragment).find('[data-card-type]').each(function(each) {
 				bus.emit('card-will-exit', each)
 			}.bind(this))
 		}.bind(this))
 		
 		bus.on('content:did-delete', function(fragment) {
-			u(fragment).find('.atom').each(function(each) {
+			u(fragment).find('[data-atom-type]').each(function(each) {
 				bus.emit('atom-did-exit', each)
 			}.bind(this))
-			u(fragment).find('.card').each(function(each) {
+			u(fragment).find('[data-card-type]').each(function(each) {
 				bus.emit('card-did-exit', each)
 			}.bind(this))
 		}.bind(this))

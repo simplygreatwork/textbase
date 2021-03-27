@@ -15,22 +15,22 @@ export function initialize_sample_atoms(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('atom-will-enter:sample', function(atom) {
-		logger('application').log('atom-will-enter:sample')
+		logger('system').log('atom-will-enter:sample')
 		u(atom).text('Sample Atom')
 	}.bind(this))
 	
 	bus.on('atom-did-enter:sample', function(atom) {
-		logger('application').log('atom-did-enter:sample')
+		logger('system').log('atom-did-enter:sample')
 		window.setTimeout(function() {
 			u(atom).text('Sample Atom !!!')
 		}, 1000)
 	}.bind(this))
 	
 	bus.on('atom-will-exit:sample', function(atom) {
-		logger('application').log('atom-will-exit:sample')
+		logger('system').log('atom-will-exit:sample')
 	}.bind(this))
 	
 	bus.on('atom-did-exit:sample', function(atom) {
-		logger('application').log('atom-did-exit:sample')
+		logger('system').log('atom-did-exit:sample')
 	}.bind(this))
 }

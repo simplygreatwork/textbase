@@ -17,7 +17,7 @@ export function is_card(node) {
 
 export function activate_cards(editor, bus) {
 	
-	u(editor.element).find('.card').each(function(card) {
+	u(editor.element).find('[data-card-type]').each(function(card) {
 		bus.emit('card-will-enter', card)
 		bus.emit('card-did-enter', card)
 	})
@@ -25,7 +25,7 @@ export function activate_cards(editor, bus) {
 
 export function deactivate_cards(editor, bus) {
 	
-	u(editor.element).find('.card').each(function(card) {
+	u(editor.element).find('[data-card-type]').each(function(card) {
 		bus.emit('card-will-exit', card)
 		bus.emit('card-did-exit', card)
 	})
@@ -58,7 +58,7 @@ export function can_delete_card(editor, selection) {
 	if (u(element).is(an_inline_element)) return false
 	let block = find_previous_block(editor.element, selection.head.container)
 	if (! block) return false
-	let card = u(block).closest('.card').first()
+	let card = u(block).closest('[data-card-type]').first()
 	if (card) return card
 	else return false
 }
@@ -80,7 +80,7 @@ export function watch_cards_will_enter(nodes, bus) {		// todo: actually need to 
 	logger('trace').log('watch_cards_will_enter')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
+		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
 			bus.emit('card-will-enter', node)
 		}
 	})
@@ -91,7 +91,7 @@ export function watch_cards_will_exit(nodes, bus) {
 	logger('trace').log('watch_cards_will_exit')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
+		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
 			bus.emit('card-will-exit', node)
 		}
 	})
@@ -102,7 +102,7 @@ export function watch_cards_did_enter(nodes, bus) {
 	logger('trace').log('watch_cards_did_enter')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
+		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
 			bus.emit('card-did-enter', node)
 		}
 	})
@@ -113,7 +113,7 @@ export function watch_cards_did_exit(nodes, bus) {
 	logger('trace').log('watch_cards_did_exit')
 	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('.card')) || (u(node).find('.card')))) {
+		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
 			bus.emit('card-did-exit', node)
 		}
 	})

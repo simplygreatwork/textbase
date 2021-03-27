@@ -17,18 +17,18 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('card-will-enter:image', function(card) {
-		logger('application').log('card-will-enter:image')
+		logger('system').log('card-will-enter:image')
 	}.bind(this))
 	
 	bus.on('card-did-enter:image', function(card) {
-		logger('application').log('card-did-enter:image')
+		logger('system').log('card-did-enter:image')
 	}.bind(this))
 	
 	bus.on('card-will-exit:image', function(card) {
-		logger('application').log('card-will-exit:image')
+		logger('system').log('card-will-exit:image')
 	}.bind(this))
 	
 	bus.on('card-did-exit:image', function(card) {
-		logger('application').log('card-did-exit:image')
+		logger('system').log('card-did-exit:image')
 	}.bind(this))
 }

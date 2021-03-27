@@ -17,22 +17,22 @@ export function initialize_designed_cards(bus, editor, toolbar) {
 	}.bind(this))
 	
 	bus.on('card-will-enter:designed', function(card) {
-		logger('application').log('card-will-enter:designed')
+		logger('system').log('card-will-enter:designed')
 		u(card).text('Designed Card')
 	}.bind(this))
 	
 	bus.on('card-did-enter:designed', function(card) {
-		logger('application').log('card-did-enter:designed')
+		logger('system').log('card-did-enter:designed')
 		window.setTimeout(function() {
 			u(card).text('Designed Card !!!')
 		}, 1000)
 	}.bind(this))
 	
 	bus.on('card-will-exit:designed', function(card) {
-		logger('application').log('card-will-exit:designed')
+		logger('system').log('card-will-exit:designed')
 	}.bind(this))
 	
 	bus.on('card-did-exit:designed', function(card) {
-		logger('application').log('card-did-exit:designed')
+		logger('system').log('card-did-exit:designed')
 	}.bind(this))
 }
