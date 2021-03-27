@@ -12,7 +12,7 @@ export class Bus {
 		}.bind(this)
 	}
 	
-	before(key, func) {
+	early(key, func) {
 		
 		this.channels = this.channels || {}
 		if (this.channels[key] === undefined) this.channels[key] = []

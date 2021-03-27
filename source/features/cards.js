@@ -16,7 +16,7 @@ export function configure_cards(bus, editor) {
 		deactivate_cards(bus, editor)
 	})
 	
-	bus.before('delete-requested', function(event) {
+	bus.early('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
