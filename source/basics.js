@@ -5,9 +5,7 @@ export let zero_width_whitespace = '\u200b'
 
 export function node_iterator(element, from, filter) {
 	
-	filter = filter || function(node) {
-		return true
-	}
+	filter = filter || function(node) { return true }
 	let walker = document.createTreeWalker(element, NodeFilter.SHOW_ALL, function(node) {
 		return filter(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
 	}, false)

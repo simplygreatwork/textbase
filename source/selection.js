@@ -138,17 +138,6 @@ function is_editable_node(node, editor) {
 	return editor.is_editable_node(node)
 }
 
-function is_atom_or_card(node) {
-	
-	node = u(node)
-	if (node.is(a_text_node)) node = node.parent()
-	if (node.is(u('[data-atom-type]'))) return true
-	if (node.closest(u('[data-atom-type]')).first()) return true
-	if (node.is(u('[data-card-type]'))) return true
-	if (node.closest(u('[data-card-type]')).first()) return true
-	return false
-}
-
 export function get_selection_length(editor, selection) {
 	
 	let result = 0

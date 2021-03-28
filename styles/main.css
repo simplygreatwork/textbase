@@ -16,7 +16,7 @@ body {
 	overflow-y:none;
 }
 .editor {
-	width:50%;
+	width:45%;
 	overflow-y:scroll;
 	padding-left:40px;
 }
@@ -60,7 +60,7 @@ button:focus {
 	outline:0;
 }
 .structure {
-	width:50%;
+	width:45%;
 	overflow-y:scroll;
 	height:100%;
 }
