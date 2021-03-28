@@ -8,11 +8,17 @@ const logger = Logger()
 export function initialize_atoms(bus, editor) {
 	
 	bus.on('document-did-install', function(document_) {
-		activate_atoms(bus, editor)
+		each_atom(editor.element, editor.element, null, function(atom) {
+			bus.emit('atom-will-enter', atom)
+			bus.emit('atom-did-enter', atom)
+		})
 	}.bind(this))
 	
 	bus.on('document-did-uninstall', function(document_) {
-		deactivate_atoms(bus, editor)
+		each_atom(editor.element, editor.element, null, function(atom) {
+			bus.emit('atom-will-exit', atom)
+			bus.emit('atom-did-exit', atom)
+		})
 	})
 	
 	bus.unshift('delete-requested', function(event) {
@@ -26,6 +32,18 @@ export function initialize_atoms(bus, editor) {
 		}
 	})
 	
+	bus.on('content-will-insert', function(node, bus) {
+		each_atom(node, node, null, function(atom) {
+			bus.emit('atom-will-enter', atom)
+		})
+	})
+	
+	bus.on('content-did-insert', function(node, bus) {
+		each_atom(node, node, null, function(atom) {
+			bus.emit('atom-did-enter', atom)
+		})
+	})
+	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-atom-type]').each(function(each) {
 			bus.emit('atom-will-exit', each)
@@ -36,34 +54,6 @@ export function initialize_atoms(bus, editor) {
 		u(fragment).find('[data-atom-type]').each(function(each) {
 			bus.emit('atom-did-exit', each)
 		})
-	})
-	
-	bus.on('content-will-insert', function(node, bus) {
-		watch_atoms_will_enter(node, bus)
-	})
-	
-	bus.on('content-did-insert', function(node, bus) {
-		watch_atoms_did_enter(node, bus)
-	})
-	
-	bus.on('atom-will-enter', function(atom) {
-		let type = u(atom).data('atom-type')
-		bus.emit(`atom-will-enter:${type}`, atom)
-	})
-	
-	bus.on('atom-did-enter', function(atom) {
-		let type = u(atom).data('atom-type')
-		bus.emit(`atom-did-enter:${type}`, atom)
-	})
-	
-	bus.on('atom-will-exit', function(atom) {
-		let type = u(atom).data('atom-type')
-		bus.emit(`atom-will-exit:${type}`, atom)
-	})
-	
-	bus.on('atom-did-exit', function(atom) {
-		let type = u(atom).data('atom-type')
-		bus.emit(`atom-did-exit:${type}`, atom)
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
@@ -85,6 +75,22 @@ export function initialize_atoms(bus, editor) {
 		watch_atoms_did_enter(added, bus)
 		watch_atoms_did_exit(removed, bus)
 	}.bind(this))
+	
+	bus.on('atom-will-enter', function(atom) {
+		bus.emit(`atom-will-enter:${u(atom).data('atom-type')}`, atom)
+	})
+	
+	bus.on('atom-did-enter', function(atom) {
+		bus.emit(`atom-did-enter:${u(atom).data('atom-type')}`, atom)
+	})
+	
+	bus.on('atom-will-exit', function(atom) {
+		bus.emit(`atom-will-exit:${u(atom).data('atom-type')}`, atom)
+	})
+	
+	bus.on('atom-did-exit', function(atom) {
+		bus.emit(`atom-did-exit:${u(atom).data('atom-type')}`, atom)
+	})
 }
 
 export function is_atom(node) {
@@ -94,22 +100,6 @@ export function is_atom(node) {
 	if (node.is(u('[data-atom-type]'))) return true
 	if (node.closest(u('[data-atom-type]')).first()) return true
 	return false
-}
-
-export function activate_atoms(bus, editor) {
-	
-	u(editor.element).find('[data-atom-type]').each(function(atom) {
-		bus.emit('atom-will-enter', atom)
-		bus.emit('atom-did-enter', atom)
-	})
-}
-
-export function deactivate_atoms(bus, editor) {
-	
-	u(editor.element).find('[data-atom-type]').each(function(atom) {
-		bus.emit('atom-will-exit', atom)
-		bus.emit('atom-did-exit', atom)
-	})
 }
 
 export function can_insert_atom(editor) {
@@ -156,46 +146,52 @@ export function delete_atom(editor, selection) {
 
 export function watch_atoms_will_enter(nodes, bus) {
 	
-	console.log('watch_atoms_will_enter')
-	logger('trace').log('watch_atoms_will_enter')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
-			bus.emit('atom-will-enter', node)
-		}
+		each_atom(node, node, null, function(card) {
+			bus.emit('atom-will-enter', card)
+		})
 	})
 }
 
 export function watch_atoms_did_enter(nodes, bus) {
 	
-	logger('trace').log('watch_atoms_did_enter')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
-			bus.emit('atom-did-enter', node)
-		}
+		each_atom(node, node, null, function(card) {
+			bus.emit('atom-did-enter', card)
+		})
 	})
 }
 
 export function watch_atoms_will_exit(nodes, bus) {
 	
-	logger('trace').log('watch_atoms_will_exit')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
-			bus.emit('atom-will-exit', node)
-		}
+		each_atom(node, node, null, function(card) {
+			bus.emit('atom-will-exit', card)
+		})
 	})
 }
 
-
 export function watch_atoms_did_exit(nodes, bus) {
 	
-	logger('trace').log('watch_atoms_did_exit')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && u(node).is('[data-atom-type]')) {
-			bus.emit('atom-did-exit', node)
-		}
+		each_atom(node, node, null, function(card) {
+			bus.emit('atom-did-exit', card)
+		})
 	})
+}
+
+export function each_atom(top, begin, end, fn) {
+	
+	let node = begin
+	let iterator = element_iterator(top, begin)
+	while (node) {
+		let node_ = u(node)
+		if (node_.is(an_element_node)) {
+			if (node_.is('[data-atom-type]')) {
+				fn(node_.first())
+			}
+		}
+		if (node == end) break
+		node = iterator.nextNode()
+	}
 }

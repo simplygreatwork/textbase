@@ -71,9 +71,9 @@ function paste_internally(content, editor) {
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
 	if (node.children().length === 0) {
-		bus.emit('content-will-insert', node, bus)
+		bus.emit('content-will-insert', content, bus)
 		editor.insert_string(node.text())
-		bus.emit('content-did-insert', node, bus)
+		bus.emit('content-did-insert', content, bus)
 		editor.emit('content-did-change', edges[1], edges[0])
 		editor.emit('clipboard-did-paste')
 	} else {
@@ -81,16 +81,16 @@ function paste_internally(content, editor) {
 		node.children().each(function(each) {
 			each = u(each)
 			if (each.is(an_inline_element)) {
-				bus.emit('content-will-insert', each, bus)
+				bus.emit('content-will-insert', each.first(), bus)
 				u(edges[0]).before(each)
-				bus.emit('content-did-insert', each, bus)
+				bus.emit('content-did-insert', each.first(), bus)
 			} else if (each.is(a_block_element)) {
 				if (part === null) {
 					part = u(editor.split_content(a_block_element)[0])
 				}
-				bus.emit('content-will-insert', each, bus)
+				bus.emit('content-will-insert', each.first(), bus)
 				part.after(each)
-				bus.emit('content-did-insert', each, bus)
+				bus.emit('content-did-insert', each.first(), bus)
 				part = each
 			}
 		})

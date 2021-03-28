@@ -9,11 +9,17 @@ const logger = Logger()
 export function initialize_cards(bus, editor) {
 	
 	bus.on('document-did-install', function(document_) {
-		activate_cards(bus, editor)
+		each_card(editor.element, editor.element, null, function(card) {
+			bus.emit('card-will-enter', card)
+			bus.emit('card-did-enter', card)
+		})
 	}.bind(this))
 	
 	bus.on('document-did-uninstall', function(document_) {
-		deactivate_cards(bus, editor)
+		each_card(editor.element, editor.element, null, function(card) {
+			bus.emit('card-will-exit', card)
+			bus.emit('card-did-exit', card)
+		})
 	})
 	
 	bus.unshift('delete-requested', function(event) {
@@ -27,6 +33,18 @@ export function initialize_cards(bus, editor) {
 		}
 	})
 	
+	bus.on('content-will-insert', function(node, bus) {
+		each_card(node, node, node, function(card) {
+			bus.emit('card-will-enter', card)
+		})
+	})
+	
+	bus.on('content-did-insert', function(node, bus) {
+		each_card(node, node, node, function(card) {
+			bus.emit('card-did-enter', card)
+		})
+	})
+	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-card-type]').each(function(each) {
 			bus.emit('card-will-exit', each)
@@ -37,34 +55,6 @@ export function initialize_cards(bus, editor) {
 		u(fragment).find('[data-card-type]').each(function(each) {
 			bus.emit('card-did-exit', each)
 		})
-	})
-	
-	bus.on('content-will-insert', function(node, bus) {
-		watch_cards_will_enter(node, bus)
-	})
-
-	bus.on('content-did-insert', function(node, bus) {
-		watch_cards_did_enter(node, bus)
-	})
-	
-	bus.on('card-will-enter', function(card) {
-		let type = u(card).data('card-type')
-		bus.emit(`card-will-enter:${type}`, card)
-	})
-	
-	bus.on('card-did-enter', function(card) {
-		let type = u(card).data('card-type')
-		bus.emit(`card-did-enter:${type}`, card)
-	})
-	
-	bus.on('card-will-exit', function(card) {
-		let type = u(card).data('card-type')
-		bus.emit(`card-will-exit:${type}`, card)
-	})
-	
-	bus.on('card-did-exit', function(card) {
-		let type = u(card).data('card-type')
-		bus.emit(`card-did-exit:${type}`, card)
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
@@ -86,6 +76,22 @@ export function initialize_cards(bus, editor) {
 		watch_cards_did_enter(added, bus)
 		watch_cards_did_exit(removed, bus)
 	}.bind(this))
+	
+	bus.on('card-will-enter', function(card) {
+		bus.emit(`card-will-enter:${u(card).data('card-type')}`, card)
+	})
+	
+	bus.on('card-did-enter', function(card) {
+		bus.emit(`card-did-enter:${u(card).data('card-type')}`, card)
+	})
+	
+	bus.on('card-will-exit', function(card) {
+		bus.emit(`card-will-exit:${u(card).data('card-type')}`, card)
+	})
+	
+	bus.on('card-did-exit', function(card) {
+		bus.emit(`card-did-exit:${u(card).data('card-type')}`, card)
+	})
 }
 
 export function is_card(node) {
@@ -95,22 +101,6 @@ export function is_card(node) {
 	if (node.is(u('[data-card-type]'))) return true
 	if (node.closest(u('[data-card-type]')).first()) return true
 	return false
-}
-
-export function activate_cards(bus, editor) {
-	
-	u(editor.element).find('[data-card-type]').each(function(card) {
-		bus.emit('card-will-enter', card)
-		bus.emit('card-did-enter', card)
-	})
-}
-
-export function deactivate_cards(bus, editor) {
-	
-	u(editor.element).find('[data-card-type]').each(function(card) {
-		bus.emit('card-will-exit', card)
-		bus.emit('card-did-exit', card)
-	})
 }
 
 export function can_insert_card(editor) {
@@ -159,44 +149,52 @@ export function delete_card(editor, selection) {
 
 export function watch_cards_will_enter(nodes, bus) {		// todo: actually need to use find
 	
-	logger('trace').log('watch_cards_will_enter')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
-			bus.emit('card-will-enter', node)
-		}
+		each_card(node, node, null, function(card) {
+			bus.emit('card-will-enter', card)
+		})
 	})
 }
 
 export function watch_cards_did_enter(nodes, bus) {
 	
-	logger('trace').log('watch_cards_did_enter')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
-			bus.emit('card-did-enter', node)
-		}
+		each_card(node, node, null, function(card) {
+			bus.emit('card-did-enter', card)
+		})
 	})
 }
 
 export function watch_cards_will_exit(nodes, bus) {
 	
-	logger('trace').log('watch_cards_will_exit')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
-			bus.emit('card-will-exit', node)
-		}
+		each_card(node, node, null, function(card) {
+			bus.emit('card-will-exit', card)
+		})
 	})
 }
 
 export function watch_cards_did_exit(nodes, bus) {
 	
-	logger('trace').log('watch_cards_did_exit')
-	if (! Array.isArray(nodes)) nodes = [nodes] 
 	nodes.forEach(function(node) {
-		if (u(node).is(an_element_node) && ((u(node).is('[data-card-type]')) || (u(node).find('[data-card-type]')))) {
-			bus.emit('card-did-exit', node)
-		}
+		each_card(node, node, null, function(card) {
+			bus.emit('card-did-exit', card)
+		})
 	})
+}
+
+export function each_card(top, begin, end, fn) {
+	
+	let node = begin
+	let iterator = element_iterator(top, begin)
+	while (node) {
+		let node_ = u(node)
+		if (node_.is(an_element_node)) {
+			if (node_.is('[data-card-type]')) {
+				fn(node_.first())
+			}
+		}
+		if (node == end) break
+		node = iterator.nextNode()
+	}
 }
