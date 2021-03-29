@@ -58,23 +58,23 @@ export function initialize_cards(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		emit_cards_will_enter(added, bus)
-		emit_cards_will_exit(removed, bus)
+		batch_emit('card-will-enter', added, bus)
+		batch_emit('card-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		emit_cards_did_enter(added, bus)
-		emit_cards_did_exit(removed, bus)
+		batch_emit('card-did-enter', added, bus)
+		batch_emit('card-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		emit_cards_will_enter(added, bus)
-		emit_cards_will_exit(removed, bus)
+		batch_emit('card-will-enter', added, bus)
+		batch_emit('card-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		emit_cards_did_enter(added, bus)
-		emit_cards_did_exit(removed, bus)
+		batch_emit('card-did-enter', added, bus)
+		batch_emit('card-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('card-did-enter', function(atom) {
@@ -155,43 +155,16 @@ export function delete_card(editor, selection, history) {
 	}
 }
 
-export function emit_cards_will_enter(nodes, bus) {		// todo: actually need to use find
+function batch_emit(key, nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card) {
-			bus.emit('card-will-enter', card)
+			bus.emit(key, card)
 		})
 	})
 }
 
-export function emit_cards_did_enter(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_card(node, node, null, function(card) {
-			bus.emit('card-did-enter', card)
-		})
-	})
-}
-
-export function emit_cards_will_exit(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_card(node, node, null, function(card) {
-			bus.emit('card-will-exit', card)
-		})
-	})
-}
-
-export function emit_cards_did_exit(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_card(node, node, null, function(card) {
-			bus.emit('card-did-exit', card)
-		})
-	})
-}
-
-export function each_card(top, begin, end, fn) {
+function each_card(top, begin, end, fn) {
 	
 	let node = begin
 	let iterator = element_iterator(top, begin)

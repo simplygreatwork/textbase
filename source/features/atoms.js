@@ -57,23 +57,23 @@ export function initialize_atoms(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		emit_atoms_will_enter(added, bus)
-		emit_atoms_will_exit(removed, bus)
+		batch_emit('atom-will-enter', added, bus)
+		batch_emit('atom-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		emit_atoms_did_enter(added, bus)
-		emit_atoms_did_exit(removed, bus)
+		batch_emit('atom-did-enter', added, bus)
+		batch_emit('atom-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		emit_atoms_will_enter(added, bus)
-		emit_atoms_will_exit(removed, bus)
+		batch_emit('atom-will-enter', added, bus)
+		batch_emit('atom-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		emit_atoms_did_enter(added, bus)
-		emit_atoms_did_exit(removed, bus)
+		batch_emit('atom-did-enter', added, bus)
+		batch_emit('atom-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('atom-did-enter', function(atom) {
@@ -152,43 +152,16 @@ export function delete_atom(editor, selection, history) {
 	}
 }
 
-export function emit_atoms_will_enter(nodes, bus) {
+function batch_emit(key, nodes, bus) {
 	
 	nodes.forEach(function(node) {
-		each_atom(node, node, null, function(card) {
-			bus.emit('atom-will-enter', card)
+		each_atom(node, node, null, function(atom) {
+			bus.emit(key, atom)
 		})
 	})
 }
 
-export function emit_atoms_did_enter(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_atom(node, node, null, function(card) {
-			bus.emit('atom-did-enter', card)
-		})
-	})
-}
-
-export function emit_atoms_will_exit(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_atom(node, node, null, function(card) {
-			bus.emit('atom-will-exit', card)
-		})
-	})
-}
-
-export function emit_atoms_did_exit(nodes, bus) {
-	
-	nodes.forEach(function(node) {
-		each_atom(node, node, null, function(card) {
-			bus.emit('atom-did-exit', card)
-		})
-	})
-}
-
-export function each_atom(top, begin, end, fn) {
+function each_atom(top, begin, end, fn) {
 	
 	let node = begin
 	let iterator = element_iterator(top, begin)
