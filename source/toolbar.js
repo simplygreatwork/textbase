@@ -32,11 +32,11 @@ export class Toolbar {
 		u('.toolbar').append(this.create_element(html))
 	}
 	
-	before(node, html) {
+	before(html, node) {
 		u(node).before(this.create_element(html))
 	}
 	
-	after(node, html) {
+	after(html, node) {
 		u(node).after(this.create_element(html))
 	}
 	

@@ -102,6 +102,5 @@ function paste_internally(content, editor) {
 }
 
 function is_internal_transfer(node) {
-	
 	return u(node).first().tagName == 'internal-transfer'.toUpperCase()
 }

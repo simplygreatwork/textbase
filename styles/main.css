@@ -26,6 +26,7 @@ body {
 	outline: 0;
 	overflow-y: auto;
 	padding: 10px;
+	font-size:100%;
 }
 .toolbar {
 	width:10%;
