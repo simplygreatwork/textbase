@@ -36,10 +36,10 @@ export class System {
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.scanner = new Scanner(this.editor)
-		this.configure(this.bus, this.editor, this.toolbar)
+		this.configure(this.bus, this.editor, this.history, this.toolbar)
 	}
 	
-	configure(bus, editor, toolbar) {
+	configure(bus, editor, history, toolbar) {
 		
 		this.configure_editable_nodes()
 		this.configure_documents(bus, editor, toolbar)
@@ -47,8 +47,8 @@ export class System {
 		this.configure_basics(bus, editor, toolbar)
 		this.configure_formats(bus, editor, toolbar)
 		this.configure_blocks(bus, editor, toolbar)
-		this.configure_atoms(bus, editor, toolbar)
-		this.configure_cards(bus, editor, toolbar)
+		this.configure_atoms(bus, editor, toolbar, history)
+		this.configure_cards(bus, editor, toolbar, history)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
 	}
@@ -395,16 +395,16 @@ export class System {
 		}.bind(this))
 	}
 	
-	configure_atoms(bus, editor, toolbar) {
+	configure_atoms(bus, editor, toolbar, history) {
 		
-		initialize_atoms(bus, editor)
+		initialize_atoms(bus, editor, history)
 		initialize_sample_atoms(bus, editor, toolbar)
 		initialize_animated_atoms(bus, editor, toolbar)
 	}
 	
-	configure_cards(bus, editor, toolbar) {
+	configure_cards(bus, editor, toolbar, history) {
 		
-		initialize_cards(bus, editor)
+		initialize_cards(bus, editor, history)
 		initialize_sample_cards(bus, editor, toolbar)
 		initialize_animated_cards(bus, editor, toolbar)
 		initialize_image_cards(bus, editor, toolbar)

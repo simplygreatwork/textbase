@@ -5,7 +5,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_atoms(bus, editor) {
+export function initialize_atoms(bus, editor, history) {
 	
 	bus.on('document-did-install', function(document_) {
 		each_atom(editor.element, editor.element, null, function(atom) {
@@ -26,7 +26,7 @@ export function initialize_atoms(bus, editor) {
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
 			if (can_delete_atom(editor, selection)) {
-				delete_atom(editor, selection)
+				delete_atom(editor, selection, history)
 				event.consumed = true
 			}
 		}
@@ -85,6 +85,7 @@ export function initialize_atoms(bus, editor) {
 	})
 	
 	bus.on('atom-will-exit', function(atom) {
+		history.capture()
 		bus.emit(`atom-will-exit:${u(atom).data('atom-type')}`, atom)
 	})
 	
@@ -132,7 +133,7 @@ export function can_delete_atom(editor, selection) {
 	else return false
 }
 
-export function delete_atom(editor, selection) {
+export function delete_atom(editor, selection, history) {
 	
 	logger('trace').log('delete_atom')
 	let atom = can_delete_atom(editor, selection)
@@ -140,7 +141,9 @@ export function delete_atom(editor, selection) {
 		editor.emit(`atom-will-exit`, atom)
 		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)
+		editor.emit('content-did-delete', atom, atom)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
+		history.capture()		// ensures undoable
 	}
 }
 

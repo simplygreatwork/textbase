@@ -6,7 +6,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_cards(bus, editor) {
+export function initialize_cards(bus, editor, history) {
 	
 	bus.on('document-did-install', function(document_) {
 		each_card(editor.element, editor.element, null, function(card) {
@@ -27,7 +27,7 @@ export function initialize_cards(bus, editor) {
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
 			if (can_delete_card(editor, selection)) {
-				delete_card(editor, selection)
+				delete_card(editor, selection, history)
 				event.consumed = true
 			}
 		}
@@ -135,7 +135,7 @@ export function can_delete_card(editor, selection) {
 	else return false
 }
 
-export function delete_card(editor, selection) {
+export function delete_card(editor, selection, history) {
 	
 	logger('trace').log('delete_card')
 	let card = can_delete_card(editor, selection)
@@ -143,7 +143,9 @@ export function delete_card(editor, selection) {
 		editor.emit(`card-will-exit`, card)
 		u(card).remove()
 		editor.emit(`card-did-exit`, card)
+		editor.emit('content-did-delete', card, card)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
+		history.capture()		// ensures undoable
 	}
 }
 
