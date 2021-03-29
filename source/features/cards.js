@@ -152,7 +152,6 @@ export function delete_card(editor, selection, history) {
 		u(card).remove()
 		editor.emit(`card-did-exit`, card)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
-		history.capture()		// ensures undoable if inserted then deleted
 	}
 }
 
