@@ -91,6 +91,7 @@ export class History {
 	
 	capture() {
 		
+		if (! this.enabled) return
 		if (this.mutations.length > 0) {
 			if (this.index < this.records.length - 1) {
 				this.records = this.records.slice(0, this.index + 1)

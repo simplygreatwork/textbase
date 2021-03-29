@@ -36,10 +36,10 @@ export class System {
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.scanner = new Scanner(this.editor)
-		this.configure(this.bus, this.editor, this.history, this.toolbar)
+		this.configure(this.bus, this.editor, this.toolbar, this.history)
 	}
 	
-	configure(bus, editor, history, toolbar) {
+	configure(bus, editor, toolbar, history) {
 		
 		this.configure_editable_nodes()
 		this.configure_documents(bus, editor, toolbar)

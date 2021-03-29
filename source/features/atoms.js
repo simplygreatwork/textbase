@@ -76,6 +76,14 @@ export function initialize_atoms(bus, editor, history) {
 		watch_atoms_did_exit(removed, bus)
 	}.bind(this))
 	
+	bus.on('atom-did-enter', function(atom) {
+		history.capture()
+	})
+	
+	bus.on('atom-did-exit', function(atom) {
+		history.capture()
+	})
+	
 	bus.on('atom-will-enter', function(atom) {
 		bus.emit(`atom-will-enter:${u(atom).data('atom-type')}`, atom)
 	})
@@ -85,7 +93,6 @@ export function initialize_atoms(bus, editor, history) {
 	})
 	
 	bus.on('atom-will-exit', function(atom) {
-		history.capture()
 		bus.emit(`atom-will-exit:${u(atom).data('atom-type')}`, atom)
 	})
 	
@@ -141,7 +148,6 @@ export function delete_atom(editor, selection, history) {
 		editor.emit(`atom-will-exit`, atom)
 		u(atom).remove()
 		editor.emit(`atom-did-exit`, atom)
-		editor.emit('content-did-delete', atom, atom)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 		history.capture()		// ensures undoable if inserted then deleted
 	}

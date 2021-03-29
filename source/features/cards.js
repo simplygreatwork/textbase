@@ -77,6 +77,14 @@ export function initialize_cards(bus, editor, history) {
 		watch_cards_did_exit(removed, bus)
 	}.bind(this))
 	
+	bus.on('card-did-enter', function(atom) {
+		history.capture()
+	})
+	
+	bus.on('card-did-exit', function(atom) {
+		history.capture()
+	})
+	
 	bus.on('card-will-enter', function(card) {
 		bus.emit(`card-will-enter:${u(card).data('card-type')}`, card)
 	})
@@ -143,7 +151,6 @@ export function delete_card(editor, selection, history) {
 		editor.emit(`card-will-exit`, card)
 		u(card).remove()
 		editor.emit(`card-did-exit`, card)
-		editor.emit('content-did-delete', card, card)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 		history.capture()		// ensures undoable if inserted then deleted
 	}
