@@ -57,23 +57,23 @@ export function initialize_atoms(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		watch_atoms_will_enter(added, bus)
-		watch_atoms_will_exit(removed, bus)
+		emit_atoms_will_enter(added, bus)
+		emit_atoms_will_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		watch_atoms_did_enter(added, bus)
-		watch_atoms_did_exit(removed, bus)
+		emit_atoms_did_enter(added, bus)
+		emit_atoms_did_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		watch_atoms_will_enter(added, bus)
-		watch_atoms_will_exit(removed, bus)
+		emit_atoms_will_enter(added, bus)
+		emit_atoms_will_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		watch_atoms_did_enter(added, bus)
-		watch_atoms_did_exit(removed, bus)
+		emit_atoms_did_enter(added, bus)
+		emit_atoms_did_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('atom-did-enter', function(atom) {
@@ -152,7 +152,7 @@ export function delete_atom(editor, selection, history) {
 	}
 }
 
-export function watch_atoms_will_enter(nodes, bus) {
+export function emit_atoms_will_enter(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_atom(node, node, null, function(card) {
@@ -161,7 +161,7 @@ export function watch_atoms_will_enter(nodes, bus) {
 	})
 }
 
-export function watch_atoms_did_enter(nodes, bus) {
+export function emit_atoms_did_enter(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_atom(node, node, null, function(card) {
@@ -170,7 +170,7 @@ export function watch_atoms_did_enter(nodes, bus) {
 	})
 }
 
-export function watch_atoms_will_exit(nodes, bus) {
+export function emit_atoms_will_exit(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_atom(node, node, null, function(card) {
@@ -179,7 +179,7 @@ export function watch_atoms_will_exit(nodes, bus) {
 	})
 }
 
-export function watch_atoms_did_exit(nodes, bus) {
+export function emit_atoms_did_exit(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_atom(node, node, null, function(card) {

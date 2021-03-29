@@ -58,23 +58,23 @@ export function initialize_cards(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		watch_cards_will_enter(added, bus)
-		watch_cards_will_exit(removed, bus)
+		emit_cards_will_enter(added, bus)
+		emit_cards_will_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		watch_cards_did_enter(added, bus)
-		watch_cards_did_exit(removed, bus)
+		emit_cards_did_enter(added, bus)
+		emit_cards_did_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		watch_cards_will_enter(added, bus)
-		watch_cards_will_exit(removed, bus)
+		emit_cards_will_enter(added, bus)
+		emit_cards_will_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		watch_cards_did_enter(added, bus)
-		watch_cards_did_exit(removed, bus)
+		emit_cards_did_enter(added, bus)
+		emit_cards_did_exit(removed, bus)
 	}.bind(this))
 	
 	bus.on('card-did-enter', function(atom) {
@@ -155,7 +155,7 @@ export function delete_card(editor, selection, history) {
 	}
 }
 
-export function watch_cards_will_enter(nodes, bus) {		// todo: actually need to use find
+export function emit_cards_will_enter(nodes, bus) {		// todo: actually need to use find
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card) {
@@ -164,7 +164,7 @@ export function watch_cards_will_enter(nodes, bus) {		// todo: actually need to 
 	})
 }
 
-export function watch_cards_did_enter(nodes, bus) {
+export function emit_cards_did_enter(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card) {
@@ -173,7 +173,7 @@ export function watch_cards_did_enter(nodes, bus) {
 	})
 }
 
-export function watch_cards_will_exit(nodes, bus) {
+export function emit_cards_will_exit(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card) {
@@ -182,7 +182,7 @@ export function watch_cards_will_exit(nodes, bus) {
 	})
 }
 
-export function watch_cards_did_exit(nodes, bus) {
+export function emit_cards_did_exit(nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card) {
