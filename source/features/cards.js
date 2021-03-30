@@ -77,11 +77,11 @@ export function initialize_cards(bus, editor, history) {
 		batch_emit('card-did-exit', removed, bus)
 	}.bind(this))
 	
-	bus.on('card-did-enter', function(atom) {
+	bus.on('card-did-enter', function(card) {
 		history.capture()
 	})
 	
-	bus.on('card-did-exit', function(atom) {
+	bus.on('card-did-exit', function(card) {
 		history.capture()
 	})
 	
