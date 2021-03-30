@@ -6,7 +6,7 @@ import { Toolbar } from './toolbar.js'
 import { Scanner } from './scanner.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
-import { caret_left, caret_right, caret_up, caret_down } from './keyboard.js'
+import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
 import { find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, transform_block, block_has_content } from './features/blocks.js'
@@ -174,19 +174,11 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keyup:arrowright', function(event) {
-			caret_right(event, editor)
+			skip_right_over_zero_width_whitespace(event, editor)
 		}.bind(this))
 		
 		bus.on('keyup:arrowleft', function(event) {
-			caret_left(event, editor)
-		}.bind(this))
-		
-		bus.on('keyup:arrowdown', function(event) {
-			caret_down(event, editor)
-		}.bind(this))
-		
-		bus.on('keyup:arrowup', function(event) {
-			caret_up(event, editor)
+			skip_left_over_zero_width_whitespace(event, editor)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="undo">Undo</button>`)

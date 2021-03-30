@@ -6,9 +6,9 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export function caret_right(event, editor) {					// skip across zero width whitespace
+export function skip_right_over_zero_width_whitespace(event, editor) {
 	
-	logger('trace').log('caret_right')
+	logger('trace').log('skip_right_over_zero_width_whitespace')
 	let selection = get_selection(editor)
 	let text = selection.tail.container.nodeValue
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.tail.offset == 1)) {
@@ -19,9 +19,9 @@ export function caret_right(event, editor) {					// skip across zero width white
 	}
 }
 
-export function caret_left(event, editor) {					// skip across zero width whitespace
+export function skip_left_over_zero_width_whitespace(event, editor) {
 	
-	logger('trace').log('caret_left')
+	logger('trace').log('skip_left_over_zero_width_whitespace')
 	let selection = get_selection(editor)
 	let text = selection.head.container.nodeValue
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.head.offset == 0)) {
@@ -30,14 +30,4 @@ export function caret_left(event, editor) {					// skip across zero width whites
 		let previous = iterator.previousNode()
 		set_caret(editor, { container: previous, offset: previous.nodeValue.length })
 	}
-}
-
-export function caret_down(event, editor) {
-	
-	logger('trace').log('caret_down')
-}
-
-export function caret_up(event, editor) {
-	
-	logger('trace').log('caret_up')
 }
