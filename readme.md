@@ -3,7 +3,7 @@
 
 ## Goals
 
-- Create a robust rich text editor for the web which is a joy to develop and extend. 
+- Create a robust rich text editor for the web which is a joy to develop and extend. A work in progress.
 - Be able to quickly configure or extend the editor in a straightforward manner with minimal learning and reading docs.
 - Embrace progressive enhancement and feature detection.
 - Use the concept of code over configuration for initializing the editor.
@@ -18,7 +18,7 @@
 
 A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages.
 
-## What this project is not at this time
+## What this project is not currently
 
 - This project does not use document.executeCommand. All editing is achieved by manipulating the DOM directly.
 - This project has only been tested with Google Chrome. Will branch out soon.
@@ -27,7 +27,7 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 - This project does not yet support collaboration.
 	- In the future, this project might potentially use differential synchronization.
 
-## What we need help with
+## Please help with
 
 - Testing on other platforms, perhaps using Browser Stack. This project has currently only been tested in Google Chrome.
 - Writing custom cards and atoms. Design blocks and content blocks would be nice to have. Atoms for storing metadata records would also be nice to have.
@@ -45,7 +45,3 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 
 - Allow cards and atoms to have editable content managed by the history support. At the moment, the content of cards and atoms are not editable.
 - Potentially stop using the browser's MutationObserver and create a customer mutation event system in preparation for collaboration features.
-
-## Known Issues
-
-- Leading nodes in a block are being lost after redo of formatted content which had been split.
