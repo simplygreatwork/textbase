@@ -14,6 +14,10 @@
 	- Cards and atoms can subscribe to events such as "card-will-enter:calendar" or "atom-will-exit:date"
 	- This allows for much less overhead and scaffolding to extend the editor with new kinds of content.
 
+## Demo
+
+A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages.
+
 ## What this project is not at this time
 
 - This project does not use document.executeCommand. All editing is achieved by manipulating the DOM directly.
@@ -23,9 +27,24 @@
 - This project does not yet support collaboration.
 	- In the future, this project might potentially use differential synchronization.
 
-## Demo
+## What we need help with
 
-A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages.
+- Testing on other platforms, perhaps using Browser Stack. This project has currently only been tested in Google Chrome.
+- Writing custom cards and atoms. Design blocks and content blocks would be nice to have. Atoms for storing metadata records would also be nice to have.
+
+## Highlights
+
+- Document integity is ruled by a content scanner to ensure that the content is in the form we expect after each edit.
+	- The message "content-did-change" is emitted with the changed begin and end nodes, and the scanner scans, validates, and corrects that section of the document.
+- Content deletion is pluggable by listening to "delete-requested" on the bus. This way cards and atoms can handle their own deletion.
+- Extending the editor with cards and atoms is done with listening to "card-will-enter", "card-will-exit", on the bus.
+	- This approach is not opinionated and therefore you can manage initialization and lifecycle of cards and atoms inside these event handlers.
+- History selection restoration is managed by listening to the history undo manager on the system bus.
+
+## Roadmap
+
+- Allow cards and atoms to have editable content managed by the history support. At the moment, the content of cards and atoms are not editable.
+- Potentially stop using the browser's MutationObserver and create a customer mutation event system in preparation for collaboration features.
 
 ## Known Issues
 
