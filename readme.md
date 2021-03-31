@@ -43,8 +43,8 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 
 ## Roadmap
 
-- Allow cards and atoms to have editable content managed by the history support. At the moment, the content of cards and atoms are not editable.
-- Potentially stop using the browser's MutationObserver and create a customer mutation event system in preparation for collaboration features.
+- Allow cards and atoms to have editable content managed by the history support. At the moment, the content of cards and atoms is not editable.
+- Potentially stop using the browser's MutationObserver and create a custom mutation event system in preparation for collaboration features.
 
 ## Prior Art
 

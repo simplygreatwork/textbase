@@ -136,7 +136,6 @@ export class System {
 		}.bind(this))
 		
 		bus.on('clipboard-did-paste', function(event) {
-			console.log('clipboard-did-paste')
 			this.history.capture()
 		}.bind(this))
 	}
