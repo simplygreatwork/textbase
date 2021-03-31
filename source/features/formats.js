@@ -19,13 +19,20 @@ export function toggle_format_with_data(editor, format, data, event) {
 	if (event) event.preventDefault()
 	let selection = get_selection(editor)
 	selection_edge(editor, selection)
+	selection = get_selection(editor)
 	if (data) apply_data(editor, selection, data)
-	let apply = false
-	selection_each_text(editor, selection, function(node, index) {
-		if (! u(node).parent().hasClass(format)) apply = true
-	})
+	let apply = should_apply_format(editor, selection, format)
 	if (apply) apply_format(editor, selection, format)
 	else remove_format(editor, selection, format)
+}
+
+function should_apply_format(editor, selection, format) {
+	
+	let result = false
+	selection_each_text(editor, selection, function(node, index) {
+		if (! u(node).parent().hasClass(format)) result = true
+	})
+	return result
 }
 
 function apply_data(editor, selection, data) {
