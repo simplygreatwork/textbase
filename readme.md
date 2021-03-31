@@ -45,3 +45,16 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 
 - Allow cards and atoms to have editable content managed by the history support. At the moment, the content of cards and atoms are not editable.
 - Potentially stop using the browser's MutationObserver and create a customer mutation event system in preparation for collaboration features.
+
+## Prior Art
+
+I have investigated and dabbled with many rich text editing frameworks before deciding to create my own.
+
+- Mobiledoc Kit
+- SpyText
+- editable.js
+- Scribe
+- Quill
+- ProseMirror
+- Substance
+- and many others...
