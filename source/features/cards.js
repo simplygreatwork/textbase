@@ -115,7 +115,7 @@ export function is_card(node) {
 export function can_insert_card(editor) {
 	
 	let selection = get_selection(editor)
-	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false
+	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false		// fixme: dependency
 	if (is_card(selection.head.container) && is_card(selection.tail.container)) return false
 	return true
 }
