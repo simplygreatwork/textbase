@@ -16,7 +16,7 @@
 
 ## Demo
 
-A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages.
+A [simple environment](https://simplygreatwork.github.io/textbase/) is available on Github Pages. This demo should always be serving a stable branch of the main branch. e.g. 2021-03-31
 
 ## What this project is not currently
 
