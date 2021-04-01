@@ -155,7 +155,7 @@ export class Editor {
 	
 	split_content_(limit, event) {
 		
-		logger('trace').log('split_content')
+		logger('trace').log('split_content_')
 		if (! this.is_editable()) return
 		if (event) event.preventDefault()
 		this.emit('content-will-split')
