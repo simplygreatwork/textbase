@@ -68,6 +68,12 @@ export class Editor {
 	
 	initialize_events(bus) {
 		
+		bus.on('split-content-requested', function(limit, event) {
+			if (event && event.consumed) return
+			this.split_content_(limit, event)
+			if (event) event.consumed = true
+		}.bind(this))
+		
 		bus.on('delete-requested', function(event) {
 			if (event.consumed) return
 			let selection = get_selection(this)
@@ -144,6 +150,10 @@ export class Editor {
 	}
 	
 	split_content(limit, event) {
+		this.emit('split-content-requested', limit, event)
+	}
+	
+	split_content_(limit, event) {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
@@ -283,11 +293,10 @@ export class Editor {
 	
 	is_editable() {
 		
-		let result = true
 		let selection = get_selection(this)
-		if (! is_editable_node(selection.head.container)) result = false 
-		if (! is_editable_node(selection.tail.container)) result = false 
-		return result
+		if (! is_editable_node(selection.head.container)) return false 
+		if (! is_editable_node(selection.tail.container)) return false 
+		return true
 	}
 	
 	on() {

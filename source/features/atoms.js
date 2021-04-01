@@ -21,6 +21,14 @@ export function initialize_atoms(bus, editor, history) {
 		})
 	})
 	
+	bus.unshift('split-content-requested', function(limit, event) {
+		let selection = get_selection(this)
+		if (is_atom(selection.head.container) || is_atom(selection.tail.container)) {
+			event.consumed = true
+			event.preventDefault()
+		}
+	}.bind(this))
+	
 	bus.unshift('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
