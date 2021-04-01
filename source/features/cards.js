@@ -2,6 +2,7 @@
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { get_selection } from '../selection.js'
+import { is_atom } from './atoms.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -112,12 +113,17 @@ export function is_card(node) {
 }
 
 export function can_insert_card(editor) {
+	
+	let selection = get_selection(editor)
+	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false
+	if (is_card(selection.head.container) && is_card(selection.tail.container)) return false
 	return true
 }
 
 export function insert_card(editor, string) {
 	
 	logger('trace').log('insert_card')
+	if (! can_insert_card(editor)) return 
 	let parts = editor.split_content(a_block_element)
 	let card = u(string)
 	card.attr('contenteditable', 'false')

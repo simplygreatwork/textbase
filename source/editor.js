@@ -70,7 +70,7 @@ export class Editor {
 		
 		bus.on('split-content-requested', function(limit, event) {
 			if (event && event.consumed) return
-			this.split_content_(limit, event)
+			this.split_content(limit, event)
 			if (event) event.consumed = true
 		}.bind(this))
 		
@@ -149,13 +149,13 @@ export class Editor {
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 	
-	split_content(limit, event) {
+	split_content_(limit, event) {
 		this.emit('split-content-requested', limit, event)
 	}
 	
-	split_content_(limit, event) {
+	split_content(limit, event) {
 		
-		logger('trace').log('split_content_')
+		logger('trace').log('split_content')
 		if (! this.is_editable()) return
 		if (event) event.preventDefault()
 		this.emit('content-will-split')

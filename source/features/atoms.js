@@ -1,6 +1,7 @@
 
 import { get_selection, selection_edge } from '../selection.js'
 import { a_text_node, an_element_node, element_iterator } from '../basics.js'
+import { is_card } from './cards.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -23,9 +24,11 @@ export function initialize_atoms(bus, editor, history) {
 	
 	bus.unshift('split-content-requested', function(limit, event) {
 		let selection = get_selection(this)
-		if (is_atom(selection.head.container) || is_atom(selection.tail.container)) {
-			event.consumed = true
-			event.preventDefault()
+		if (is_atom(selection.head.container) && is_atom(selection.tail.container)) {
+			if (event) {
+				event.consumed = true
+				event.preventDefault()
+			}
 		}
 	}.bind(this))
 	
@@ -119,12 +122,16 @@ export function is_atom(node) {
 }
 
 export function can_insert_atom(editor) {
+	
+	let selection = get_selection(editor)
+	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false
 	return true
 }
 
 export function insert_atom(editor, string) {
 	
 	logger('trace').log('insert_atom')
+	if (! can_insert_atom(editor)) return 
 	editor.delete_(event)
 	let atom = u(string)
 	atom.attr('contenteditable', 'false')
