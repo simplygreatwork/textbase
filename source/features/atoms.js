@@ -1,7 +1,6 @@
 
 import { get_selection, selection_edge } from '../selection.js'
 import { a_text_node, an_element_node, element_iterator } from '../basics.js'
-import { is_card } from './cards.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
