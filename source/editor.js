@@ -68,7 +68,7 @@ export class Editor {
 	
 	initialize_events(bus) {
 		
-		bus.on('split-requested', function(limit, event) {
+		bus.on('split-content-requested', function(limit, event) {
 			if (event && event.consumed) return
 			this.split_content(limit, event)
 			if (event) event.consumed = true
@@ -149,8 +149,8 @@ export class Editor {
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 	
-	split(limit, event) {
-		this.emit('split-requested', limit, event)
+	split_content_(limit, event) {
+		this.emit('split-content-requested', limit, event)
 	}
 	
 	split_content(limit, event) {

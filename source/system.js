@@ -151,7 +151,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:enter', function(event) {
-			editor.split(a_block_element, event)
+			editor.split_content_(a_block_element, event)
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
