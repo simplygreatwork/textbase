@@ -36,7 +36,7 @@ export class History {
 				this.bus.emit('history-did-begin-mutations')
 			}
 			mutations.forEach(function(mutation) {
-				if (! this.is_observable(mutation.target)) return
+				if (! this.is_observable(mutation)) return
 				switch (mutation.type) {
 					case 'characterData':
 						logger('history').log(`Observed mutation of character data "${mutation.target.textContent}" at mutation target's parent ${mutation.target.parentNode ? mutation.target.parentNode.outerHTML : null}`)
@@ -65,8 +65,8 @@ export class History {
 		}.bind(this))
 	}
 	
-	is_observable(node) {
-		return this.is_editable_node(node)
+	is_observable(mutation) {
+		return this.is_editable_node(mutation.target, this)
 	}
 	
 	is_editable_node(node) {

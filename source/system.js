@@ -481,6 +481,10 @@ export class System {
 
 function is_editable_node(node, context) {
 	
-	if (u(node).is(a_text_node)) node = node.parentElement 
-	return node.isContentEditable
+	let result = true
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.attr('contenteditable') === 'false') result = false
+	if (node.closest('[contenteditable]').attr('contenteditable') === 'false') result = false
+	return result
 }

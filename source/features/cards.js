@@ -1,4 +1,4 @@
-
+// 
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { get_selection } from '../selection.js'
