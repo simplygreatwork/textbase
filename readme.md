@@ -35,7 +35,7 @@ A [simple environment](https://simplygreatwork.github.io/textbase/) is available
 ## Highlights
 
 - Document integrity is ruled by a content scanner to ensure that the content is in the form we expect after each edit.
-	- The message "content-did-change" is emitted with the changed begin and end nodes, and the scanner scans, validates, and corrects that section of the document.
+	- The message "content-did-change" is emitted with the changed begin and end nodes, and the scanner scans, validates, and corrects that section of the document, as needed.
 - Content deletion is pluggable by listening to "delete-requested" on the bus. This way cards and atoms can handle their own deletion.
 - Extending the editor with cards and atoms is done with listening to "card-will-enter", "card-will-exit", on the bus.
 	- This approach is not opinionated and therefore you can manage initialization and lifecycle of cards and atoms inside these event handlers.
