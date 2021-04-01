@@ -4,7 +4,7 @@ import { Editor } from './editor.js'
 import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
 import { Scanner } from './scanner.js'
-import { an_inline_element, a_block_element } from './basics.js'
+import { an_inline_element, a_block_element, a_text_node } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
@@ -18,8 +18,10 @@ import { initialize_atoms, insert_atom, is_atom } from './features/atoms.js'
 import { initialize_cards, insert_card, is_card } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
 import { initialize_animated_atoms } from './atoms/animated.js'
+import { initialize_mention_atoms } from './atoms/mention.js'
 import { initialize_sample_cards } from './cards/sample.js'
 import { initialize_animated_cards } from './cards/animated.js'
+import { initialize_editable_cards } from './cards/editable.js'
 import { initialize_image_cards } from './cards/image.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
@@ -391,6 +393,7 @@ export class System {
 		initialize_atoms(bus, editor, history)
 		initialize_sample_atoms(bus, editor, toolbar)
 		initialize_animated_atoms(bus, editor, toolbar)
+		initialize_mention_atoms(bus, editor, toolbar)
 	}
 	
 	configure_cards(bus, editor, toolbar, history) {
@@ -399,6 +402,7 @@ export class System {
 		initialize_sample_cards(bus, editor, toolbar)
 		initialize_animated_cards(bus, editor, toolbar)
 		initialize_image_cards(bus, editor, toolbar)
+		initialize_editable_cards(bus, editor, toolbar)
 	}
 	
 	configure_recognizers(bus, editor, toolbar) {
@@ -475,20 +479,8 @@ export class System {
 	}
 }
 
-// todo: eventually will need to be based fully on contentEditable - because some cards and atoms will have editable content requiring history support
-// todo: investigate binding contexts when invoking is_editable_node to be able to tailor the result if/as needed for consistency
-
 function is_editable_node(node, context) {
 	
-	if (true) {
-		if (is_atom(node)) return false
-		if (is_card(node)) return false
-		return true
-	} else {
-		if (true) {
-			return u(node).parent().first().contentEditable == 'inherit'
-		} else {
-			return node.isContentEditable
-		}
-	}
+	if (u(node).is(a_text_node)) node = node.parentElement 
+	return node.isContentEditable
 }
