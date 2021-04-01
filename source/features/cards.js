@@ -23,6 +23,16 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
+	bus.unshift('split-content-requested', function(limit, event) {
+		let selection = get_selection(this)
+		if (is_card(selection.head.container) && is_card(selection.tail.container)) {
+			if (event) {
+				event.consumed = true
+				event.preventDefault()
+			}
+		}
+	}.bind(this))
+	
 	bus.unshift('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
