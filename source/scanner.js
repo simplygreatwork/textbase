@@ -2,6 +2,7 @@
 import { an_element_node, a_text_node } from './basics.js'
 import { zero_width_whitespace } from './basics.js'
 import { text_iterator } from './basics.js'
+import { is_editable_node } from './basics.js'
 import { get_selection, set_selection, get_selection_length, normalize_selection } from './selection.js'
 import { Bus } from './bus.js'
 import { Walker } from './walker.js'
@@ -26,14 +27,10 @@ export class Scanner {
 		this.walker.walk(this.editor.element, begin, end)
 	}
 	
-	is_editable_node() {
-		return true
-	}
-	
 	configure(walker, bus) {
 		
 		walker.on('text', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.nodeValue.length === 0) {
 				bus.emit('detected:text-node-without-content', element)
 			} else {
@@ -42,7 +39,7 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('text', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.nodeValue.indexOf('\n') === -1) {
 				if (! u(element.parentElement).is('span')) {
 					bus.emit('detected:text-node-without-span-parent', element)
@@ -51,7 +48,7 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:span-with-no-text-content', element)
@@ -60,7 +57,7 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (u(element.nextSibling).is(u('span'))) {
 					if (Array.from(element.classList).sort().toString() == Array.from(element.nextSibling.classList).sort().toString()) {
@@ -71,7 +68,7 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('span')) {
 				if (element.firstChild && element.firstChild.textContent.length === 0) {
 					if (element.parentElement && element.parentElement.childNodes.length > 1) {
@@ -82,7 +79,7 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('p,h1,h2,li')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:block-element-with-no-span', element)
@@ -103,14 +100,14 @@ export class Scanner {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('[content-editable=false]')) {
 				bus.emit('detected:content-editable-false', element)
 			}
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! this.is_editable_node(element)) return
+			if (! is_editable_node(element)) return
 			if (element.matches('article')) {
 				bus.emit('detected:other', element)
 			}

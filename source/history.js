@@ -1,6 +1,7 @@
 
 // derived from lohfu/snapback
 
+import { is_editable_node } from './basics.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -66,11 +67,7 @@ export class History {
 	}
 	
 	is_observable(mutation) {
-		return this.is_editable_node(mutation.target, this)
-	}
-	
-	is_editable_node(node) {
-		return true
+		return is_editable_node(mutation.target)
 	}
 	
 	enable() {

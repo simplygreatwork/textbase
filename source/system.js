@@ -43,7 +43,6 @@ export class System {
 	
 	configure(bus, editor, toolbar, history) {
 		
-		this.configure_editable_nodes()
 		this.configure_documents(bus, editor, toolbar)
 		this.configure_history(bus, editor, toolbar)
 		this.configure_basics(bus, editor, toolbar)
@@ -53,13 +52,6 @@ export class System {
 		this.configure_cards(bus, editor, toolbar, history)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
-	}
-	
-	configure_editable_nodes() {
-		
-		this.editor.is_editable_node = is_editable_node
-		this.history.is_editable_node = is_editable_node
-		this.scanner.is_editable_node = is_editable_node
 	}
 	
 	configure_documents(bus, editor, toolbar) {
@@ -477,14 +469,4 @@ export class System {
 		u('.content').empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
 	}
-}
-
-function is_editable_node(node, context) {
-	
-	let result = true
-	node = u(node)
-	if (node.is(a_text_node)) node = node.parent()
-	if (node.attr('contenteditable') === 'false') result = false
-	if (node.closest('[contenteditable]').attr('contenteditable') === 'false') result = false
-	return result
 }

@@ -2,6 +2,7 @@
 import { an_inline_element, a_block_element } from './basics.js'
 import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, text_iterator } from './basics.js'
+import { is_editable_node } from './basics.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -132,10 +133,6 @@ export function selection_each_block(editor, selection, fn) {
 			fn(each)
 		}
 	})
-}
-
-function is_editable_node(node, editor) {
-	return editor.is_editable_node(node)
 }
 
 export function get_selection_length(editor, selection) {

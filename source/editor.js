@@ -4,6 +4,7 @@ import { an_inline_element, a_block_element } from './basics.js'
 import { find_previous_inline_sibling } from './basics.js'
 import { find_next_block } from './basics.js'
 import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
+import { is_editable_node } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -284,13 +285,9 @@ export class Editor {
 		
 		let result = true
 		let selection = get_selection(this)
-		if (! this.is_editable_node(selection.head.container)) result = false 
-		if (! this.is_editable_node(selection.tail.container)) result = false 
+		if (! is_editable_node(selection.head.container)) result = false 
+		if (! is_editable_node(selection.tail.container)) result = false 
 		return result
-	}
-	
-	is_editable_node(node) {
-		return true
 	}
 	
 	on() {

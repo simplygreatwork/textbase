@@ -27,6 +27,23 @@ export function text_iterator(element, from) {
 	})
 }
 
+export function a_text_node(node) {
+	return node.nodeType === 3
+}
+
+export function an_element_node(node) {
+	return node.nodeType === 1
+}
+
+export function is_editable_node(node) {
+	
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.attr('contenteditable') === 'false') return false
+	if (node.closest('[contenteditable]').attr('contenteditable') === 'false') return false
+	return true
+}
+
 export function find_previous_inline_sibling(editor, selection) {
 	
 	let iterator = text_iterator(editor.element, selection.head.container)
@@ -36,6 +53,12 @@ export function find_previous_inline_sibling(editor, selection) {
 			return previous
 		}
 	}
+}
+
+export function find_previous_element(element, node) {
+	
+	let iterator = text_iterator(element, node)
+	return iterator.previousNode().parentElement
 }
 
 export function find_previous_block(element, node) {
@@ -50,24 +73,6 @@ export function find_next_block(element, node) {
 	let block = u(node).closest(u(a_block_element))
 	let iterator = element_iterator(element, block.first())
 	return iterator.nextNode()
-}
-
-export function find_previous_element(element, node) {
-	
-	let iterator = text_iterator(element, node)
-	return iterator.previousNode().parentElement
-}
-
-export function a_text_node(node) {
-	return node.nodeType === 3
-}
-
-export function an_element_node(node) {
-	return node.nodeType === 1
-}
-
-export function a_span_node(node) {			// fixme
-	return 'span'
 }
 
 export function is_alphanumeric(keycode) {
