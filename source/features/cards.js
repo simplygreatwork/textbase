@@ -1,4 +1,4 @@
-// 
+
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { get_selection } from '../selection.js'
@@ -25,7 +25,7 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.unshift('split-content-requested', function(limit, event) {
 		let selection = get_selection(this)
-		if (is_card(selection.head.container) && is_card(selection.tail.container)) {
+		if (is_card(selection.head.container) || is_card(selection.tail.container)) {
 			if (event) {
 				event.consumed = true
 				event.preventDefault()

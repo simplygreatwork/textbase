@@ -22,6 +22,7 @@ import { initialize_mention_atoms } from './atoms/mention.js'
 import { initialize_sample_cards } from './cards/sample.js'
 import { initialize_animated_cards } from './cards/animated.js'
 import { initialize_editable_cards } from './cards/editable.js'
+import { initialize_design_block_cards } from './cards/design-block.js'
 import { initialize_image_cards } from './cards/image.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
@@ -395,6 +396,7 @@ export class System {
 		initialize_animated_cards(bus, editor, toolbar)
 		initialize_image_cards(bus, editor, toolbar)
 		initialize_editable_cards(bus, editor, toolbar)
+		initialize_design_block_cards(bus, editor, toolbar)
 	}
 	
 	configure_recognizers(bus, editor, toolbar) {

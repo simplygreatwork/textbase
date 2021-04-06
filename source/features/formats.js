@@ -2,7 +2,6 @@
 import { a_text_node } from '../basics.js'
 import { get_selection } from '../selection.js'
 import { selection_edge, selection_each_node, selection_each_text, selection_each_block, normalize_selection } from '../selection.js'
-import { serialize } from '../serialize.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
