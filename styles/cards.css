@@ -1,0 +1,14 @@
+.hero {
+	border-radius:10px;
+	background:royalblue;
+	text-align:center;
+	padding-top:50px;
+	padding-bottom:50px;
+}
+.hero-text {
+	padding-top:50px;
+	padding-bottom:50px;
+	color:white;
+	font-weight:900;
+	font-size:500%;
+}
