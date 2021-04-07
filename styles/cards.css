@@ -12,3 +12,13 @@
 	font-weight:900;
 	font-size:500%;
 }
+
+[data-card-type="image"] {
+	height:200px;
+}
+
+[data-card-type="image"] img {
+	width:100%;
+	height:100%;
+	object-fit:none;
+}

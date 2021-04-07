@@ -10,8 +10,8 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	
 	bus.on('action-requested:card-image', function() {
 		insert_card(editor, `
-			<div class="image-card" data-card-type="image" style="height:200px;">
-				<img style="width:100%;height:100%;object-fit:none;" src="images/cosmic.jpg">
+			<div data-card-type="image" class="image-card">
+				<img src="images/cosmic.jpg">
 			</div>
 		`)
 	}.bind(this))
