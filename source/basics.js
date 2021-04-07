@@ -3,12 +3,12 @@ export let a_block_element = 'div,p,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote'
 export let an_inline_element = 'span,a'
 export let zero_width_whitespace = '\u200b'
 
-export function a_text_node(node) {
-	return node.nodeType === 3
-}
-
 export function an_element_node(node) {
 	return node.nodeType === 1
+}
+
+export function a_text_node(node) {
+	return node.nodeType === 3
 }
 
 export function node_iterator(element, from, filter) {
@@ -24,14 +24,14 @@ export function node_iterator(element, from, filter) {
 export function element_iterator(element, from) {
 	
 	return node_iterator(element, from, function(node) {
-		return node.nodeType === 1
+		return an_element_node(node)
 	})
 }
 
 export function text_iterator(element, from) {
 	
 	return node_iterator(element, from, function(node) {
-		return node.nodeType === 3
+		return a_text_node(node)
 	})
 }
 
