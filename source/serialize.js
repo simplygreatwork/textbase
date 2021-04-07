@@ -31,8 +31,8 @@ export function serialize_(selection, node, level, result) {
 				result.push('\n')
 				result.push(`${level.join('')}${serialize_tag_head(each)}`)
 				serialize_(selection, u(each), level, result)
-				result.push('\n')
-				result.push(`${level.join('')}</${tag}>`)
+				let tail = serialize_tag_tail(tag)
+				if (tail) result.push(tail)
 			}
 		} else if (each.nodeType === 3) {
 			let text = u(each).text()
@@ -55,4 +55,13 @@ export function serialize_(selection, node, level, result) {
 
 export function serialize_tag_head(node) {
 	return u(node).clone().empty().first().outerHTML.split('><')[0] + '>'
+}
+
+export function serialize_tag_tail(tag) {
+	
+	if (tag == 'img') {
+		return null
+	} else {
+		return `</${tag}>`
+	}
 }
