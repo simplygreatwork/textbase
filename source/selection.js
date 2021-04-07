@@ -52,44 +52,6 @@ export function set_caret(editor, options) {
 	selection.addRange(range)
 }
 
-export function select_all(editor, event) {
-	
-	event.preventDefault()
-	select_range(editor, editor.content, editor.content)
-}
-
-export function select_range(editor, from, to) {
-	
-	let first_child = document.createTreeWalker(from, NodeFilter.SHOW_TEXT).firstChild()
-	let last_child = document.createTreeWalker(to, NodeFilter.SHOW_TEXT).lastChild()
-	set_selection(editor, {
-		head: { container: first_child, offset: 0 },
-		tail: { container: last_child, offset: last_child.nodeValue.length }
-	})
-	normalize_selection(editor)
-}
-
-export function selection_edge(editor, selection) {
-	
-	let range, node, fragment
-	let edges = [null, null]
-	range = selection.range.cloneRange()
-	node = u(selection.tail.container).closest(u(an_inline_element)).first()
-	range.setStart(selection.tail.container, selection.tail.offset)
-	range.setEndAfter(node)
-	fragment = range.extractContents()
-	edges[0] = fragment.firstElementChild
-	range.insertNode(fragment)
-	node = u(selection.head.container).closest(u(an_inline_element)).first()
-	range.setStartBefore(node)
-	range.setEnd(selection.head.container, selection.head.offset)
-	fragment = range.extractContents()
-	edges[1] = fragment.firstElementChild
-	range.insertNode(fragment)
-	select_range(editor, edges[1].nextSibling, edges[0].previousSibling)
-	return edges
-}
-
 export function selection_each_node(editor, selection, fn) {
 	
 	let node = selection.head.container
@@ -133,6 +95,44 @@ export function selection_each_block(editor, selection, fn) {
 			fn(each)
 		}
 	})
+}
+
+export function selection_edge(editor, selection) {
+	
+	let range, node, fragment
+	let edges = [null, null]
+	range = selection.range.cloneRange()
+	node = u(selection.tail.container).closest(u(an_inline_element)).first()
+	range.setStart(selection.tail.container, selection.tail.offset)
+	range.setEndAfter(node)
+	fragment = range.extractContents()
+	edges[0] = fragment.firstElementChild
+	range.insertNode(fragment)
+	node = u(selection.head.container).closest(u(an_inline_element)).first()
+	range.setStartBefore(node)
+	range.setEnd(selection.head.container, selection.head.offset)
+	fragment = range.extractContents()
+	edges[1] = fragment.firstElementChild
+	range.insertNode(fragment)
+	select_range(editor, edges[1].nextSibling, edges[0].previousSibling)
+	return edges
+}
+
+export function select_range(editor, from, to) {
+	
+	let first_child = document.createTreeWalker(from, NodeFilter.SHOW_TEXT).firstChild()
+	let last_child = document.createTreeWalker(to, NodeFilter.SHOW_TEXT).lastChild()
+	set_selection(editor, {
+		head: { container: first_child, offset: 0 },
+		tail: { container: last_child, offset: last_child.nodeValue.length }
+	})
+	normalize_selection(editor)
+}
+
+export function select_all(editor, event) {
+	
+	event.preventDefault()
+	select_range(editor, editor.content, editor.content)
 }
 
 export function get_selection_length(editor, selection) {
