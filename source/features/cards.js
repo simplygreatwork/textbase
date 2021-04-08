@@ -140,7 +140,7 @@ export function insert_card(editor, type, string) {
 	if (! can_insert_card(editor)) return 
 	let parts = editor.split_content(a_block_element)
 	let card = u(string)
-	let container = create_container(type, card)
+	let container = create_container(card, type)
 	editor.emit(`card-will-enter`, card.first(), type)
 	let selection = get_selection(editor)
 	u(parts[0]).after(container)
@@ -150,7 +150,7 @@ export function insert_card(editor, type, string) {
 	editor.emit('content-did-change', container, container)
 }
 
-export function create_container(type, card) {
+export function create_container(card, type) {
 	
 	let container = u(`
 		<div>
