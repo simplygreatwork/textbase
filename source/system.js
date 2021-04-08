@@ -145,16 +145,16 @@ export class System {
 		
 		bus.on('keydown:alphanumeric', function(event) {
 			if (editor.can_insert_character(event)) {
-				editor.insert_character(event)
+				editor.request_to_insert_character(event)
 			}
 		}.bind(this))
 		
 		bus.on('keydown:enter', function(event) {
-			editor.split_content_(a_block_element, event)
+			editor.request_to_split_content(a_block_element, event)
 		}.bind(this))
 		
 		bus.on('keydown:backspace', function(event) {
-			editor.delete_(event)
+			editor.request_to_delete(event)
 		}.bind(this))
 		
 		bus.on('keyup:backspace', function(event) {

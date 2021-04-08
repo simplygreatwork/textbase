@@ -9,8 +9,8 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	toolbar.append(`<button data-action="card-image">Card: Image</button>`)
 	
 	bus.on('action-requested:card-image', function() {
-		insert_card(editor, `
-			<div data-card-type="image" class="image-card">
+		insert_card(editor, 'image', `
+			<div class="image-card">
 				<img src="images/cosmic.jpg">
 			</div>
 		`)

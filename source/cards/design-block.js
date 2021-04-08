@@ -29,13 +29,11 @@ export function initialize_design_block_cards(bus, editor, toolbar) {
 	document.querySelector('head').appendChild(style)
 	
 	bus.on('action-requested:card-designed', function() {
-		insert_card(editor, `
-			<div data-card-type="designed">
-				<div class="hero">
-					<span class="hero-text" contenteditable="true">
-						<span>Hero</span>
-					</span>
-				</div>
+		insert_card(editor, 'designed', `
+			<div class="hero">
+				<span class="hero-text" contenteditable="true">
+					<span>Hero</span>
+				</span>
 			</div>
 		`)
 	}.bind(this))

@@ -10,16 +10,16 @@ const logger = Logger()
 export function initialize_cards(bus, editor, history) {
 	
 	bus.on('document-did-install', function(document_) {
-		each_card(editor.element, editor.element, null, function(card) {
-			bus.emit('card-will-enter', card)
-			bus.emit('card-did-enter', card)
+		each_card(editor.element, editor.element, null, function(card, type) {
+			bus.emit('card-will-enter', card, type)
+			bus.emit('card-did-enter', card, type)
 		})
 	}.bind(this))
 	
 	bus.on('document-did-uninstall', function(document_) {
-		each_card(editor.element, editor.element, null, function(card) {
-			bus.emit('card-will-exit', card)
-			bus.emit('card-did-exit', card)
+		each_card(editor.element, editor.element, null, function(card, type) {
+			bus.emit('card-will-exit', card, type)
+			bus.emit('card-did-exit', card, type)
 		})
 	})
 	
@@ -45,26 +45,30 @@ export function initialize_cards(bus, editor, history) {
 	})
 	
 	bus.on('content-will-insert', function(node, bus) {
-		each_card(node, node, node, function(card) {
-			bus.emit('card-will-enter', card)
+		each_card(node, node, node, function(card, type) {
+			bus.emit('card-will-enter', card, type)
 		})
 	})
 	
 	bus.on('content-did-insert', function(node, bus) {
-		each_card(node, node, node, function(card) {
-			bus.emit('card-did-enter', card)
+		each_card(node, node, node, function(card, type) {
+			bus.emit('card-did-enter', card, type)
 		})
 	})
 	
 	bus.on('content-will-delete', function(fragment) {
-		u(fragment).find('[data-card-type]').each(function(each) {
-			bus.emit('card-will-exit', each)
+		u(fragment).find('[data-card-type]').each(function(container) {
+			let card = u(container).children(':first-child').children(':first-child').first()
+			let type = u(container).data('card-type')
+			bus.emit('card-will-exit', card, type)
 		})
 	})
 	
 	bus.on('content-did-delete', function(fragment) {
-		u(fragment).find('[data-card-type]').each(function(each) {
-			bus.emit('card-did-exit', each)
+		u(fragment).find('[data-card-type]').each(function(container) {
+			let card = u(container).children(':first-child').children(':first-child').first()
+			let type = u(container).data('card-type')
+			bus.emit('card-will-exit', card, type)
 		})
 	})
 	
@@ -96,20 +100,20 @@ export function initialize_cards(bus, editor, history) {
 		history.capture()
 	})
 	
-	bus.on('card-will-enter', function(card) {
-		bus.emit(`card-will-enter:${u(card).data('card-type')}`, card)
+	bus.on('card-will-enter', function(card, type) {
+		bus.emit(`card-will-enter:${type}`, card)
 	})
 	
-	bus.on('card-did-enter', function(card) {
-		bus.emit(`card-did-enter:${u(card).data('card-type')}`, card)
+	bus.on('card-did-enter', function(card, type) {
+		bus.emit(`card-did-enter:${type}`, card)
 	})
 	
-	bus.on('card-will-exit', function(card) {
-		bus.emit(`card-will-exit:${u(card).data('card-type')}`, card)
+	bus.on('card-will-exit', function(card, type) {
+		bus.emit(`card-will-exit:${type}`, card)
 	})
 	
-	bus.on('card-did-exit', function(card) {
-		bus.emit(`card-did-exit:${u(card).data('card-type')}`, card)
+	bus.on('card-did-exit', function(card, type) {
+		bus.emit(`card-did-exit:${type}`, card)
 	})
 }
 
@@ -130,19 +134,33 @@ export function can_insert_card(editor) {
 	return true
 }
 
-export function insert_card(editor, string) {
+export function insert_card(editor, type, string) {
 	
 	logger('trace').log('insert_card')
 	if (! can_insert_card(editor)) return 
 	let parts = editor.split_content(a_block_element)
 	let card = u(string)
-	card.attr('contenteditable', 'false')
-	editor.emit(`card-will-enter`, card.first())
+	let container = create_container(type, card)
+	editor.emit(`card-will-enter`, card.first(), type)
 	let selection = get_selection(editor)
-	u(parts[0]).after(card)
+	u(parts[0]).after(container)
 	card = card.first()
-	editor.emit(`card-did-enter`, card)
-	editor.emit('content-did-change', card, card)
+	container = container.first()
+	editor.emit(`card-did-enter`, card, type)
+	editor.emit('content-did-change', container, container)
+}
+
+export function create_container(type, card) {
+	
+	let container = u(`
+		<div class="card-container flex-container" contenteditable="false">
+			<div class="card-content"></div>
+			<div class="card-caret"><span contenteditable="true"><span>&#x200B;</span></span></div>
+		</div>
+	`)
+	container.data('card-type', type)
+	container.children(':first-child').append(card)
+	return container 
 }
 
 export function can_delete_card(editor, selection) {
@@ -154,19 +172,21 @@ export function can_delete_card(editor, selection) {
 	if (u(element).is(an_inline_element)) return false
 	let block = find_previous_block(editor.element, selection.head.container)
 	if (! block) return false
-	let card = u(block).closest('[data-card-type]').first()
-	if (card) return card
+	let container = u(block).closest('[data-card-type]').first()
+	if (container) return container
 	else return false
 }
 
 export function delete_card(editor, selection, history) {
 	
 	logger('trace').log('delete_card')
-	let card = can_delete_card(editor, selection)
-	if (card) {
-		editor.emit(`card-will-exit`, card)
-		u(card).remove()
-		editor.emit(`card-did-exit`, card)
+	let container = can_delete_card(editor, selection)
+	if (container) {
+		let card = u(container).children(':first-child').children(':first-child').first()
+		let type = u(container).data('card-type')
+		editor.emit(`card-will-exit`, card, type)
+		u(container).remove()
+		editor.emit(`card-did-exit`, card, type)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 }
@@ -174,8 +194,8 @@ export function delete_card(editor, selection, history) {
 function batch_emit(key, nodes, bus) {
 	
 	nodes.forEach(function(node) {
-		each_card(node, node, null, function(card) {
-			bus.emit(key, card)
+		each_card(node, node, null, function(card, type) {
+			bus.emit(key, card, type)
 		})
 	})
 }
@@ -188,7 +208,9 @@ function each_card(top, begin, end, fn) {
 		let node_ = u(node)
 		if (node_.is(an_element_node)) {
 			if (node_.is('[data-card-type]')) {
-				fn(node_.first())
+				let card = u(node_).children(':first-child').children(':first-child').first()
+				let type = u(node_).data('card-type')
+				fn(card, type)
 			}
 		}
 		if (node == end) break

@@ -66,6 +66,17 @@ blockquote {
 	margin-top:10px;
 	margin-bottom:10px;
 }
+.card-content {
+	width:95%;
+	height:inherit;
+}
+.card-caret {
+	width:5%;
+	height:inherit;
+	font-size:50px;
+	padding-left:6px;
+	vertical-align:middle;
+}
 .atom {
 	border:1px solid royalblue;
 	padding:4px;

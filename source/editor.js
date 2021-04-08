@@ -1,11 +1,10 @@
 
-import { an_element_node, a_text_node } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
-import { find_previous_inline_sibling } from './basics.js'
-import { find_next_block } from './basics.js'
-import { node_iterator, element_iterator, text_iterator, is_alphanumeric } from './basics.js'
-import { is_editable_node } from './basics.js'
-import { get_selection, set_selection, set_caret, normalize_selection, selection_to_string } from './selection.js'
+import { an_element_node, a_text_node } from './basics.js'
+import { node_iterator, element_iterator, text_iterator } from './basics.js'
+import { is_editable_node, is_alphanumeric } from './basics.js'
+import { find_previous_inline_sibling, find_next_block } from './basics.js'
+import { get_selection, set_selection, set_caret, normalize_selection } from './selection.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -18,7 +17,7 @@ export class Editor {
 		this.element = element
 		this.initialize_content()
 		this.initialize_keymap()
-		this.initialize_events(bus)
+		this.initialize_requests(bus)
 		this.initialize_selection()
 	}
 	
@@ -66,7 +65,13 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	initialize_events(bus) {
+	initialize_requests(bus) {
+		
+		bus.on('insert-character-requested', function(event) {
+			if (event && event.consumed) return
+			this.insert_character(event)
+			if (event) event.consumed = true
+		}.bind(this))
 		
 		bus.on('split-content-requested', function(limit, event) {
 			if (event && event.consumed) return
@@ -122,6 +127,10 @@ export class Editor {
 		return this.is_editable()
 	}
 	
+	request_to_insert_character(event) {
+		this.emit('insert-character-requested', event)
+	}
+	
 	insert_character(event) {
 		
 		logger('trace').log('insert_character')
@@ -149,7 +158,7 @@ export class Editor {
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 	
-	split_content_(limit, event) {
+	request_to_split_content(limit, event) {
 		this.emit('split-content-requested', limit, event)
 	}
 	
@@ -176,7 +185,7 @@ export class Editor {
 		return [a, b]
 	}
 	
-	delete_(event) {
+	request_to_delete(event) {
 		
 		if (event) event.preventDefault()
 		this.bus.emit('delete-requested', { consumed: false })
