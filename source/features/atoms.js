@@ -131,7 +131,7 @@ export function insert_atom(editor, string) {
 	
 	logger('trace').log('insert_atom')
 	if (! can_insert_atom(editor)) return 
-	editor.delete_(event)
+	editor.request_to_delete(event)
 	let atom = u(string)
 	atom.attr('contenteditable', 'false')
 	editor.emit(`atom-will-enter`, atom.first())
