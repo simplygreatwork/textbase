@@ -23,7 +23,19 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
-	bus.unshift('split-content-requested', function(limit, event) {
+	bus.unshift('insert-character-requested', function(event) {
+		if (event.consumed) return
+		let selection = get_selection(this)
+		let node = u(selection.head.container)
+		if (node.is(a_text_node)) node = node.parent()
+		if (node.closest('.card-caret').first()) {
+			event.consumed = true
+			event.preventDefault()
+		}
+	}.bind(this))
+	
+	bus.unshift('split-content-requested', function(event, limit) {
+		if (event.consumed) return
 		let selection = get_selection(this)
 		if (is_card(selection.head.container) || is_card(selection.tail.container)) {
 			if (event) {
