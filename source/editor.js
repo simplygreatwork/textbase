@@ -80,30 +80,29 @@ export class Editor {
 		}.bind(this))
 		
 		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
+			if (event && event.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				event.consumed = true
+				if (event) event.consumed = true
 			}
-			return
 		}.bind(this))
 		
 		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
+			if (event && event.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				event.consumed = true
+				if (event) event.consumed = true
 			}
 		}.bind(this))
 		
 		bus.on('delete-requested', function(event) {
-			if (event.consumed) return
+			if (event && event.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				event.consumed = true
+				if (event) event.consumed = true
 			}
 		}.bind(this))
 	}

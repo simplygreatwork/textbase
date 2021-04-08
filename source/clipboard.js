@@ -1,7 +1,7 @@
 
-import { get_selection, set_caret, normalize_selection, selection_edge } from './selection.js'
-import { node_iterator, a_text_node } from './basics.js'
+import { a_text_node, node_iterator } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
+import { get_selection, set_caret, selection_edge, normalize_selection } from './selection.js'
 import { sanitize } from './sanitize.js'
 import { Logger } from './logger.js'
 
@@ -71,9 +71,8 @@ function paste_internally(content, editor) {
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
 	if (node.children().length === 0) {
-		bus.emit('content-will-insert', content, bus)
-		editor.insert_string(node.text())
-		bus.emit('content-did-insert', content, bus)
+		content = extract_internal_transfer(content)
+		insert_string(content, editor, bus)
 		editor.emit('content-did-change', edges[1], edges[0])
 		editor.emit('clipboard-did-paste')
 	} else {
@@ -81,16 +80,12 @@ function paste_internally(content, editor) {
 		node.children().each(function(each) {
 			each = u(each)
 			if (each.is(an_inline_element)) {
-				bus.emit('content-will-insert', each.first(), bus)
-				u(edges[0]).before(each)
-				bus.emit('content-did-insert', each.first(), bus)
+				insert_inline(edges[0], each.first(), editor, bus)
 			} else if (each.is(a_block_element)) {
 				if (part === null) {
 					part = u(editor.split_content(a_block_element)[0])
 				}
-				bus.emit('content-will-insert', each.first(), bus)
-				part.after(each)
-				bus.emit('content-did-insert', each.first(), bus)
+				insert_block(part, each, editor, bus)
 				part = each
 			}
 		})
@@ -101,6 +96,31 @@ function paste_internally(content, editor) {
 	}
 }
 
+function insert_string(string, editor, bus) {
+	
+	editor.insert_string(string)
+}
+
+function insert_inline(parent, node, editor, bus) {
+	
+	node = node.first()
+	bus.emit('content-will-insert', node, bus)
+	u(parent).before(node)
+	bus.emit('content-did-insert', node, bus)
+}
+
+function insert_block(parent, node, editor, bus) {
+	
+	node = node.first()
+	bus.emit('content-will-insert', node, bus)
+	u(parent).after(node)
+	bus.emit('content-did-insert', node, bus)
+}
+
 function is_internal_transfer(node) {
 	return u(node).first().tagName == 'internal-transfer'.toUpperCase()
+}
+
+function extract_internal_transfer(node) {
+	return u(node).first().innerHTML
 }

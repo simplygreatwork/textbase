@@ -135,21 +135,6 @@ export function select_all(editor, event) {
 	select_range(editor, editor.content, editor.content)
 }
 
-export function get_selection_length(editor, selection) {
-	
-	let result = 0
-	selection_each_text(editor, selection, function(node, index) {
-		if (node == selection.head.container) {
-			result += selection.head.container.textContent.length - selection.head.offset
-		} else if (node == selection.tail.container) {
-			result += selection.tail.offset 
-		} else {
-			result += node.textContent.length 
-		}
-	})
-	return result
-}
-
 export function normalize_selection(editor) {
 	
 	let selection = get_selection(editor)
@@ -169,4 +154,19 @@ export function selection_to_string(selection) {
 	array.push(selection.tail.container.nodeType == 1 ? selection.tail.container.tagName : selection.tail.container.textContent)
 	array.push(selection.tail.offset)
 	return array.join(':')
+}
+
+export function get_selection_length(editor, selection) {
+	
+	let result = 0
+	selection_each_text(editor, selection, function(node, index) {
+		if (node == selection.head.container) {
+			result += selection.head.container.textContent.length - selection.head.offset
+		} else if (node == selection.tail.container) {
+			result += selection.tail.offset 
+		} else {
+			result += node.textContent.length 
+		}
+	})
+	return result
 }
