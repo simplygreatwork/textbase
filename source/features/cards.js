@@ -153,12 +153,15 @@ export function insert_card(editor, type, string) {
 export function create_container(type, card) {
 	
 	let container = u(`
-		<div class="card-container flex-container" contenteditable="false">
+		<div>
 			<div class="card-content"></div>
 			<div class="card-caret"><span contenteditable="true"><span>&#x200B;</span></span></div>
 		</div>
 	`)
 	container.data('card-type', type)
+	container.attr('contenteditable', 'false')
+	container.addClass('card-container')
+	container.addClass('flex-container')
 	container.children(':first-child').append(card)
 	return container 
 }
