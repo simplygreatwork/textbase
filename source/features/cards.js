@@ -47,11 +47,9 @@ export function initialize_cards(bus, editor, history) {
 	bus.unshift('delete-requested', function(event) {
 		if (event.consumed) return
 		let selection = get_selection(editor)
-		if (selection.range.collapsed) {
-			if (can_delete_card(editor, selection)) {
-				delete_card(editor, selection, history)
-				consume_event(event)
-			}
+		if (can_delete_card(editor, selection)) {
+			delete_card(editor, selection, history)
+			consume_event(event)
 		}
 	})
 	
@@ -178,6 +176,7 @@ export function create_container(card, type) {
 export function can_delete_card(editor, selection) {
 	
 	logger('trace').log('can_delete_card')
+	if (! selection.range.collapsed) return false
 	if (is_selection_inside_card_container_caret(selection)) return find_card_container(selection)
 	if (selection.head.offset > 0) return false
 	let element = find_previous_element(editor.element, selection.head.container)
@@ -253,11 +252,8 @@ function is_selection_inside_card_container_caret(selection) {
 	if (! selection.range.collapsed) return false
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()
-	if (node.closest('.card-caret').first()) {
-		return true
-	} else {
-		return false
-	}
+	if (node.closest(u('.card-caret')).first()) return true
+	return false
 }
 
 function insert_paragraph_after_card_container(node, editor) {
