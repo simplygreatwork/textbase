@@ -13,10 +13,22 @@ export function skip_right_over_zero_width_whitespace(event, editor) {
 	let text = selection.tail.container.nodeValue
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.tail.offset == 1)) {
 		event.preventDefault()
-		let iterator = text_iterator(editor.element, selection.tail.container)
-		let next = iterator.nextNode()
+		let next = find_next_selectable_text_node(editor, selection)
 		set_caret(editor, { container: next, offset: 0 })
 	}
+}
+
+function find_next_selectable_text_node(editor, selection) {
+	
+	let iterator = text_iterator(editor.element, selection.tail.container)
+	let node = iterator.nextNode()
+	while (node) {
+		if (node.nodeValue.trim().length > 0) {
+			return node
+		}
+		node = iterator.nextNode()
+	}
+	return node
 }
 
 export function skip_left_over_zero_width_whitespace(event, editor) {
@@ -26,8 +38,20 @@ export function skip_left_over_zero_width_whitespace(event, editor) {
 	let text = selection.head.container.nodeValue
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.head.offset == 0)) {
 		event.preventDefault()
-		let iterator = text_iterator(editor.element, selection.head.container)
-		let previous = iterator.previousNode()
+		let previous = find_previous_selectable_text_node(editor, selection)
 		set_caret(editor, { container: previous, offset: previous.nodeValue.length })
 	}
+}
+
+function find_previous_selectable_text_node(editor, selection) {
+	
+	let iterator = text_iterator(editor.element, selection.head.container)
+	let node = iterator.previousNode()
+	while (node) {
+		if (node.nodeValue.trim().length > 0) {
+			return node
+		}
+		node = iterator.previousNode()
+	}
+	return node
 }
