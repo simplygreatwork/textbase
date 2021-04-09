@@ -131,11 +131,14 @@ export function insert_atom(editor, string) {
 	
 	logger('trace').log('insert_atom')
 	if (! can_insert_atom(editor)) return 
-	editor.request_to_delete(event)
+	let selection = get_selection(editor)
+	if (! selection.range.collapsed) {
+		editor.request_to_delete(event)
+		selection = get_selection(editor)
+	}
 	let atom = u(string)
 	atom.attr('contenteditable', 'false')
 	editor.emit(`atom-will-enter`, atom.first())
-	let selection = get_selection(editor)
 	let edges = selection_edge(editor, selection)
 	u(edges[1]).after(atom)
 	atom = atom.first()
