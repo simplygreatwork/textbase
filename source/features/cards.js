@@ -285,6 +285,7 @@ function enable_resize_observer(card) {
 function disable_resize_observer(card) {
 	
 	let container = u(card).closest('[data-card-type]').first()
+	if (! container.observer_) return
 	container.observer_.unobserve(container)
 	container.observer_ = null
 }
