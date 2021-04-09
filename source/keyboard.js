@@ -14,7 +14,7 @@ export function skip_right_over_zero_width_whitespace(event, editor) {
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.tail.offset == 1)) {
 		event.preventDefault()
 		let next = find_next_selectable_text_node(editor, selection)
-		set_caret(editor, { container: next, offset: 0 })
+		if (next) set_caret(editor, { container: next, offset: 0 })
 	}
 }
 
@@ -39,7 +39,7 @@ export function skip_left_over_zero_width_whitespace(event, editor) {
 	if ((text.charAt(0) == zero_width_whitespace) && (selection.head.offset == 0)) {
 		event.preventDefault()
 		let previous = find_previous_selectable_text_node(editor, selection)
-		set_caret(editor, { container: previous, offset: previous.nodeValue.length })
+		if (previous) set_caret(editor, { container: previous, offset: previous.nodeValue.length })
 	}
 }
 
