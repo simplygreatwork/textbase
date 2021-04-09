@@ -273,19 +273,11 @@ function insert_paragraph_after_card_container(node, editor) {
 	editor.emit('content-did-change', paragraph, paragraph)
 }
 
-function consume_event(event) {
-	
-	if (event) {
-		event.consumed = true
-		if (event.preventDefault) event.preventDefault()
-	}
-}
-
 function enable_resize_observer(card) {
 	
 	let container = u(card).closest('[data-card-type]').first()
 	container.observer_ = new ResizeObserver(function(entries) {
-		u(container).find('.card-caret').first().style.fontSize = `${container.clientHeight - 50}px`		// fixme: defensively debounce
+		u(container).find('.card-caret').first().style.fontSize = `${container.clientHeight - 50}px`		// todo: defensively debounce
 	})
 	container.observer_.observe(container)
 }
@@ -295,4 +287,12 @@ function disable_resize_observer(card) {
 	let container = u(card).closest('[data-card-type]').first()
 	container.observer_.unobserve(container)
 	container.observer_ = null
+}
+
+function consume_event(event) {
+	
+	if (event) {
+		event.consumed = true
+		if (event.preventDefault) event.preventDefault()
+	}
 }
