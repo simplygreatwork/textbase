@@ -59,6 +59,10 @@ blockquote {
 .align-justify {
 	text-align:justify;
 }
+[data-card-type] {
+	margin-top:4px;
+	margin-bottom:4px;
+}
 .card {
 	border:1px solid royalblue;
 	padding:10px;
