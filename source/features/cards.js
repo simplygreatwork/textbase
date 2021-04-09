@@ -1,7 +1,8 @@
 
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
-import { get_selection } from '../selection.js'
+import { zero_width_whitespace } from '../basics.js'
+import { get_selection, set_caret } from '../selection.js'
 import { is_atom } from './atoms.js'
 import { Logger } from '../logger.js'
 
@@ -25,23 +26,21 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.unshift('insert-character-requested', function(event) {
 		if (event.consumed) return
-		let selection = get_selection(this)
-		let node = u(selection.head.container)
-		if (node.is(a_text_node)) node = node.parent()
-		if (node.closest('.card-caret').first()) {
-			event.consumed = true
-			event.preventDefault()
+		let selection = get_selection(editor)
+		if (is_selection_inside_card_container_caret(selection)) {
+			consume_event(event)
 		}
 	}.bind(this))
 	
 	bus.unshift('split-content-requested', function(event, limit) {
 		if (event.consumed) return
-		let selection = get_selection(this)
-		if (is_card(selection.head.container) || is_card(selection.tail.container)) {
-			if (event) {
-				event.consumed = true
-				event.preventDefault()
-			}
+		let selection = get_selection(editor)
+		if (is_selection_inside_card_container_caret(selection)) {
+			let container = find_card_container(selection)
+			insert_paragraph_after_card_container(container, editor)
+			consume_event(event)
+		} else if (is_card(selection.head.container) || is_card(selection.tail.container)) {
+			consume_event(event)
 		}
 	}.bind(this))
 	
@@ -51,7 +50,7 @@ export function initialize_cards(bus, editor, history) {
 		if (selection.range.collapsed) {
 			if (can_delete_card(editor, selection)) {
 				delete_card(editor, selection, history)
-				event.consumed = true
+				consume_event(event)
 			}
 		}
 	})
@@ -129,18 +128,10 @@ export function initialize_cards(bus, editor, history) {
 	})
 }
 
-export function is_card(node) {
-	
-	node = u(node)
-	if (node.is(a_text_node)) node = node.parent()
-	if (node.is(u('[data-card-type]'))) return true
-	if (node.closest(u('[data-card-type]')).first()) return true
-	return false
-}
-
 export function can_insert_card(editor) {
 	
 	let selection = get_selection(editor)
+	if (is_selection_inside_card_container_caret(selection)) return true
 	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false		// fixme: dependency
 	if (is_card(selection.head.container) && is_card(selection.tail.container)) return false
 	return true
@@ -150,13 +141,19 @@ export function insert_card(editor, type, string) {
 	
 	logger('trace').log('insert_card')
 	if (! can_insert_card(editor)) return 
-	let parts = editor.split_content(a_block_element)
+	let selection = get_selection(editor)
+	let sibling = null
+	if (is_selection_inside_card_container_caret(selection)) {
+		sibling = find_card_container(selection)
+	} else {
+		sibling = editor.split_content(a_block_element)[0]
+	}
 	let card = u(string)
 	let container = create_container(card, type)
 	card = card.first()
 	editor.emit(`card-will-enter`, card, type)
-	let selection = get_selection(editor)
-	u(parts[0]).after(container)
+	selection = get_selection(editor)
+	u(sibling).after(container)
 	container = container.first()
 	editor.emit(`card-did-enter`, card, type)
 	editor.emit('content-did-change', container, container)
@@ -181,6 +178,7 @@ export function create_container(card, type) {
 export function can_delete_card(editor, selection) {
 	
 	logger('trace').log('can_delete_card')
+	if (is_selection_inside_card_container_caret(selection)) return find_card_container(selection)
 	if (selection.head.offset > 0) return false
 	let element = find_previous_element(editor.element, selection.head.container)
 	if (! element) return false
@@ -230,5 +228,51 @@ function each_card(top, begin, end, fn) {
 		}
 		if (node == end) break
 		node = iterator.nextNode()
+	}
+}
+
+export function is_card(node) {
+	
+	node = u(node)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.is(u('[data-card-type]'))) return true
+	if (node.closest(u('[data-card-type]')).first()) return true
+	return false
+}
+
+function find_card_container(selection) {
+	
+	let node = u(selection.head.container)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.is(u('[data-card-type]'))) return node
+	return node.closest('[data-card-type]').first()
+}
+
+function is_selection_inside_card_container_caret(selection) {
+	
+	if (! selection.range.collapsed) return false
+	let node = u(selection.head.container)
+	if (node.is(a_text_node)) node = node.parent()
+	if (node.closest('.card-caret').first()) {
+		return true
+	} else {
+		return false
+	}
+}
+
+function insert_paragraph_after_card_container(node, editor) {
+	
+	let paragraph = u(`<p><span>${zero_width_whitespace}</span></p>`)
+	u(node).after(paragraph)
+	set_caret(editor, { container: paragraph.children(':first-child').first(), offset: 0 })
+	paragraph = paragraph.first()
+	editor.emit('content-did-change', paragraph, paragraph)
+}
+
+function consume_event(event) {
+	
+	if (event) {
+		event.consumed = true
+		if (event.preventDefault) event.preventDefault()
 	}
 }
