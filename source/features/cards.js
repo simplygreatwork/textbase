@@ -178,7 +178,7 @@ export function create_container(card, type) {
 	container.addClass('card-container')
 	container.addClass('flex-container')
 	container.children(':first-child').append(card)
-	return container 
+	return container
 }
 
 export function can_delete_card(editor, selection) {

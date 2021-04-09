@@ -133,7 +133,7 @@ export function insert_atom(editor, string) {
 	if (! can_insert_atom(editor)) return 
 	let selection = get_selection(editor)
 	if (! selection.range.collapsed) {
-		editor.request_to_delete(event)
+		editor.request_to_delete()
 		selection = get_selection(editor)
 	}
 	let atom = u(string)
