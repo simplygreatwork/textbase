@@ -169,7 +169,7 @@ export class Editor {
 		this.emit('content-will-split')
 		let selection = get_selection(this)
 		if (! selection.range.collapsed) {
-			this.delete_(event)
+			this.request_to_delete(event)
 			selection = get_selection(this)
 		}
 		let range = selection.range.cloneRange()
