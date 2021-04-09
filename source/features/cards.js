@@ -81,6 +81,22 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
+	bus.on('card-will-enter', function(card, type) {
+		bus.emit(`card-will-enter:${type}`, card)
+	})
+	
+	bus.on('card-did-enter', function(card, type) {
+		bus.emit(`card-did-enter:${type}`, card)
+	})
+	
+	bus.on('card-will-exit', function(card, type) {
+		bus.emit(`card-will-exit:${type}`, card)
+	})
+	
+	bus.on('card-did-exit', function(card, type) {
+		bus.emit(`card-did-exit:${type}`, card)
+	})
+	
 	bus.on('history-will-undo', function(added, removed) {
 		batch_emit('card-will-enter', added, bus)
 		batch_emit('card-will-exit', removed, bus)
@@ -109,20 +125,12 @@ export function initialize_cards(bus, editor, history) {
 		history.capture()
 	})
 	
-	bus.on('card-will-enter', function(card, type) {
-		bus.emit(`card-will-enter:${type}`, card)
+	bus.on('card-did-enter', function(container) {
+		enable_resize_observer(container)
 	})
-	
-	bus.on('card-did-enter', function(card, type) {
-		bus.emit(`card-did-enter:${type}`, card)
-	})
-	
-	bus.on('card-will-exit', function(card, type) {
-		bus.emit(`card-will-exit:${type}`, card)
-	})
-	
-	bus.on('card-did-exit', function(card, type) {
-		bus.emit(`card-did-exit:${type}`, card)
+
+	bus.on('card-will-exit', function(container) {
+		disable_resize_observer(container)
 	})
 }
 
@@ -271,4 +279,20 @@ function consume_event(event) {
 		event.consumed = true
 		if (event.preventDefault) event.preventDefault()
 	}
+}
+
+function enable_resize_observer(card) {
+	
+	let container = u(card).closest('[data-card-type]').first()
+	container.observer_ = new ResizeObserver(function(entries) {
+		u(container).find('.card-caret').first().style.fontSize = `${container.clientHeight - 50}px`		// fixme: defensively debounce
+	})
+	container.observer_.observe(container)
+}
+
+function disable_resize_observer(card) {
+	
+	let container = u(card).closest('[data-card-type]').first()
+	container.observer_.unobserve(container)
+	container.observer_ = null
 }
