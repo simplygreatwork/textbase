@@ -29,40 +29,34 @@ export class Editor {
 	initialize_keymap() {
 		
 		u(this.content).on('keydown', function(event) {
-			this.emit('keydown', event)
-			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
-				this.emit('keydown:alphanumeric', event)
-			} else {
-				let key = event.key
-				if (key == ' ') key = 'space'
-				let array = []
-				array.push('keydown:')
-				if (event.ctrlKey) array.push('control-')
-				if (event.shiftKey) array.push('shift-')
-				array.push(key.toLowerCase())
-				this.emit(array.join(''), event)
-			}
+			this.process_key_event('keydown', event)
 		}.bind(this))
 		
 		u(this.content).on('keyup', function(event) {
-			this.emit('keyup', event)
-			if (is_alphanumeric(event.keyCode) && event.ctrlKey === false) {
-				this.emit('keyup:alphanumeric', event)
-			} else {
-				let key = event.key
-				if (key == ' ') key = 'space'
-				let array = []
-				array.push('keyup:')
-				if (event.ctrlKey) array.push('control-')
-				if (event.shiftKey) array.push('shift-')
-				array.push(key.toLowerCase())
-				this.emit(array.join(''), event)
-			}
+			this.process_key_event('keyup', event)
 		}.bind(this))
 		
 		u(this.content).on('mousedown', function(event) {
 			this.emit('editor:mousedown', event)
 		}.bind(this))
+	}
+	
+	process_key_event(type, event) {
+		
+		this.emit(type, event)
+		if (is_alphanumeric(event.keyCode) && event.ctrlKey === false && event.metaKey === false) {
+			this.emit(`${type}:alphanumeric`, event)
+		} else {
+			let key = event.key
+			if (key == ' ') key = 'space'
+			let array = []
+			array.push(`${type}:`)
+			if (event.ctrlKey) array.push('control-')
+			if (event.metaKey) array.push('meta-')
+			if (event.shiftKey) array.push('shift-')
+			array.push(key.toLowerCase())
+			this.emit(array.join(''), event)
+		}
 	}
 	
 	initialize_requests(bus) {

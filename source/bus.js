@@ -28,6 +28,12 @@ export class Bus {
 		}
 	}
 	
+	remap(from, to) {
+		
+		this.channels[to] = this.channels[from]
+		delete this.channels[from]
+	}
+	
 	emit(key) {
 		
 		this.channels = this.channels || {}

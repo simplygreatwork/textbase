@@ -12,6 +12,7 @@ import { toggle_block, transform_block, block_has_content } from './features/blo
 import { indent, dedent, align } from './features/blocks.js'
 import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
 import { initialize_clipboard } from './clipboard.js'
+import { initialize_platform } from './platform.js'
 import { initialize_atoms, insert_atom, is_atom } from './features/atoms.js'
 import { initialize_cards, insert_card, is_card } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
@@ -51,6 +52,8 @@ export class System {
 		this.configure_cards(bus, editor, toolbar, history)
 		this.configure_recognizers(bus, editor, toolbar)
 		this.configure_other(bus, editor, toolbar)
+		initialize_clipboard(editor)
+		initialize_platform(bus)
 	}
 	
 	configure_documents(bus, editor, toolbar) {
@@ -192,8 +195,6 @@ export class System {
 		bus.on('keydown:control-shift-z', function(event) {
 			this.history.redo(event)
 		}.bind(this))
-		
-		initialize_clipboard(editor)
 	}
 	
 	configure_formats(bus, editor, toolbar) {
