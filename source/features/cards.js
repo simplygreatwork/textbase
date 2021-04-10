@@ -206,9 +206,9 @@ export function delete_card(editor, selection, history) {
 		let card = u(container).children(':first-child').children(':first-child').first()
 		let type = u(container).data('card-type')
 		editor.emit(`card-will-exit`, card, type)
-		let node = find_previous_editable_text_node(editor, container)
+		let selectable = find_previous_editable_text_node(editor, container)
 		u(container).remove()
-		if (node) set_caret(editor, { container: node, offset: node.nodeValue.length})
+		if (selectable) set_caret(editor, { container: selectable, offset: selectable.nodeValue.length})
 		editor.emit(`card-did-exit`, card, type)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}

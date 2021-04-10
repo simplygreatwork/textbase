@@ -1,6 +1,7 @@
 
-import { get_selection, selection_edge } from '../selection.js'
+import { get_selection, set_caret, selection_edge } from '../selection.js'
 import { a_text_node, an_element_node, element_iterator } from '../basics.js'
+import { find_previous_editable_text_node } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -164,7 +165,9 @@ export function delete_atom(editor, selection, history) {
 	let atom = can_delete_atom(editor, selection)
 	if (atom) {
 		editor.emit(`atom-will-exit`, atom)
+		let selectable = find_previous_editable_text_node(editor, atom)
 		u(atom).remove()
+		if (selectable) set_caret(editor, { container: selectable, offset: selectable.nodeValue.length})
 		editor.emit(`atom-did-exit`, atom)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}

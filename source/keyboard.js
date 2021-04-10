@@ -1,7 +1,5 @@
 
-import { text_iterator } from './basics.js'
 import { zero_width_whitespace } from './basics.js'
-import { is_editable_node } from './basics.js'
 import { find_next_editable_text_node } from './basics.js'
 import { find_previous_editable_text_node } from './basics.js'
 import { get_selection, set_selection, set_caret } from './selection.js'
