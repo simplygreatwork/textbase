@@ -9,11 +9,7 @@ const logger = Logger()
 
 export function set_selection(editor, options) {
 	
-	if (options.tail.container.nodeType == 1) {
-		let iterator = text_iterator(editor.element, options.tail.container)
-		options.tail.container = iterator.nextNode()
-		options.tail.offset = 0
-	}
+	options = validate_selection(options, editor)
 	let selection = document.getSelection()
 	selection.removeAllRanges()
 	let range = new Range()
@@ -25,31 +21,23 @@ export function set_selection(editor, options) {
 export function get_selection(editor) {
 	
 	let selection = document.getSelection()
-	if (selection && selection.rangeCount > 0) {
-		let range = selection.getRangeAt(0)
-		if (! u(range.startContainer).closest(u('.content'))) return null
-		if (! u(range.endContainer).closest(u('.content'))) return null
-		return {
-			range: range,
-			head: { container: range.startContainer, offset: range.startOffset },
-			tail: { container: range.endContainer, offset: range.endOffset }
-		}
+	if (! selection) return null 
+	if (! selection.rangeCount) return null 
+	if (selection.rangeCount === 0) return null 
+	let range = selection.getRangeAt(0)
+	if (! u(range.startContainer).closest(u('.content'))) return null
+	if (! u(range.endContainer).closest(u('.content'))) return null
+	return {
+		range: range,
+		head: { container: range.startContainer, offset: range.startOffset },
+		tail: { container: range.endContainer, offset: range.endOffset }
 	}
 	return null
 }
 
 export function set_caret(editor, options) {
 	
-	if (options.container.nodeType == 1) {
-		let iterator = text_iterator(editor.element, options.container)
-		options.container = iterator.nextNode()
-	}
-	let range = new Range()
-	range.setStart(options.container, options.offset)
-	range.setEnd(options.container, options.offset)
-	let selection = document.getSelection()
-	selection.removeAllRanges()
-	selection.addRange(range)
+	set_selection(editor, { head: options, tail: options })
 }
 
 export function selection_each_node(editor, selection, fn) {
@@ -138,12 +126,21 @@ export function select_all(editor, event) {
 export function normalize_selection(editor) {
 	
 	let selection = get_selection(editor)
-	if (selection && selection.range && selection.tail.container.nodeType == 1) {
-		let iterator = text_iterator(editor.element, selection.tail.container)
-		let next = iterator.nextNode()
-		selection.range.setEnd(next, 0)
+	if (u(selection.tail.container).is(an_element_node)) {
+		selection = validate_selection(selection, editor)
+		selection.range.setEnd(selection.tail.container, selection.tail.offset)
 		editor.emit('selection-did-change', null, editor)
 	}
+}
+
+function validate_selection(selection, editor) {
+	
+	if (u(selection.tail.container).is(an_element_node)) {
+		let iterator = text_iterator(editor.element, selection.tail.container)
+		selection.tail.container = iterator.nextNode()
+		selection.tail.offset = 0
+	}
+	return selection
 }
 
 export function selection_to_string(selection) {
