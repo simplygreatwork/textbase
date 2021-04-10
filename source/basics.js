@@ -75,6 +75,36 @@ export function find_next_block(element, node) {
 	return iterator.nextNode()
 }
 
+export function find_next_editable_text_node(editor, from) {
+	
+	let iterator = text_iterator(editor.element, from)
+	let node = iterator.nextNode()
+	while (node) {
+		if (node.nodeValue.trim().length > 0) {
+			if (is_editable_node(node)) {
+				return node
+			}
+		}
+		node = iterator.nextNode()
+	}
+	return node
+}
+
+export function find_previous_editable_text_node(editor, from) {
+	
+	let iterator = text_iterator(editor.element, from)
+	let node = iterator.previousNode()
+	while (node) {
+		if (node.nodeValue.trim().length > 0) {
+			if (is_editable_node(node)) {
+				return node
+			}
+		}
+		node = iterator.previousNode()
+	}
+	return node
+}
+
 export function is_alphanumeric(keycode) {
 	
 	if (

@@ -2,6 +2,7 @@
 import { an_inline_element, a_block_element, find_previous_block, find_previous_element } from '../basics.js'
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { zero_width_whitespace } from '../basics.js'
+import { find_previous_editable_text_node } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
 import { is_atom } from './atoms.js'
 import { Logger } from '../logger.js'
@@ -205,7 +206,9 @@ export function delete_card(editor, selection, history) {
 		let card = u(container).children(':first-child').children(':first-child').first()
 		let type = u(container).data('card-type')
 		editor.emit(`card-will-exit`, card, type)
+		let node = find_previous_editable_text_node(editor, container)
 		u(container).remove()
+		if (node) set_caret(editor, { container: node, offset: node.nodeValue.length})
 		editor.emit(`card-did-exit`, card, type)
 		editor.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
