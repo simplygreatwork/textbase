@@ -61,46 +61,41 @@ export class Editor {
 	
 	initialize_requests(bus) {
 		
-		bus.on('insert-character-requested', function(state, event) {
-			if (state && state.consumed) return
+		bus.on('insert-character-requested', function(event, interrupt) {
 			this.insert_character(event)
-			if (state) state.consumed = true
+			interrupt()
 			if (event) event.preventDefault()
 		}.bind(this))
 		
-		bus.on('split-content-requested', function(state, event) {
-			if (state && state.consumed) return
+		bus.on('split-content-requested', function(event, interrupt) {
 			this.split_content(a_block_element, event)
-			if (state) state.consumed = true
+			interrupt()
 			if (event) event.preventDefault()
 		}.bind(this))
 		
-		bus.on('delete-requested', function(state, event) {
-			if (state && state.consumed) return
+		bus.on('delete-requested', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				if (state) state.consumed = true
+				interrupt()
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(state, event) {
-			if (state && state.consumed) return
+		bus.on('delete-requested', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				if (state) state.consumed = true
+				interrupt()
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(state, event) {
-			if (state && state.consumed) return
+		bus.on('delete-requested', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				if (state) state.consumed = true
+				interrupt()
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
@@ -126,7 +121,7 @@ export class Editor {
 	}
 	
 	request_to_insert_character(event) {
-		this.emit('insert-character-requested', { consumed: false }, event)
+		this.emit('insert-character-requested', event)
 	}
 	
 	insert_character(event) {
@@ -157,14 +152,13 @@ export class Editor {
 	}
 	
 	request_to_split_content(event) {
-		this.emit('split-content-requested', { consumed: false }, event)
+		this.emit('split-content-requested', event)
 	}
 	
-	split_content(limit, event) {
+	split_content(limit) {
 		
 		logger('trace').log('split_content')
 		if (! this.is_editable()) return
-		if (event) event.preventDefault()
 		this.emit('content-will-split')
 		let selection = get_selection(this)
 		if (! selection.range.collapsed) {
@@ -185,7 +179,7 @@ export class Editor {
 	
 	request_to_delete(event) {
 		
-		this.bus.emit('delete-requested', { consumed: false }, event)
+		this.bus.emit('delete-requested', event)
 	}
 	
 	can_delete_character(selection) {

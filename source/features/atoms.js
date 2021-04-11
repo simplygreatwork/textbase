@@ -22,24 +22,21 @@ export function initialize_atoms(bus, editor, history) {
 		})
 	})
 	
-	bus.unshift('split-content-requested', function(limit, event) {
+	bus.unshift('split-content-requested', function(event, interrupt) {
 		let selection = get_selection(this)
 		if (is_atom(selection.head.container) && is_atom(selection.tail.container)) {
-			if (event) {
-				event.consumed = true
-				event.preventDefault()
-			}
+			if (event) event.preventDefault()
+			interrupt()
 		}
 	}.bind(this))
 	
-	bus.unshift('delete-requested', function(state, event) {
-		if (state.consumed) return
+	bus.unshift('delete-requested', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
 			if (can_delete_atom(editor, selection)) {
 				delete_atom(editor, selection, history)
-				if (state) state.consumed = true
 				if (event) event.preventDefault()
+				interrupt()
 			}
 		}
 	})

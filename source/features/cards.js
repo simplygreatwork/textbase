@@ -25,32 +25,33 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
-	bus.unshift('insert-character-requested', function(state, event) {
-		if (state.consumed) return
+	bus.unshift('insert-character-requested', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
-			consume(state, event)
+			if (event) event.preventDefault()
+			interrupt()
 		}
 	}.bind(this))
 	
-	bus.unshift('split-content-requested', function(state, event, limit) {
-		if (state.consumed) return
+	bus.unshift('split-content-requested', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
 			let container = find_card_container(selection)
 			insert_paragraph_after_card_container(container, editor)
-			consume(state, event)
+			if (event) event.preventDefault()
+			interrupt()
 		} else if (is_card(selection.head.container) || is_card(selection.tail.container)) {
-			consume(state, event)
+			if (event) event.preventDefault()
+			interrupt()
 		}
 	}.bind(this))
 	
-	bus.unshift('delete-requested', function(state, event) {
-		if (state.consumed) return
+	bus.unshift('delete-requested', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (can_delete_card(editor, selection)) {
 			delete_card(editor, selection, history)
-			consume(state, event)
+			if (event) event.preventDefault()
+			interrupt()
 		}
 	})
 	
@@ -291,10 +292,4 @@ function disable_resize_observer(card) {
 	if (! container.observer_) return
 	container.observer_.unobserve(container)
 	container.observer_ = null
-}
-
-function consume(state, event) {
-	
-	if (state) state.consumed = true
-	if (event) event.preventDefault()
 }
