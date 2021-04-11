@@ -41,10 +41,9 @@ export function initialize_code_cards(bus, editor, toolbar) {
 
 function disable_default_input_behavior(key, bus, editor) {
 	
-	bus.unshift(key, function(event) {
+	bus.unshift(key, function(state, event) {
 		if (! is_code_card(editor)) return
-		if (event && event.consumed) return
-		if (event) event.consumed = true
+		if (state && state.consumed) return
 	})
 }
 
