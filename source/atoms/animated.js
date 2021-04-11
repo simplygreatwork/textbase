@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_animated_atoms(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="atom-animated">Atom: Animated</button>`)
-	
 	bus.on('request:atom-animated', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="animated"></span>
@@ -32,4 +30,6 @@ export function initialize_animated_atoms(bus, editor, toolbar) {
 	bus.on('atom-did-exit:animated', function(atom) {
 		return
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'atom-animated', 'Atom: Animated')
 }

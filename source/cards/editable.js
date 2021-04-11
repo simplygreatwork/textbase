@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_editable_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-editable">Card: Editable</button>`)
-	
 	bus.on('request:card-editable', function() {
 		insert_card(editor, 'editable', `
 			<div class="card">
@@ -32,4 +30,6 @@ export function initialize_editable_cards(bus, editor, toolbar) {
 	bus.on('card-did-exit:editable', function(card) {
 		logger('system').log('card-did-exit:editable')
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'card-editable', 'Card: Editable')
 }

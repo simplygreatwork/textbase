@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_sample_atoms(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="atom-sample">Atom: Sample</button>`)
-	
 	bus.on('request:atom-sample', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="sample">Atom</span>
@@ -33,4 +31,6 @@ export function initialize_sample_atoms(bus, editor, toolbar) {
 	bus.on('atom-did-exit:sample', function(atom) {
 		logger('system').log('atom-did-exit:sample')
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'atom-sample', 'Atom: Sample')
 }

@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_image_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-image">Card: Image</button>`)
-	
 	bus.on('request:card-image', function() {
 		insert_card(editor, 'image', `
 			<div class="image-card">
@@ -31,4 +29,6 @@ export function initialize_image_cards(bus, editor, toolbar) {
 	bus.on('card-did-exit:image', function(card) {
 		logger('system').log('card-did-exit:image')
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'card-image', 'Card: Image')
 }

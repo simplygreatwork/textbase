@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_animated_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-animated">Card: Animated</button>`)
-	
 	bus.on('request:card-animated', function() {
 		insert_card(editor, 'animated', `
 			<div class="card"></div>
@@ -32,4 +30,6 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 	bus.on('card-did-exit:animated', function(card) {
 		return
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'card-animated', 'Card: Animated')
 }

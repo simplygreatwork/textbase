@@ -9,8 +9,6 @@ const logger = Logger()
 
 export function initialize_code_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-code">Card: Code</button>`)
-	
 	bus.on('request:card-code', function() {
 		insert_card(editor, 'code', `
 			<div contentEditable="true" class="code-card">
@@ -38,9 +36,11 @@ export function initialize_code_cards(bus, editor, toolbar) {
 	disable_default_input_behavior('request-insert-character', bus, editor)
 	disable_default_input_behavior('request-split-content', bus, editor)
 	disable_default_input_behavior('request-delete', bus, editor)
-	disable_default_input_behavior('request-select-all', bus, editor)
-	disable_default_input_behavior('request-caret-right', bus, editor)
-	disable_default_input_behavior('request-caret-left', bus, editor)
+	disable_default_input_behavior('request:select-all', bus, editor)
+	disable_default_input_behavior('request:caret-right', bus, editor)
+	disable_default_input_behavior('request:caret-left', bus, editor)
+	
+	bus.emit('feature-did-install', 'card-code', 'Card: Code')
 }
 
 function disable_default_input_behavior(key, bus, editor) {

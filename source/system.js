@@ -39,443 +39,487 @@ export class System {
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.scanner = new Scanner(this.editor)
-		this.configure(this.bus, this.editor, this.toolbar, this.history)
+		this.configure_features(this.bus, this.editor, this.history, this.toolbar)
+		this.install_features(this.bus, [])
 	}
 	
-	configure(bus, editor, toolbar, history) {
+	install_features(bus, features) {
 		
-		this.configure_documents(bus, editor, toolbar)
-		this.configure_history(bus, editor, toolbar)
-		this.configure_basics(bus, editor, toolbar)
-		this.configure_formats(bus, editor, toolbar)
-		this.configure_blocks(bus, editor, toolbar)
-		this.configure_atoms(bus, editor, toolbar, history)
-		this.configure_cards(bus, editor, toolbar, history)
-		this.configure_recognizers(bus, editor, toolbar)
-		this.configure_other(bus, editor, toolbar)
-		initialize_clipboard(editor)
-		initialize_platform(bus)
+		this.install_feature('essentials', bus)
+		this.install_feature('formats', bus)
+		this.install_feature('blocks', bus)
+		this.install_feature('atoms', bus)
+		this.install_feature('cards', bus)
+		this.install_feature('other', bus)
+		this.install_feature('recognizers', bus)
+		this.install_feature('platform', bus)
 	}
 	
-	configure_documents(bus, editor, toolbar) {
+	install_feature(feature, bus) {
+		bus.emit(`feature:${feature}`)
+	}
+	
+	configure_features(bus, editor, history, toolbar) {
 		
-		bus.on('document-did-install', function(document_) {
-			logger('system').log('document-did-install')
-			this.history.enable()
-			this.scanner.scan(document.querySelector('.content'))
+		bus.on('feature:essentials', function() {
+			
+			this.install_feature('toolbar', bus)
+			this.install_feature('documents', bus)
+			this.install_feature('history', bus)
+			this.install_feature('basics', bus)
+			this.install_feature('clipboard', bus)
+			
 		}.bind(this))
 		
-		bus.on('document-did-uninstall', function(document_) {
-			logger('system').log('document-did-uninstall')
-			this.history.disable()
-		})
-	}
-	
-	configure_history(bus, editor, toolbar) {
-		
-		let selections = []
-		let selection = null
-		
-		bus.on('selection-did-change', function(editor) {
-			if (! this.history.enabled) return
-			let selection = get_selection(editor)
-			selections.push(selection)
+		bus.on('feature:toolbar', function() {
+			
+			bus.on('feature-did-install', function(name, label) {
+				toolbar.append(`<button data-action="${name}">${label}</button>`)
+			}.bind(this))
+			
 		}.bind(this))
 		
-		bus.on('history-did-begin-mutations', function(data) {
-			if (selections.length > 0) {
-				selection = selections[selections.length - 1]
-				selections = []
+		bus.on('feature:documents', function() {
+			
+			bus.on('document-did-install', function(document_) {
+				logger('system').log('document-did-install')
+				this.history.enable()
+				this.scanner.scan(document.querySelector('.content'))
+			}.bind(this))
+			
+			bus.on('document-did-uninstall', function(document_) {
+				logger('system').log('document-did-uninstall')
+				this.history.disable()
+			}.bind(this))
+			
+		}.bind(this))
+		
+		bus.on('feature:basics', function() {
+			
+			if (false) {
+				toolbar.append(`<button data-action="hyperlink">Link</button>`)
+				toolbar.append(`<button data-action="image">Image</button>`)
+				toolbar.append(`<button data-action="code">Code</button>`)
+				toolbar.append(`<button data-action="metadata">Metadata</button>`)
+				toolbar.append(`<button data-action="formula">Formula</button>`)
 			}
+			
+			bus.on('keydown:alphanumeric', function(event) {
+				if (editor.can_insert_character(event)) {
+					editor.request_to_insert_character(event)
+				}
+			}.bind(this))
+			
+			bus.on('keydown:enter', function(event) {
+				editor.request_to_split_content(event)
+			}.bind(this))
+			
+			bus.on('keydown:backspace', function(event) {
+				editor.request_to_delete(event)
+			}.bind(this))
+			
+			bus.on('keyup:backspace', function(event) {
+				event.preventDefault()
+			}.bind(this))
+			
+			bus.on('request:select-all', function(event) {
+				select_all(editor, event)
+			}.bind(this))
+			
+			bus.on('keydown:control-a', function(event) {
+				bus.emit('request:select-all', event)
+			}.bind(this))
+			
+			bus.on('request:caret-right', function(event) {
+				skip_right_over_zero_width_whitespace(event, editor)
+			}.bind(this))
+			
+			bus.on('keyup:arrowright', function(event) {
+				bus.emit('request:caret-right', event)
+			}.bind(this))
+			
+			bus.on('request:caret-left', function(event) {
+				skip_left_over_zero_width_whitespace(event, editor)
+			}.bind(this))
+			
+			bus.on('keyup:arrowleft', function(event) {
+				bus.emit('request:caret-left', event)
+			}.bind(this))
+			
+			bus.on('request:undo', function() {
+				this.history.undo(event)
+			}.bind(this))
+			
+			bus.on('keydown:control-z', function(event) {
+				bus.emit('request:undo', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'undo', 'Undo')
+			
+			bus.on('request:redo', function() {
+				this.history.redo(event)
+			}.bind(this))
+			
+			bus.on('keydown:control-shift-z', function(event) {
+				bus.emit('request:redo', event)
+			}.bind(this))
+
+			bus.emit('feature-did-install', 'redo', 'Redo')
+			
 		}.bind(this))
 		
-		bus.on('history-did-capture', function(record) {
-			record.selection.before = selection
-			record.selection.after = get_selection(editor)
+		bus.on('feature:history', function() {
+			
+			let selections = []
+			let selection = null
+			
+			bus.on('selection-did-change', function(editor) {
+				if (! this.history.enabled) return
+				let selection = get_selection(editor)
+				selections.push(selection)
+			}.bind(this))
+			
+			bus.on('history-did-begin-mutations', function(data) {
+				if (selections.length > 0) {
+					selection = selections[selections.length - 1]
+					selections = []
+				}
+			}.bind(this))
+			
+			bus.on('history-did-capture', function(record) {
+				record.selection.before = selection
+				record.selection.after = get_selection(editor)
+			}.bind(this))
+			
+			bus.on('history-did-undo', function() {
+				let record = this.history.records[this.history.index]
+				if (record && record.selection && record.selection.before) {
+					set_selection(editor, record.selection.before)
+				}
+			}.bind(this))
+			
+			bus.on('history-did-redo', function() {
+				let record = this.history.records[this.history.index + 1]
+				if (record && record.selection && record.selection.after) {
+					set_selection(editor, record.selection.after)
+				}
+			}.bind(this))
+			
+			bus.on('editor:mousedown', function(data) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('keydown:arrowleft', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('keydown:arrowright', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('keydown:arrowup', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('keydown:arrowdown', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('clipboard-did-cut', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('clipboard-did-paste', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
 		}.bind(this))
 		
-		bus.on('history-did-undo', function() {
-			let record = this.history.records[this.history.index]
-			if (record && record.selection && record.selection.before) {
-				set_selection(editor, record.selection.before)
-			}
+		bus.on('feature:clipboard', function() {
+			
+			initialize_platform(bus)
+			
+			bus.on('clipboard-will-cut', function() {
+				logger('system').log('clipboard-will-cut')
+			})
+			
+			bus.on('clipboard-did-cut', function() {
+				logger('system').log('clipboard-did-cut')
+			})
+			
+			bus.on('clipboard-will-copy', function() {
+				logger('system').log('clipboard-will-copy')
+			})
+			
+			bus.on('clipboard-did-copy', function() {
+				logger('system').log('clipboard-did-copy')
+			})
+			
+			bus.on('clipboard-will-paste', function() {
+				logger('system').log('clipboard-will-paste')
+			})
+			
+			bus.on('clipboard-did-paste', function() {
+				logger('system').log('clipboard-did-paste')
+			})
+			
 		}.bind(this))
 		
-		bus.on('history-did-redo', function() {
-			let record = this.history.records[this.history.index + 1]
-			if (record && record.selection && record.selection.after) {
-				set_selection(editor, record.selection.after)
-			}
+		bus.on('feature:formats', function() {
+			
+			toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
+			initialize_hyperlinks(editor, bus)
+			detect_hyperlinks(editor, bus)
+			
+			bus.on('request:hyperlink', function() {
+				let result = window.prompt('Enter a URL', 'http://github.com')
+				if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
+			}.bind(this))
+			
+			bus.on('hyperlink:clicked', function(href, event) {
+				if (event && event.ctrlKey) {
+					window.open(href)
+				} else {
+					window.location.href = href
+				}
+			}.bind(this))
+			
+			bus.on('request:strong', function(event) {
+				toggle_format(editor, 'strong', event)
+			}.bind(this))
+			
+			bus.on('keydown:control-b', function(event) {
+				bus.emit('request:strong', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'strong', 'Strong')
+			
+			bus.on('request:emphasis', function(event) {
+				toggle_format(editor, 'emphasis', event)
+			}.bind(this))
+			
+			bus.on('keydown:control-i', function(event) {
+				bus.emit('request:emphasis', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'emphasis', 'Emphasis')
+			
+			bus.on('request:underline', function(event) {
+				toggle_format(editor, 'underline', event)
+			}.bind(this))
+			
+			bus.on('keydown:control-u', function(event) {
+				bus.emit('request:underline', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'underline', 'Underline')
+			
+			bus.on('request:strikethrough', function() {
+				toggle_format(editor, 'strikethrough')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'strikethrough', 'Strikethrough')
+			
+			bus.on('request:highlight', function() {
+				toggle_format(editor, 'highlight')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'highlight', 'Highlight')
+			
+			bus.on('request:clear-formatting', function() {
+				remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'clear-formatting', 'Clear Formatting')
+			
+			bus.on('format-did-apply', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('format-did-remove', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
 		}.bind(this))
 		
-		bus.on('editor:mousedown', function(data) {
-			this.history.capture()
+		bus.on('feature:blocks', function() {
+			
+			bus.on('request:paragraph', function() {
+				toggle_block(editor, 'p')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'paragraph', 'Paragraph')
+			
+			bus.on('request:heading-1', function() {
+				toggle_block(editor, 'h1')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'heading-1', 'Heading 1')
+			
+			bus.on('request:heading-2', function() {
+				toggle_block(editor, 'h2')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'heading-2', 'Heading 2')
+			
+			bus.on('request:list-item', function() {
+				toggle_block(editor, 'li')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'list-item', 'List Item')
+			
+			bus.on('request:ordered-list', function() {
+				toggle_block(editor, 'ol')
+			}.bind(this))
+			
+			if (false) bus.emit('feature-did-install', 'ordered-list', 'Ordered List')
+			
+			bus.on('request:unordered-list', function() {
+				toggle_block(editor, 'ul')
+			}.bind(this))
+			
+			if (false) bus.emit('feature-did-install', 'unordered-list', 'Unordered List')
+			
+			bus.on('request:blockquote', function() {
+				toggle_block(editor, 'blockquote')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'blockquote', 'Blockquote')
+			
+			bus.on('request:indent', function(event) {
+				indent(editor, event)
+			}.bind(this))
+			
+			bus.on('keydown:tab', function(event) {
+				bus.emit('request:indent', event)
+			}.bind(this))
+			
+			bus.on('keydown:control-]', function(event) {
+				bus.emit('request:indent', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'indent', 'Indent')
+			
+			bus.on('request:dedent', function(event) {
+				dedent(editor, event)
+			}.bind(this))
+			
+			bus.on('keydown:shift-tab', function(event) {
+				bus.emit('request:dedent', event)
+			}.bind(this))
+			
+			bus.on('keydown:control-[', function(event) {
+				bus.emit('request:dedent', event)
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'dedent', 'Dedent')
+			
+			bus.on('request:align-left', function() {
+				align(editor, 'left')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'align-left', 'Align Left')
+			
+			bus.on('request:align-right', function() {
+				align(editor, 'right')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'align-right', 'Align Right')
+			
+			bus.on('request:align-center', function() {
+				align(editor, 'center')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'align-center', 'Align Center')
+			
+			bus.on('request:align-justify', function() {
+				align(editor, 'justify')
+			}.bind(this))
+			
+			bus.emit('feature-did-install', 'align-justified', 'Align Justify')
+			
+			bus.on('block-did-change', function(event) {
+				this.history.capture()
+			}.bind(this))
+			
+			bus.on('content-did-split', function(a, b) {
+				if (block_has_content(a)) return
+				if (block_has_content(b)) return
+				transform_block(editor, b, 'p')
+			}.bind(this))
+			
 		}.bind(this))
 		
-		bus.on('keydown:arrowleft', function(event) {
-			this.history.capture()
+		bus.on('feature:atoms', function() {
+			
+			initialize_atoms(bus, editor, history)
+			initialize_sample_atoms(bus, editor, toolbar)
+			initialize_animated_atoms(bus, editor, toolbar)
+			initialize_mention_atoms(bus, editor, toolbar)
+			
 		}.bind(this))
 		
-		bus.on('keydown:arrowright', function(event) {
-			this.history.capture()
+		bus.on('feature:cards', function() {
+			
+			initialize_cards(bus, editor, history)
+			initialize_sample_cards(bus, editor, toolbar)
+			initialize_animated_cards(bus, editor, toolbar)
+			initialize_image_cards(bus, editor, toolbar)
+			initialize_editable_cards(bus, editor, toolbar)
+			initialize_design_block_cards(bus, editor, toolbar)
+			initialize_code_cards(bus, editor, toolbar)
+			
 		}.bind(this))
 		
-		bus.on('keydown:arrowup', function(event) {
-			this.history.capture()
+		bus.on('feature:recognizers', function() {
+			
+			initialize_recognizers(bus, editor)
+			
 		}.bind(this))
 		
-		bus.on('keydown:arrowdown', function(event) {
-			this.history.capture()
+		bus.on('feature:platform', function() {
+			
+			initialize_platform(bus)
+			
 		}.bind(this))
 		
-		bus.on('clipboard-did-cut', function(event) {
-			this.history.capture()
+		bus.on('feature:other', function() {
+			
+			toolbar.append(`<button data-action="validate">Validate</button>`)
+			
+			bus.on('request:validate', function() {
+				this.scanner.scan(document.querySelector('.content'))
+			}.bind(this))
+			
+			bus.on('selection-did-change', function(event, editor) {
+				logger('system').log('selection-did-change')
+				document.querySelector('.structure-html').textContent = serialize(editor)
+			}.bind(this))
+			
+			bus.on('content-did-change', function(begin, end) {
+				logger('system').log('content-did-change')
+				this.scanner.scan(begin, end)
+				document.querySelector('.structure-html').textContent = serialize(editor)
+			}.bind(this))
+			
+			bus.on('content-did-insert', function() {
+				logger('system').log('content-did-insert')
+			})
+			
+			bus.on('content-did-delete', function(fragment) {
+				if (false) logger('system').log('content-did-delete: ' + fragment)
+			})
+			
+			bus.on('content-valid', function(html) {
+				return
+			}.bind(this))
+			
+			bus.on('content-invalid', function(result) {
+				console.log('content-invalid: ' + JSON.stringify(result))
+				u('.structure').addClass('invalid')
+			}.bind(this))
+			
 		}.bind(this))
-		
-		bus.on('clipboard-did-paste', function(event) {
-			this.history.capture()
-		}.bind(this))
-	}
-	
-	configure_basics(bus, editor, toolbar) {
-		
-		if (false) {
-			toolbar.append(`<button data-action="hyperlink">Link</button>`)
-			toolbar.append(`<button data-action="image">Image</button>`)
-			toolbar.append(`<button data-action="code">Code</button>`)
-			toolbar.append(`<button data-action="metadata">Metadata</button>`)
-			toolbar.append(`<button data-action="formula">Formula</button>`)
-		}
-		
-		bus.on('keydown:alphanumeric', function(event) {
-			if (editor.can_insert_character(event)) {
-				editor.request_to_insert_character(event)
-			}
-		}.bind(this))
-		
-		bus.on('keydown:enter', function(event) {
-			editor.request_to_split_content(event)
-		}.bind(this))
-		
-		bus.on('keydown:backspace', function(event) {
-			editor.request_to_delete(event)
-		}.bind(this))
-		
-		bus.on('keyup:backspace', function(event) {
-			event.preventDefault()
-		}.bind(this))
-		
-		bus.on('request:select-all', function(event) {
-			select_all(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:control-a', function(event) {
-			bus.emit('request:select-all', event)
-		}.bind(this))
-		
-		bus.on('request:caret-right', function(event) {
-			skip_right_over_zero_width_whitespace(event, editor)
-		}.bind(this))
-		
-		bus.on('keyup:arrowright', function(event) {
-			bus.emit('request:caret-right', event)
-		}.bind(this))
-		
-		bus.on('request:caret-left', function(event) {
-			skip_left_over_zero_width_whitespace(event, editor)
-		}.bind(this))
-		
-		bus.on('keyup:arrowleft', function(event) {
-			bus.emit('request:caret-left', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="undo">Undo</button>`)
-		
-		bus.on('request:undo', function() {
-			this.history.undo(event)
-		}.bind(this))
-		
-		bus.on('keydown:control-z', function(event) {
-			bus.emit('request:undo', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="redo">Redo</button>`)
-		
-		bus.on('request:redo', function() {
-			this.history.redo(event)
-		}.bind(this))
-		
-		bus.on('keydown:control-shift-z', function(event) {
-			bus.emit('request:redo', event)
-		}.bind(this))
-	}
-	
-	configure_formats(bus, editor, toolbar) {
-		
-		toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
-		initialize_hyperlinks(editor, bus)
-		detect_hyperlinks(editor, bus)
-		
-		bus.on('request:hyperlink', function() {
-			let result = window.prompt('Enter a URL', 'http://github.com')
-			if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
-		}.bind(this))
-		
-		bus.on('hyperlink:clicked', function(href, event) {
-			if (event && event.ctrlKey) {
-				window.open(href)
-			} else {
-				window.location.href = href
-			}
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
-		
-		bus.on('request:strong', function(event) {
-			toggle_format(editor, 'strong', event)
-		}.bind(this))
-		
-		bus.on('keydown:control-b', function(event) {
-			bus.emit('request:strong', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
-		
-		bus.on('request:emphasis', function(event) {
-			toggle_format(editor, 'emphasis', event)
-		}.bind(this))
-		
-		bus.on('keydown:control-i', function(event) {
-			bus.emit('request:emphasis', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
-		
-		bus.on('request:underline', function(event) {
-			toggle_format(editor, 'underline', event)
-		}.bind(this))
-		
-		bus.on('keydown:control-u', function(event) {
-			bus.emit('request:underline', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
-		
-		bus.on('request:strikethrough', function() {
-			toggle_format(editor, 'strikethrough')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
-		
-		bus.on('request:highlight', function() {
-			toggle_format(editor, 'highlight')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
-		
-		bus.on('request:clear-formatting', function() {
-			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
-		}.bind(this))
-		
-		bus.on('format-did-apply', function(event) {
-			this.history.capture()
-		}.bind(this))
-		
-		bus.on('format-did-remove', function(event) {
-			this.history.capture()
-		}.bind(this))
-	}
-	
-	configure_blocks(bus, editor, toolbar) {
-		
-		toolbar.append(`<button data-action="paragraph" data-element="p">Paragraph</button>`)
-		
-		bus.on('request:paragraph', function() {
-			toggle_block(editor, 'p')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
-		
-		bus.on('request:heading-1', function() {
-			toggle_block(editor, 'h1')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
-		
-		bus.on('request:heading-2', function() {
-			toggle_block(editor, 'h2')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
-		
-		bus.on('request:list-item', function() {
-			toggle_block(editor, 'li')
-		}.bind(this))
-		
-		if (false) toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
-		
-		bus.on('request:ordered-list', function() {
-			toggle_block(editor, 'ol')
-		}.bind(this))
-		
-		if (false) toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
-		
-		bus.on('request:unordered-list', function() {
-			toggle_block(editor, 'ul')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
-		
-		bus.on('request:blockquote', function() {
-			toggle_block(editor, 'blockquote')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="indent">Indent</button>`)
-		
-		bus.on('request:indent', function(event) {
-			indent(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:tab', function(event) {
-			bus.emit('request:indent', event)
-		}.bind(this))
-		
-		bus.on('keydown:control-]', function(event) {
-			bus.emit('request:indent', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="dedent">Dedent</button>`)
-		
-		bus.on('request:dedent', function(event) {
-			dedent(editor, event)
-		}.bind(this))
-		
-		bus.on('keydown:shift-tab', function(event) {
-			bus.emit('request:dedent', event)
-		}.bind(this))
-		
-		bus.on('keydown:control-[', function(event) {
-			bus.emit('request:dedent', event)
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="align-left">Align Left</button>`)
-		
-		bus.on('request:align-left', function() {
-			align(editor, 'left')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="align-right">Align Right</button>`)
-		
-		bus.on('request:align-right', function() {
-			align(editor, 'right')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="align-center">Align Center</button>`)
-		
-		bus.on('request:align-center', function() {
-			align(editor, 'center')
-		}.bind(this))
-		
-		toolbar.append(`<button data-action="align-justified">Align Justify</button>`)
-		
-		bus.on('request:align-justify', function() {
-			align(editor, 'justify')
-		}.bind(this))
-		
-		bus.on('block-did-change', function(event) {
-			this.history.capture()
-		}.bind(this))
-		
-		bus.on('content-did-split', function(a, b) {
-			if (block_has_content(a)) return
-			if (block_has_content(b)) return
-			transform_block(editor, b, 'p')
-		}.bind(this))
-	}
-	
-	configure_atoms(bus, editor, toolbar, history) {
-		
-		initialize_atoms(bus, editor, history)
-		initialize_sample_atoms(bus, editor, toolbar)
-		initialize_animated_atoms(bus, editor, toolbar)
-		initialize_mention_atoms(bus, editor, toolbar)
-	}
-	
-	configure_cards(bus, editor, toolbar, history) {
-		
-		initialize_cards(bus, editor, history)
-		initialize_sample_cards(bus, editor, toolbar)
-		initialize_animated_cards(bus, editor, toolbar)
-		initialize_image_cards(bus, editor, toolbar)
-		initialize_editable_cards(bus, editor, toolbar)
-		initialize_design_block_cards(bus, editor, toolbar)
-		initialize_code_cards(bus, editor, toolbar)
-	}
-	
-	configure_recognizers(bus, editor, toolbar) {
-		
-		initialize_recognizers(bus, editor)
-	}
-	
-	configure_other(bus, editor, toolbar) {
-		
-		toolbar.append(`<button data-action="validate">Validate</button>`)
-		
-		bus.on('request:validate', function() {
-			this.scanner.scan(document.querySelector('.content'))
-		}.bind(this))
-		
-		bus.on('selection-did-change', function(event, editor) {
-			logger('system').log('selection-did-change')
-			document.querySelector('.structure-html').textContent = serialize(editor)
-		}.bind(this))
-		
-		bus.on('content-did-change', function(begin, end) {
-			logger('system').log('content-did-change')
-			this.scanner.scan(begin, end)
-			document.querySelector('.structure-html').textContent = serialize(editor)
-		}.bind(this))
-		
-		bus.on('content-did-insert', function() {
-			logger('system').log('content-did-insert')
-		})
-		
-		bus.on('content-did-delete', function(fragment) {
-			if (false) logger('system').log('content-did-delete: ' + fragment)
-		})
-		
-		bus.on('content-valid', function(html) {
-			return
-		}.bind(this))
-		
-		bus.on('content-invalid', function(result) {
-			console.log('content-invalid: ' + JSON.stringify(result))
-			u('.structure').addClass('invalid')
-		}.bind(this))
-		
-		bus.on('clipboard-will-cut', function() {
-			logger('system').log('clipboard-will-cut')
-		})
-		
-		bus.on('clipboard-did-cut', function() {
-			logger('system').log('clipboard-did-cut')
-		})
-		
-		bus.on('clipboard-will-copy', function() {
-			logger('system').log('clipboard-will-copy')
-		})
-		
-		bus.on('clipboard-did-copy', function() {
-			logger('system').log('clipboard-did-copy')
-		})
-		
-		bus.on('clipboard-will-paste', function() {
-			logger('system').log('clipboard-will-paste')
-		})
-		
-		bus.on('clipboard-did-paste', function() {
-			logger('system').log('clipboard-did-paste')
-		})
 	}
 	
 	install_document(document_) {

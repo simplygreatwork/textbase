@@ -33,4 +33,6 @@ export function initialize_sample_cards(bus, editor, toolbar) {
 	bus.on('card-did-exit:sample', function(card) {
 		logger('system').log('card-did-exit:sample')
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'card-sample', 'Card: Sample')
 }

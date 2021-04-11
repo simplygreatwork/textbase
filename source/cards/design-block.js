@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_design_block_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-designed">Card: Design Block</button>`)
-	
 	let style = document.createElement('style')
 	style.type = 'text/css'
 	style.innerHTML = `
@@ -53,4 +51,6 @@ export function initialize_design_block_cards(bus, editor, toolbar) {
 	bus.on('card-did-exit:designed', function(card) {
 		logger('system').log('card-did-exit:designed')
 	}.bind(this))
+	
+	bus.emit('feature-did-install', 'card-designed', 'Card: Design Block')
 }
