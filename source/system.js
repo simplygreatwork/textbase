@@ -23,6 +23,7 @@ import { initialize_animated_cards } from './cards/animated.js'
 import { initialize_editable_cards } from './cards/editable.js'
 import { initialize_design_block_cards } from './cards/design-block.js'
 import { initialize_image_cards } from './cards/image.js'
+import { initialize_code_cards } from './cards/code.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
@@ -396,6 +397,7 @@ export class System {
 		initialize_image_cards(bus, editor, toolbar)
 		initialize_editable_cards(bus, editor, toolbar)
 		initialize_design_block_cards(bus, editor, toolbar)
+		initialize_code_cards(bus, editor, toolbar)
 	}
 	
 	configure_recognizers(bus, editor, toolbar) {

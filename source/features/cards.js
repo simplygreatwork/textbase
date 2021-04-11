@@ -250,7 +250,7 @@ export function is_card(node) {
 	return false
 }
 
-function find_card_container(selection) {
+export function find_card_container(selection) {
 	
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()
@@ -293,7 +293,7 @@ function disable_resize_observer(card) {
 	container.observer_ = null
 }
 
-function consume_event(event) {
+export function consume_event(event) {
 	
 	if (event) {
 		event.consumed = true

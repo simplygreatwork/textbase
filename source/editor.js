@@ -79,6 +79,7 @@ export class Editor {
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
 				if (event) event.consumed = true
+				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
@@ -88,6 +89,7 @@ export class Editor {
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
 				if (event) event.consumed = true
+				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
@@ -97,6 +99,7 @@ export class Editor {
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
 				if (event) event.consumed = true
+				if (event) event.preventDefault()
 			}
 		}.bind(this))
 	}
@@ -180,7 +183,6 @@ export class Editor {
 	
 	request_to_delete(event) {
 		
-		if (event) event.preventDefault()
 		this.bus.emit('delete-requested', { consumed: false })
 	}
 	
