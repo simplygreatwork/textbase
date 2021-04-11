@@ -1,8 +1,4 @@
 
-import { Logger } from './logger.js'
-
-const logger = Logger()
-
 export class Bus {
 	
 	on(key, func, unshift) {
@@ -17,40 +13,12 @@ export class Bus {
 		}.bind(this)
 	}
 	
-	emit(key) {
-		
-		this.channels = this.channels || {}
-		if (this.channels[key]) {
-			let arguments_ = Array.from(arguments)
-			arguments_ = arguments_.splice(1)
-			let state = {}
-			arguments_.push(this.interruptable(state))
-			this.emit_(key, 0, arguments_, state)
-		}
-	}
-	
-	emit_(key, index, arguments_, state) {
-		
-		let channel = this.channels[key]
-		if (state.interrupted) {
-			logger('bus').log(`Interrupting bus at ${index} of ${channel.length}`)
-			return
-		}
-		if (index < channel.length) {
-			channel[index].apply(this, arguments_)
-			this.emit_(key, ++index, arguments_, state)
-		}
-	}
-	
-	interruptable(state) {
-		
-		return function() {
-			state.interrupted = true
-		}
-	}
-	
 	unshift(key, func) {
 		this.on(key, func, true)
+	}
+	
+	early(key, func) {
+		this.unshift(key, func)
 	}
 	
 	replace(key, index, fn) {
@@ -64,5 +32,17 @@ export class Bus {
 		
 		this.channels[to] = this.channels[from]
 		delete this.channels[from]
+	}
+	
+	emit(key) {
+		
+		this.channels = this.channels || {}
+		if (this.channels[key]) {
+			let index = 0
+			while (index < this.channels[key].length) {
+				this.channels[key][index].apply(this, Array.from(arguments).splice(1))
+				index++
+			}
+		}
 	}
 }

@@ -62,14 +62,14 @@ export class Editor {
 	initialize_requests(bus) {
 		
 		bus.on('insert-character-requested', function(state, event) {
-			if (state.consumed) return
+			if (state && state.consumed) return
 			this.insert_character(event)
 			if (state) state.consumed = true
 			if (event) event.preventDefault()
 		}.bind(this))
 		
 		bus.on('split-content-requested', function(state, event) {
-			if (state.consumed) return
+			if (state && state.consumed) return
 			this.split_content(a_block_element, event)
 			if (state) state.consumed = true
 			if (event) event.preventDefault()
@@ -86,7 +86,7 @@ export class Editor {
 		}.bind(this))
 		
 		bus.on('delete-requested', function(state, event) {
-			if (event && event.consumed) return
+			if (state && state.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
