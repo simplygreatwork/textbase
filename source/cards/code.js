@@ -35,9 +35,12 @@ export function initialize_code_cards(bus, editor, toolbar) {
 		return
 	}.bind(this))
 	
-	disable_default_input_behavior('insert-character-requested', bus, editor)
-	disable_default_input_behavior('split-content-requested', bus, editor)
-	disable_default_input_behavior('delete-requested', bus, editor)
+	disable_default_input_behavior('request-insert-character', bus, editor)
+	disable_default_input_behavior('request-split-content', bus, editor)
+	disable_default_input_behavior('request-delete', bus, editor)
+	disable_default_input_behavior('request-select-all', bus, editor)
+	disable_default_input_behavior('request-caret-right', bus, editor)
+	disable_default_input_behavior('request-caret-left', bus, editor)
 }
 
 function disable_default_input_behavior(key, bus, editor) {

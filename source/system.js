@@ -166,34 +166,54 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:control-a', function(event) {
+			bus.emit('request-select-all', event)
+		}.bind(this))
+		
+		bus.on('request-select-all', function(event) {
 			select_all(editor, event)
 		}.bind(this))
 		
 		bus.on('keyup:arrowright', function(event) {
+			bus.emit('request-caret-right', event)
+		}.bind(this))
+		
+		bus.on('request-caret-right', function(event) {
 			skip_right_over_zero_width_whitespace(event, editor)
 		}.bind(this))
 		
 		bus.on('keyup:arrowleft', function(event) {
+			bus.emit('request-caret-left', event)
+		}.bind(this))
+		
+		bus.on('request-caret-left', function(event) {
 			skip_left_over_zero_width_whitespace(event, editor)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="undo">Undo</button>`)
 		
 		bus.on('action-requested:undo', function() {
-			this.history.undo()
+			bus.emit('request-undo', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-z', function(event) {
+			bus.emit('request-undo', event)
+		}.bind(this))
+		
+		bus.on('request-undo', function(event) {
 			this.history.undo(event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="redo">Redo</button>`)
 		
 		bus.on('action-requested:redo', function() {
-			this.history.redo()
+			bus.emit('request-redo', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-shift-z', function(event) {
+			bus.emit('request-redo', event)
+		}.bind(this))
+		
+		bus.on('request-redo', function(event) {
 			this.history.redo(event)
 		}.bind(this))
 	}
@@ -224,6 +244,10 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:control-b', function(event) {
+			bus.emit('request-format-strong', event)
+		}.bind(this))
+		
+		bus.on('request-format-strong', function(event) {
 			toggle_format(editor, 'strong', event)
 		}.bind(this))
 		
@@ -234,6 +258,10 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:control-i', function(event) {
+			bus.emit('request-format-emphasis', event)
+		}.bind(this))
+		
+		bus.on('request-format-emphasis', function(event) {
 			toggle_format(editor, 'emphasis', event)
 		}.bind(this))
 		
@@ -244,6 +272,10 @@ export class System {
 		}.bind(this))
 		
 		bus.on('keydown:control-u', function(event) {
+			bus.emit('request-format-underline', event)
+		}.bind(this))
+		
+		bus.on('request-format-underline', function(event) {
 			toggle_format(editor, 'underline', event)
 		}.bind(this))
 		
@@ -321,28 +353,36 @@ export class System {
 		toolbar.append(`<button data-action="indent">Indent</button>`)
 		
 		bus.on('action-requested:indent', function() {
-			indent(editor)
+			bus.emit('request-indent')
 		}.bind(this))
 		
 		bus.on('keydown:tab', function(event) {
-			indent(editor, event)
+			bus.emit('request-indent', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-]', function(event) {
+			bus.emit('request-indent', event)
+		}.bind(this))
+		
+		bus.on('request-indent', function(event) {
 			indent(editor, event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="dedent">Dedent</button>`)
 		
 		bus.on('action-requested:dedent', function() {
-			dedent(editor)
+			bus.emit('request-dedent', event)
 		}.bind(this))
 		
 		bus.on('keydown:shift-tab', function(event) {
-			dedent(editor, event)
+			bus.emit('request-dedent', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-[', function(event) {
+			bus.emit('request-dedent', event)
+		}.bind(this))
+		
+		bus.on('request-dedent', function(event) {
 			dedent(editor, event)
 		}.bind(this))
 		

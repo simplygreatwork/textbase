@@ -61,42 +61,42 @@ export class Editor {
 	
 	initialize_requests(bus) {
 		
-		bus.on('insert-character-requested', function(event, interrupt) {
+		bus.on('request-insert-character', function(event, interrupt) {
 			this.insert_character(event)
-			interrupt()
 			if (event) event.preventDefault()
+			interrupt()
 		}.bind(this))
 		
-		bus.on('split-content-requested', function(event, interrupt) {
+		bus.on('request-split-content', function(event, interrupt) {
 			this.split_content(a_block_element, event)
-			interrupt()
 			if (event) event.preventDefault()
+			interrupt()
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event, interrupt) {
+		bus.on('request-delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				interrupt()
 				if (event) event.preventDefault()
+				interrupt()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event, interrupt) {
+		bus.on('request-delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				interrupt()
 				if (event) event.preventDefault()
+				interrupt()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event, interrupt) {
+		bus.on('request-delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				interrupt()
 				if (event) event.preventDefault()
+				interrupt()
 			}
 		}.bind(this))
 	}
@@ -121,7 +121,7 @@ export class Editor {
 	}
 	
 	request_to_insert_character(event) {
-		this.emit('insert-character-requested', event)
+		this.emit('request-insert-character', event)
 	}
 	
 	insert_character(event) {
@@ -152,7 +152,7 @@ export class Editor {
 	}
 	
 	request_to_split_content(event) {
-		this.emit('split-content-requested', event)
+		this.emit('request-split-content', event)
 	}
 	
 	split_content(limit) {
@@ -179,7 +179,7 @@ export class Editor {
 	
 	request_to_delete(event) {
 		
-		this.bus.emit('delete-requested', event)
+		this.bus.emit('request-delete', event)
 	}
 	
 	can_delete_character(selection) {

@@ -25,7 +25,7 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
-	bus.unshift('insert-character-requested', function(event, interrupt) {
+	bus.unshift('request-insert-character', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
 			if (event) event.preventDefault()
@@ -33,7 +33,7 @@ export function initialize_cards(bus, editor, history) {
 		}
 	}.bind(this))
 	
-	bus.unshift('split-content-requested', function(event, interrupt) {
+	bus.unshift('request-split-content', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
 			let container = find_card_container(selection)
@@ -46,7 +46,7 @@ export function initialize_cards(bus, editor, history) {
 		}
 	}.bind(this))
 	
-	bus.unshift('delete-requested', function(event, interrupt) {
+	bus.unshift('request-delete', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (can_delete_card(editor, selection)) {
 			delete_card(editor, selection, history)

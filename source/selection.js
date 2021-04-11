@@ -126,6 +126,7 @@ export function select_all(editor, event) {
 export function normalize_selection(editor) {
 	
 	let selection = get_selection(editor)
+	if (! selection) return
 	if (u(selection.tail.container).is(an_element_node)) {
 		selection = validate_selection(selection, editor)
 		selection.range.setEnd(selection.tail.container, selection.tail.offset)
