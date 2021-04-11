@@ -61,44 +61,46 @@ export class Editor {
 	
 	initialize_requests(bus) {
 		
-		bus.on('insert-character-requested', function(event) {
-			if (event && event.consumed) return
+		bus.on('insert-character-requested', function(state, event) {
+			if (state.consumed) return
 			this.insert_character(event)
-			if (event) event.consumed = true
+			if (state) state.consumed = true
+			if (event) event.preventDefault()
 		}.bind(this))
 		
-		bus.on('split-content-requested', function(event, limit) {
-			if (event && event.consumed) return
+		bus.on('split-content-requested', function(state, event, limit) {
+			if (state.consumed) return
 			this.split_content(limit, event)
-			if (event) event.consumed = true
+			if (state) state.consumed = true
+			if (event) event.preventDefault()
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event) {
-			if (event && event.consumed) return
+		bus.on('delete-requested', function(state, event) {
+			if (state && state.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				if (event) event.consumed = true
+				if (state) state.consumed = true
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event) {
+		bus.on('delete-requested', function(state, event) {
 			if (event && event.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				if (event) event.consumed = true
+				if (state) state.consumed = true
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
 		
-		bus.on('delete-requested', function(event) {
-			if (event && event.consumed) return
+		bus.on('delete-requested', function(state, event) {
+			if (state && state.consumed) return
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				if (event) event.consumed = true
+				if (state) state.consumed = true
 				if (event) event.preventDefault()
 			}
 		}.bind(this))
@@ -124,7 +126,7 @@ export class Editor {
 	}
 	
 	request_to_insert_character(event) {
-		this.emit('insert-character-requested', event)
+		this.emit('insert-character-requested', { consumed: false }, event)
 	}
 	
 	insert_character(event) {
@@ -155,7 +157,7 @@ export class Editor {
 	}
 	
 	request_to_split_content(event, limit) {
-		this.emit('split-content-requested', event, limit)
+		this.emit('split-content-requested', { consumed: false }, event, limit)
 	}
 	
 	split_content(limit, event) {
@@ -183,7 +185,7 @@ export class Editor {
 	
 	request_to_delete(event) {
 		
-		this.bus.emit('delete-requested', { consumed: false })
+		this.bus.emit('delete-requested', { consumed: false }, event)
 	}
 	
 	can_delete_character(selection) {

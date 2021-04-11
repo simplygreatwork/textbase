@@ -32,13 +32,14 @@ export function initialize_atoms(bus, editor, history) {
 		}
 	}.bind(this))
 	
-	bus.unshift('delete-requested', function(event) {
-		if (event.consumed) return
+	bus.unshift('delete-requested', function(state, event) {
+		if (state.consumed) return
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
 			if (can_delete_atom(editor, selection)) {
 				delete_atom(editor, selection, history)
-				event.consumed = true
+				if (state) state.consumed = true
+				if (event) event.preventDefault()
 			}
 		}
 	})
