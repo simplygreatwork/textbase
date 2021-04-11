@@ -286,7 +286,9 @@ function enable_resize_observer(card) {
 	
 	let container = u(card).closest('[data-card-type]').first()
 	container.observer_ = new ResizeObserver(function(entries) {
-		u(container).find('.card-caret').first().style.fontSize = `${container.clientHeight - 50}px`		// todo: defensively debounce
+		let height = container.clientHeight - 50
+		if (height > 200) height = 200
+		u(container).find('.card-caret').first().style.fontSize = `${height}px`			// revisit: defensively debounce
 	})
 	container.observer_.observe(container)
 }
