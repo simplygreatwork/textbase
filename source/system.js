@@ -237,7 +237,7 @@ export class System {
 		
 		bus.on('feature:clipboard', function() {
 			
-			initialize_clipboard(bus)
+			initialize_clipboard(editor)
 			
 			bus.on('clipboard-will-cut', function() {
 				logger('system').log('clipboard-will-cut')
