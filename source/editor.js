@@ -68,9 +68,9 @@ export class Editor {
 			if (event) event.preventDefault()
 		}.bind(this))
 		
-		bus.on('split-content-requested', function(state, event, limit) {
+		bus.on('split-content-requested', function(state, event) {
 			if (state.consumed) return
-			this.split_content(limit, event)
+			this.split_content(a_block_element, event)
 			if (state) state.consumed = true
 			if (event) event.preventDefault()
 		}.bind(this))
@@ -156,8 +156,8 @@ export class Editor {
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
 	
-	request_to_split_content(event, limit) {
-		this.emit('split-content-requested', { consumed: false }, event, limit)
+	request_to_split_content(event) {
+		this.emit('split-content-requested', { consumed: false }, event)
 	}
 	
 	split_content(limit, event) {
