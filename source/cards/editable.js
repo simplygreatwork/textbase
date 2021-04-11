@@ -8,7 +8,7 @@ export function initialize_editable_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-editable">Card: Editable</button>`)
 	
-	bus.on('action-requested:card-editable', function() {
+	bus.on('request:card-editable', function() {
 		insert_card(editor, 'editable', `
 			<div class="card">
 				<div>card's non-editable text</div>

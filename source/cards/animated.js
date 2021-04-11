@@ -8,7 +8,7 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-animated">Card: Animated</button>`)
 	
-	bus.on('action-requested:card-animated', function() {
+	bus.on('request:card-animated', function() {
 		insert_card(editor, 'animated', `
 			<div class="card"></div>
 		`)

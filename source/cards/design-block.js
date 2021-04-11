@@ -28,7 +28,7 @@ export function initialize_design_block_cards(bus, editor, toolbar) {
 	`
 	document.querySelector('head').appendChild(style)
 	
-	bus.on('action-requested:card-designed', function() {
+	bus.on('request:card-designed', function() {
 		insert_card(editor, 'designed', `
 			<div class="hero">
 				<span class="hero-text" contenteditable="true">

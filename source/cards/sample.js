@@ -8,7 +8,7 @@ export function initialize_sample_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-sample">Card: Sample</button>`)
 	
-	bus.on('action-requested:card-sample', function() {
+	bus.on('request:card-sample', function() {
 		insert_card(editor, 'sample', `
 			<div class="card">Sample</div>
 		`)

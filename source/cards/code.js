@@ -11,7 +11,7 @@ export function initialize_code_cards(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="card-code">Card: Code</button>`)
 	
-	bus.on('action-requested:card-code', function() {
+	bus.on('request:card-code', function() {
 		insert_card(editor, 'code', `
 			<div contentEditable="true" class="code-card">
 				<pre>let editable = true</pre>

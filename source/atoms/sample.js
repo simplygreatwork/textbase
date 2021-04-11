@@ -8,7 +8,7 @@ export function initialize_sample_atoms(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="atom-sample">Atom: Sample</button>`)
 	
-	bus.on('action-requested:atom-sample', function() {
+	bus.on('request:atom-sample', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="sample">Atom</span>
 		`)

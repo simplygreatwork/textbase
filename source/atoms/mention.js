@@ -8,7 +8,7 @@ export function initialize_mention_atoms(bus, editor, toolbar) {
 	
 	toolbar.append(`<button data-action="atom-mention">Atom: Mention</button>`)
 	
-	bus.on('action-requested:atom-mention', function() {
+	bus.on('request:atom-mention', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="mention">
 				<span>@</span>
