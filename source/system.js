@@ -485,11 +485,11 @@ export class System {
 		
 		bus.on('feature:other', function() {
 			
-			toolbar.append(`<button data-action="validate">Validate</button>`)
-			
 			bus.on('request:validate', function() {
 				this.scanner.scan(document.querySelector('.content'))
 			}.bind(this))
+			
+			bus.emit('feature-did-install', 'validate', 'Validate')
 			
 			bus.on('selection-did-change', function(event, editor) {
 				logger('system').log('selection-did-change')
