@@ -259,13 +259,18 @@ export function find_card_container(selection) {
 	return node.closest('[data-card-type]').first()
 }
 
-function is_selection_inside_card_container_caret(selection) {
+export function is_selection_inside_card_container_caret(selection) {
 	
 	if (! selection.range.collapsed) return false
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()
 	if (node.closest(u('.card-caret')).first()) return true
 	return false
+}
+
+export function is_selection_inside_card_content(selection) {
+	
+	return (is_card(selection.head.container) && (! is_selection_inside_card_container_caret(selection))) 
 }
 
 function insert_paragraph_after_card_container(node, editor) {

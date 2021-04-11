@@ -1,6 +1,7 @@
 
 import { insert_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
+import { is_selection_inside_card_content } from '../features/cards.js'
 import { get_selection } from '../selection.js'
 import { Logger } from '../logger.js'
 
@@ -43,6 +44,7 @@ function disable_default_input_behavior(key, bus, editor) {
 	
 	bus.unshift(key, function(event, interrupt) {
 		if (! is_code_card(editor)) return
+		if (! is_selection_inside_card_content(get_selection(editor))) return 
 		interrupt()
 	})
 }
