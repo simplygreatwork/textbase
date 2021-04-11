@@ -43,7 +43,8 @@ function disable_default_input_behavior(key, bus, editor) {
 	
 	bus.unshift(key, function(state, event) {
 		if (! is_code_card(editor)) return
-		if (state && state.consumed) return
+		if (state.consumed) return
+		state.consumed = true
 	})
 }
 
