@@ -13,9 +13,7 @@ export function initialize_code_cards(bus, editor, toolbar) {
 	bus.on('action-requested:card-code', function() {
 		insert_card(editor, 'code', `
 			<div contentEditable="true" class="code-card">
-<pre>
-let editable = true
-</pre>
+				<pre>let editable = true</pre>
 			</div>
 		`)
 	}.bind(this))
@@ -36,19 +34,14 @@ let editable = true
 		return
 	}.bind(this))
 	
-	bus.unshift('insert-character-requested', function(event) {
-		if (! is_code_card(editor)) return
-		if (event && event.consumed) return
-		if (event) event.consumed = true
-	})
+	disable_default_input_behavior('insert-character-requested', bus, editor)
+	disable_default_input_behavior('split-content-requested', bus, editor)
+	disable_default_input_behavior('delete-requested', bus, editor)
+}
+
+function disable_default_input_behavior(key, bus, editor) {
 	
-	bus.unshift('split-content-requested', function(event) {
-		if (! is_code_card(editor)) return
-		if (event && event.consumed) return
-		if (event) event.consumed = true
-	})
-	
-	bus.unshift('delete-requested', function(event) {
+	bus.unshift(key, function(event) {
 		if (! is_code_card(editor)) return
 		if (event && event.consumed) return
 		if (event) event.consumed = true
