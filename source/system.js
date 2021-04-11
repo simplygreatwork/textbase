@@ -165,56 +165,48 @@ export class System {
 			event.preventDefault()
 		}.bind(this))
 		
-		bus.on('keydown:control-a', function(event) {
-			bus.emit('request-select-all', event)
-		}.bind(this))
-		
-		bus.on('request-select-all', function(event) {
+		bus.on('request:select-all', function(event) {
 			select_all(editor, event)
 		}.bind(this))
 		
-		bus.on('keyup:arrowright', function(event) {
-			bus.emit('request-caret-right', event)
+		bus.on('keydown:control-a', function(event) {
+			bus.emit('request:select-all', event)
 		}.bind(this))
 		
-		bus.on('request-caret-right', function(event) {
+		bus.on('request:caret-right', function(event) {
 			skip_right_over_zero_width_whitespace(event, editor)
 		}.bind(this))
 		
-		bus.on('keyup:arrowleft', function(event) {
-			bus.emit('request-caret-left', event)
+		bus.on('keyup:arrowright', function(event) {
+			bus.emit('request:caret-right', event)
 		}.bind(this))
 		
-		bus.on('request-caret-left', function(event) {
+		bus.on('request:caret-left', function(event) {
 			skip_left_over_zero_width_whitespace(event, editor)
+		}.bind(this))
+		
+		bus.on('keyup:arrowleft', function(event) {
+			bus.emit('request:caret-left', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="undo">Undo</button>`)
 		
-		bus.on('action-requested:undo', function() {
-			bus.emit('request-undo', event)
+		bus.on('request:undo', function() {
+			this.history.undo(event)
 		}.bind(this))
 		
 		bus.on('keydown:control-z', function(event) {
-			bus.emit('request-undo', event)
-		}.bind(this))
-		
-		bus.on('request-undo', function(event) {
-			this.history.undo(event)
+			bus.emit('request:undo', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="redo">Redo</button>`)
 		
-		bus.on('action-requested:redo', function() {
-			bus.emit('request-redo', event)
+		bus.on('request:redo', function() {
+			this.history.redo(event)
 		}.bind(this))
 		
 		bus.on('keydown:control-shift-z', function(event) {
-			bus.emit('request-redo', event)
-		}.bind(this))
-		
-		bus.on('request-redo', function(event) {
-			this.history.redo(event)
+			bus.emit('request:redo', event)
 		}.bind(this))
 	}
 	
@@ -224,7 +216,7 @@ export class System {
 		initialize_hyperlinks(editor, bus)
 		detect_hyperlinks(editor, bus)
 		
-		bus.on('action-requested:hyperlink', function() {
+		bus.on('request:hyperlink', function() {
 			let result = window.prompt('Enter a URL', 'http://github.com')
 			if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
 		}.bind(this))
@@ -239,61 +231,49 @@ export class System {
 		
 		toolbar.append(`<button data-action="strong" data-format="strong">Strong</button>`)
 		
-		bus.on('action-requested:strong', function() {
-			toggle_format(editor, 'strong')
+		bus.on('request:strong', function(event) {
+			toggle_format(editor, 'strong', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-b', function(event) {
-			bus.emit('request-format-strong', event)
-		}.bind(this))
-		
-		bus.on('request-format-strong', function(event) {
-			toggle_format(editor, 'strong', event)
+			bus.emit('request:strong', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="emphasis" data-format="emphasis">Emphasis</button>`)
 		
-		bus.on('action-requested:emphasis', function() {
-			toggle_format(editor, 'emphasis')
+		bus.on('request:emphasis', function(event) {
+			toggle_format(editor, 'emphasis', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-i', function(event) {
-			bus.emit('request-format-emphasis', event)
-		}.bind(this))
-		
-		bus.on('request-format-emphasis', function(event) {
-			toggle_format(editor, 'emphasis', event)
+			bus.emit('request:emphasis', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="underline" data-format="underline">Underline</button>`)
 		
-		bus.on('action-requested:underline', function() {
-			toggle_format(editor, 'underline')
+		bus.on('request:underline', function(event) {
+			toggle_format(editor, 'underline', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-u', function(event) {
-			bus.emit('request-format-underline', event)
-		}.bind(this))
-		
-		bus.on('request-format-underline', function(event) {
-			toggle_format(editor, 'underline', event)
+			bus.emit('request:underline', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="strikethrough" data-format="strikethrough">Strikethrough</button>`)
 		
-		bus.on('action-requested:strikethrough', function() {
+		bus.on('request:strikethrough', function() {
 			toggle_format(editor, 'strikethrough')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="highlight" data-format="highlight">Highlight</button>`)
 		
-		bus.on('action-requested:highlight', function() {
+		bus.on('request:highlight', function() {
 			toggle_format(editor, 'highlight')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="clear-formatting">Clear Formatting</button>`)
 		
-		bus.on('action-requested:clear-formatting', function() {
+		bus.on('request:clear-formatting', function() {
 			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 		}.bind(this))
 		
@@ -310,103 +290,95 @@ export class System {
 		
 		toolbar.append(`<button data-action="paragraph" data-element="p">Paragraph</button>`)
 		
-		bus.on('action-requested:paragraph', function() {
+		bus.on('request:paragraph', function() {
 			toggle_block(editor, 'p')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="heading-1" data-element="h1">Heading 1</button>`)
 		
-		bus.on('action-requested:heading-1', function() {
+		bus.on('request:heading-1', function() {
 			toggle_block(editor, 'h1')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="heading-2" data-element="h2">Heading 2</button>`)
 		
-		bus.on('action-requested:heading-2', function() {
+		bus.on('request:heading-2', function() {
 			toggle_block(editor, 'h2')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="list-item" data-element="li">List Item</button>`)
 		
-		bus.on('action-requested:list-item', function() {
+		bus.on('request:list-item', function() {
 			toggle_block(editor, 'li')
 		}.bind(this))
 		
 		if (false) toolbar.append(`<button data-action="ordered-list" data-element="ol">Ordered List</button>`)
 		
-		bus.on('action-requested:ordered-list', function() {
+		bus.on('request:ordered-list', function() {
 			toggle_block(editor, 'ol')
 		}.bind(this))
 		
 		if (false) toolbar.append(`<button data-action="unordered-list" data-element="ul">Unordered List</button>`)
 		
-		bus.on('action-requested:unordered-list', function() {
+		bus.on('request:unordered-list', function() {
 			toggle_block(editor, 'ul')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="blockquote">Blockquote</button>`)
 		
-		bus.on('action-requested:blockquote', function() {
+		bus.on('request:blockquote', function() {
 			toggle_block(editor, 'blockquote')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="indent">Indent</button>`)
 		
-		bus.on('action-requested:indent', function() {
-			bus.emit('request-indent')
+		bus.on('request:indent', function(event) {
+			indent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:tab', function(event) {
-			bus.emit('request-indent', event)
+			bus.emit('request:indent', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-]', function(event) {
-			bus.emit('request-indent', event)
-		}.bind(this))
-		
-		bus.on('request-indent', function(event) {
-			indent(editor, event)
+			bus.emit('request:indent', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="dedent">Dedent</button>`)
 		
-		bus.on('action-requested:dedent', function() {
-			bus.emit('request-dedent', event)
+		bus.on('request:dedent', function(event) {
+			dedent(editor, event)
 		}.bind(this))
 		
 		bus.on('keydown:shift-tab', function(event) {
-			bus.emit('request-dedent', event)
+			bus.emit('request:dedent', event)
 		}.bind(this))
 		
 		bus.on('keydown:control-[', function(event) {
-			bus.emit('request-dedent', event)
-		}.bind(this))
-		
-		bus.on('request-dedent', function(event) {
-			dedent(editor, event)
+			bus.emit('request:dedent', event)
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="align-left">Align Left</button>`)
 		
-		bus.on('action-requested:align-left', function() {
+		bus.on('request:align-left', function() {
 			align(editor, 'left')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="align-right">Align Right</button>`)
 		
-		bus.on('action-requested:align-right', function() {
+		bus.on('request:align-right', function() {
 			align(editor, 'right')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="align-center">Align Center</button>`)
 		
-		bus.on('action-requested:align-center', function() {
+		bus.on('request:align-center', function() {
 			align(editor, 'center')
 		}.bind(this))
 		
 		toolbar.append(`<button data-action="align-justified">Align Justify</button>`)
 		
-		bus.on('action-requested:align-justify', function() {
+		bus.on('request:align-justify', function() {
 			align(editor, 'justify')
 		}.bind(this))
 		
@@ -449,7 +421,7 @@ export class System {
 		
 		toolbar.append(`<button data-action="validate">Validate</button>`)
 		
-		bus.on('action-requested:validate', function() {
+		bus.on('request:validate', function() {
 			this.scanner.scan(document.querySelector('.content'))
 		}.bind(this))
 		

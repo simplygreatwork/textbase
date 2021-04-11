@@ -15,7 +15,7 @@ export function toggle_format(editor, format, event) {
 export function toggle_format_with_data(editor, format, data, event) {
 	
 	logger('trace').log('toggle_format_with_data')
-	if (event) event.preventDefault()
+	if (event && event.preventDefault) event.preventDefault()
 	let selection = get_selection(editor)
 	selection_edge(editor, selection)
 	selection = get_selection(editor)

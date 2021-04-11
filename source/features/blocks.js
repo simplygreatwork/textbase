@@ -69,7 +69,7 @@ export function find_applicable_blocks(editor, blocks) {
 export function indent(editor, event) {
 	
 	logger('trace').log('indent')
-	if (event) event.preventDefault()
+	if (event && event.preventDefault) event.preventDefault()
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let level = u(node).data('indent')
@@ -83,7 +83,7 @@ export function indent(editor, event) {
 export function dedent(editor, event) {
 	
 	logger('trace').log('dedent')
-	if (event) event.preventDefault()
+	if (event && event.preventDefault) event.preventDefault()
 	let selection = get_selection(editor)
 	selection_each_block(editor, selection, function(node) {
 		let level = u(node).data('indent')
