@@ -39,59 +39,58 @@ export class System {
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.scanner = new Scanner(this.editor)
-		this.configure_features(this.bus, this.editor, this.history, this.toolbar)
-		this.install_features(this.bus, [])
+		this.offer_features(this.bus, this.editor, this.history, this.toolbar)
+		this.enable_features(this.bus, [
+			'essentials',
+			'formats',
+			'formats-all',
+			'blocks',
+			'blocks-all',
+			'atoms',
+			'cards',
+			'other',
+			'recognizers',
+			'platform'
+		])
 	}
 	
-	install_features(bus, features) {
+	enable_features(bus, features) {
 		
-		this.install_feature('essentials', bus)
-		this.install_feature('formats', bus)
-		this.install_feature('blocks', bus)
-		this.install_feature('atoms', bus)
-		this.install_feature('cards', bus)
-		this.install_feature('other', bus)
-		this.install_feature('recognizers', bus)
-		this.install_feature('platform', bus)
+		features.forEach(function(key) {
+			this.enable_feature(key, bus)
+		}.bind(this))
 	}
 	
-	install_feature(feature, bus) {
+	enable_feature(feature, bus) {
 		bus.emit(`feature:${feature}`)
 	}
 	
-	configure_features(bus, editor, history, toolbar) {
+	offer_features(bus, editor, history, toolbar) {
 		
 		bus.on('feature:essentials', function() {
-			
-			this.install_feature('toolbar', bus)
-			this.install_feature('documents', bus)
-			this.install_feature('history', bus)
-			this.install_feature('basics', bus)
-			this.install_feature('clipboard', bus)
-			
+			this.enable_feature('toolbar', bus)
+			this.enable_feature('documents', bus)
+			this.enable_feature('history', bus)
+			this.enable_feature('basics', bus)
+			this.enable_feature('clipboard', bus)
 		}.bind(this))
 		
 		bus.on('feature:toolbar', function() {
-			
 			bus.on('feature-did-install', function(name, label) {
 				toolbar.append(`<button data-action="${name}">${label}</button>`)
 			}.bind(this))
-			
 		}.bind(this))
 		
 		bus.on('feature:documents', function() {
-			
 			bus.on('document-did-install', function(document_) {
 				logger('system').log('document-did-install')
 				this.history.enable()
 				this.scanner.scan(document.querySelector('.content'))
 			}.bind(this))
-			
 			bus.on('document-did-uninstall', function(document_) {
 				logger('system').log('document-did-uninstall')
 				this.history.disable()
 			}.bind(this))
-			
 		}.bind(this))
 		
 		bus.on('feature:basics', function() {
@@ -236,29 +235,22 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:clipboard', function() {
-			
 			initialize_clipboard(editor)
-			
 			bus.on('clipboard-will-cut', function() {
 				logger('system').log('clipboard-will-cut')
 			})
-			
 			bus.on('clipboard-did-cut', function() {
 				logger('system').log('clipboard-did-cut')
 			})
-			
 			bus.on('clipboard-will-copy', function() {
 				logger('system').log('clipboard-will-copy')
 			})
-			
 			bus.on('clipboard-did-copy', function() {
 				logger('system').log('clipboard-did-copy')
 			})
-			
 			bus.on('clipboard-will-paste', function() {
 				logger('system').log('clipboard-will-paste')
 			})
-			
 			bus.on('clipboard-did-paste', function() {
 				logger('system').log('clipboard-did-paste')
 			})
@@ -266,16 +258,31 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:formats', function() {
-			
-			toolbar.append(`<button data-action="hyperlink" data-format="hyperlink">Hyperlink</button>`)
+			bus.on('format-did-apply', function(event) {
+				this.history.capture()
+			}.bind(this))
+			bus.on('format-did-remove', function(event) {
+				this.history.capture()
+			}.bind(this))
+		}.bind(this))
+		
+		bus.on('feature:formats-all', function() {
+			this.enable_feature('format-hyperlink', bus)
+			this.enable_feature('format-strong', bus)
+			this.enable_feature('format-emphasis', bus)
+			this.enable_feature('format-underline', bus)
+			this.enable_feature('format-strikethrough', bus)
+			this.enable_feature('format-highlight', bus)
+			this.enable_feature('format-clear', bus)
+		}.bind(this))
+		
+		bus.on('feature:format-hyperlink', function() {
 			initialize_hyperlinks(editor, bus)
 			detect_hyperlinks(editor, bus)
-			
 			bus.on('request:hyperlink', function() {
 				let result = window.prompt('Enter a URL', 'http://github.com')
 				if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
 			}.bind(this))
-			
 			bus.on('hyperlink:clicked', function(href, event) {
 				if (event && event.ctrlKey) {
 					window.open(href)
@@ -283,184 +290,182 @@ export class System {
 					window.location.href = href
 				}
 			}.bind(this))
-			
+			bus.emit('feature-did-install', 'hyperlink', 'Hyperlink')
+		}.bind(this))
+		
+		bus.on('feature:format-strong', function() {
 			bus.on('request:strong', function(event) {
 				toggle_format(editor, 'strong', event)
 			}.bind(this))
-			
 			bus.on('keydown:control-b', function(event) {
 				bus.emit('request:strong', event)
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'strong', 'Strong')
-			
+		}.bind(this))
+		
+		bus.on('feature:format-emphasis', function() {
 			bus.on('request:emphasis', function(event) {
 				toggle_format(editor, 'emphasis', event)
 			}.bind(this))
-			
 			bus.on('keydown:control-i', function(event) {
 				bus.emit('request:emphasis', event)
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'emphasis', 'Emphasis')
-			
+		}.bind(this))
+		
+		bus.on('feature:format-underline', function() {
 			bus.on('request:underline', function(event) {
 				toggle_format(editor, 'underline', event)
 			}.bind(this))
-			
 			bus.on('keydown:control-u', function(event) {
 				bus.emit('request:underline', event)
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'underline', 'Underline')
-			
+		}.bind(this))
+		
+		bus.on('feature:format-strikethrough', function() {
 			bus.on('request:strikethrough', function() {
 				toggle_format(editor, 'strikethrough')
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'strikethrough', 'Strikethrough')
-			
+		}.bind(this))
+		
+		bus.on('feature:format-highlight', function() {
 			bus.on('request:highlight', function() {
 				toggle_format(editor, 'highlight')
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'highlight', 'Highlight')
-			
+		}.bind(this))
+		
+		bus.on('feature:format-clear', function() {
 			bus.on('request:clear-formatting', function() {
 				remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'clear-formatting', 'Clear Formatting')
-			
-			bus.on('format-did-apply', function(event) {
-				this.history.capture()
-			}.bind(this))
-			
-			bus.on('format-did-remove', function(event) {
-				this.history.capture()
-			}.bind(this))
-			
 		}.bind(this))
 		
 		bus.on('feature:blocks', function() {
-			
-			bus.on('request:paragraph', function() {
-				toggle_block(editor, 'p')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'paragraph', 'Paragraph')
-			
-			bus.on('request:heading-1', function() {
-				toggle_block(editor, 'h1')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'heading-1', 'Heading 1')
-			
-			bus.on('request:heading-2', function() {
-				toggle_block(editor, 'h2')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'heading-2', 'Heading 2')
-			
-			bus.on('request:list-item', function() {
-				toggle_block(editor, 'li')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'list-item', 'List Item')
-			
-			bus.on('request:ordered-list', function() {
-				toggle_block(editor, 'ol')
-			}.bind(this))
-			
-			if (false) bus.emit('feature-did-install', 'ordered-list', 'Ordered List')
-			
-			bus.on('request:unordered-list', function() {
-				toggle_block(editor, 'ul')
-			}.bind(this))
-			
-			if (false) bus.emit('feature-did-install', 'unordered-list', 'Unordered List')
-			
-			bus.on('request:blockquote', function() {
-				toggle_block(editor, 'blockquote')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'blockquote', 'Blockquote')
-			
-			bus.on('request:indent', function(event) {
-				indent(editor, event)
-			}.bind(this))
-			
-			bus.on('keydown:tab', function(event) {
-				bus.emit('request:indent', event)
-			}.bind(this))
-			
-			bus.on('keydown:control-]', function(event) {
-				bus.emit('request:indent', event)
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'indent', 'Indent')
-			
-			bus.on('request:dedent', function(event) {
-				dedent(editor, event)
-			}.bind(this))
-			
-			bus.on('keydown:shift-tab', function(event) {
-				bus.emit('request:dedent', event)
-			}.bind(this))
-			
-			bus.on('keydown:control-[', function(event) {
-				bus.emit('request:dedent', event)
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'dedent', 'Dedent')
-			
-			bus.on('request:align-left', function() {
-				align(editor, 'left')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'align-left', 'Align Left')
-			
-			bus.on('request:align-right', function() {
-				align(editor, 'right')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'align-right', 'Align Right')
-			
-			bus.on('request:align-center', function() {
-				align(editor, 'center')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'align-center', 'Align Center')
-			
-			bus.on('request:align-justify', function() {
-				align(editor, 'justify')
-			}.bind(this))
-			
-			bus.emit('feature-did-install', 'align-justified', 'Align Justify')
-			
 			bus.on('block-did-change', function(event) {
 				this.history.capture()
 			}.bind(this))
-			
 			bus.on('content-did-split', function(a, b) {
 				if (block_has_content(a)) return
 				if (block_has_content(b)) return
 				transform_block(editor, b, 'p')
 			}.bind(this))
-			
+		}.bind(this))
+		
+		bus.on('feature:blocks-all', function() {
+			this.enable_feature('blocks-paragraph', bus)
+			this.enable_feature('blocks-heading-1', bus)
+			this.enable_feature('blocks-heading-2', bus)
+			this.enable_feature('blocks-list-item', bus)
+			if (false) this.enable_feature('blocks-ordered-list', bus)
+			if (false) this.enable_feature('blocks-unordered-list', bus)
+			this.enable_feature('blocks-blockquote', bus)
+			this.enable_feature('blocks-indentation', bus)
+			this.enable_feature('blocks-alignment', bus)
+		}.bind(this))
+		
+		bus.on('feature:blocks-paragraph', function() {
+			bus.on('request:paragraph', function() {
+				toggle_block(editor, 'p')
+			}.bind(this))
+			bus.emit('feature-did-install', 'paragraph', 'Paragraph')
+		}.bind(this))
+		
+		bus.on('feature:blocks-heading-1', function() {
+			bus.on('request:heading-1', function() {
+				toggle_block(editor, 'h1')
+			}.bind(this))
+			bus.emit('feature-did-install', 'heading-1', 'Heading 1')
+		}.bind(this))
+		
+		bus.on('feature:blocks-heading-2', function() {
+			bus.on('request:heading-2', function() {
+				toggle_block(editor, 'h2')
+			}.bind(this))
+			bus.emit('feature-did-install', 'heading-2', 'Heading 2')
+		}.bind(this))
+		
+		bus.on('feature:blocks-list-item', function() {
+			bus.on('request:list-item', function() {
+				toggle_block(editor, 'li')
+			}.bind(this))
+			bus.emit('feature-did-install', 'list-item', 'List Item')
+		}.bind(this))
+		
+		bus.on('feature:blocks-ordered-list', function() {
+			bus.on('request:ordered-list', function() {
+				toggle_block(editor, 'ol')
+			}.bind(this))
+			bus.emit('feature-did-install', 'ordered-list', 'Ordered List')
+		}.bind(this))
+		
+		bus.on('feature:blocks-unordered-list', function() {
+			bus.on('request:unordered-list', function() {
+				toggle_block(editor, 'ul')
+			}.bind(this))
+			bus.emit('feature-did-install', 'unordered-list', 'Unordered List')
+		}.bind(this))
+		
+		bus.on('feature:blocks-blockquote', function() {
+			bus.on('request:blockquote', function() {
+				toggle_block(editor, 'blockquote')
+			}.bind(this))
+			bus.emit('feature-did-install', 'blockquote', 'Blockquote')
+		}.bind(this))
+		
+		bus.on('feature:blocks-indentation', function() {
+			bus.on('request:indent', function(event) {
+				indent(editor, event)
+			}.bind(this))
+			bus.on('keydown:tab', function(event) {
+				bus.emit('request:indent', event)
+			}.bind(this))
+			bus.on('keydown:control-]', function(event) {
+				bus.emit('request:indent', event)
+			}.bind(this))
+			bus.emit('feature-did-install', 'indent', 'Indent')
+			bus.on('request:dedent', function(event) {
+				dedent(editor, event)
+			}.bind(this))
+			bus.on('keydown:shift-tab', function(event) {
+				bus.emit('request:dedent', event)
+			}.bind(this))
+			bus.on('keydown:control-[', function(event) {
+				bus.emit('request:dedent', event)
+			}.bind(this))
+			bus.emit('feature-did-install', 'dedent', 'Dedent')
+		}.bind(this))
+		
+		bus.on('feature:blocks-alignment', function() {
+			bus.on('request:align-left', function() {
+				align(editor, 'left')
+			}.bind(this))
+			bus.emit('feature-did-install', 'align-left', 'Align Left')
+			bus.on('request:align-right', function() {
+				align(editor, 'right')
+			}.bind(this))
+			bus.emit('feature-did-install', 'align-right', 'Align Right')
+			bus.on('request:align-center', function() {
+				align(editor, 'center')
+			}.bind(this))
+			bus.emit('feature-did-install', 'align-center', 'Align Center')
+			bus.on('request:align-justify', function() {
+				align(editor, 'justify')
+			}.bind(this))
+			bus.emit('feature-did-install', 'align-justified', 'Align Justify')
 		}.bind(this))
 		
 		bus.on('feature:atoms', function() {
-			
 			initialize_atoms(bus, editor, history)
 			initialize_sample_atoms(bus, editor, toolbar)
 			initialize_animated_atoms(bus, editor, toolbar)
 			initialize_mention_atoms(bus, editor, toolbar)
-			
 		}.bind(this))
 		
 		bus.on('feature:cards', function() {
-			
 			initialize_cards(bus, editor, history)
 			initialize_sample_cards(bus, editor, toolbar)
 			initialize_animated_cards(bus, editor, toolbar)
@@ -468,57 +473,43 @@ export class System {
 			initialize_editable_cards(bus, editor, toolbar)
 			initialize_design_block_cards(bus, editor, toolbar)
 			initialize_code_cards(bus, editor, toolbar)
-			
 		}.bind(this))
 		
 		bus.on('feature:recognizers', function() {
-			
 			initialize_recognizers(bus, editor)
-			
 		}.bind(this))
 		
 		bus.on('feature:platform', function() {
-			
 			initialize_platform(bus)
-			
 		}.bind(this))
 		
 		bus.on('feature:other', function() {
-			
 			bus.on('request:validate', function() {
 				this.scanner.scan(document.querySelector('.content'))
 			}.bind(this))
-			
 			bus.emit('feature-did-install', 'validate', 'Validate')
-			
 			bus.on('selection-did-change', function(event, editor) {
 				logger('system').log('selection-did-change')
 				document.querySelector('.structure-html').textContent = serialize(editor)
 			}.bind(this))
-			
 			bus.on('content-did-change', function(begin, end) {
 				logger('system').log('content-did-change')
 				this.scanner.scan(begin, end)
 				document.querySelector('.structure-html').textContent = serialize(editor)
 			}.bind(this))
-			
 			bus.on('content-did-insert', function() {
 				logger('system').log('content-did-insert')
 			})
-			
 			bus.on('content-did-delete', function(fragment) {
 				if (false) logger('system').log('content-did-delete: ' + fragment)
 			})
-			
 			bus.on('content-valid', function(html) {
 				return
 			}.bind(this))
-			
 			bus.on('content-invalid', function(result) {
 				console.log('content-invalid: ' + JSON.stringify(result))
 				u('.structure').addClass('invalid')
 			}.bind(this))
-			
 		}.bind(this))
 	}
 	
