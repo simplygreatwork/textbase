@@ -31,5 +31,5 @@ export function initialize_mention_atoms(bus, editor, toolbar) {
 		logger('system').log('atom-did-exit:mention')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'atom-mention', 'Atom: Mention')
+	bus.emit('feature-did-enable', 'atom-mention', 'Atom: Mention')
 }

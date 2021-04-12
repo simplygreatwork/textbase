@@ -31,5 +31,5 @@ export function initialize_editable_cards(bus, editor, toolbar) {
 		logger('system').log('card-did-exit:editable')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'card-editable', 'Card: Editable')
+	bus.emit('feature-did-enable', 'card-editable', 'Card: Editable')
 }

@@ -31,5 +31,5 @@ export function initialize_animated_atoms(bus, editor, toolbar) {
 		return
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'atom-animated', 'Atom: Animated')
+	bus.emit('feature-did-enable', 'atom-animated', 'Atom: Animated')
 }

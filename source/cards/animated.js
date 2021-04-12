@@ -31,5 +31,5 @@ export function initialize_animated_cards(bus, editor, toolbar) {
 		return
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'card-animated', 'Card: Animated')
+	bus.emit('feature-did-enable', 'card-animated', 'Card: Animated')
 }

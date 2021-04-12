@@ -32,15 +32,9 @@ const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'hist
 
 export class System {
 	
-	constructor() {
+	constructor(features) {
 		
-		this.bus = new Bus()
-		this.editor = new Editor(this.bus, document.querySelector('.editor'))
-		this.toolbar = new Toolbar(this.bus)
-		this.history = new History(this.bus, document.querySelector('.content'))
-		this.scanner = new Scanner(this.editor)
-		this.offer_features(this.bus, this.editor, this.history, this.toolbar)
-		this.enable_features(this.bus, [
+		features = features || [
 			'essentials',
 			'formats',
 			'formats-all',
@@ -51,7 +45,15 @@ export class System {
 			'other',
 			'recognizers',
 			'platform'
-		])
+		]
+		
+		this.bus = new Bus()
+		this.editor = new Editor(this.bus, document.querySelector('.editor'))
+		this.toolbar = new Toolbar(this.bus)
+		this.history = new History(this.bus, document.querySelector('.content'))
+		this.scanner = new Scanner(this.editor)
+		this.offer_features(this.bus, this.editor, this.history, this.toolbar)
+		this.enable_features(this.bus, features)
 	}
 	
 	enable_features(bus, features) {

@@ -40,7 +40,7 @@ export function initialize_code_cards(bus, editor, toolbar) {
 	disable_default_input_behavior('action:caret-right', bus, editor)
 	disable_default_input_behavior('action:caret-left', bus, editor)
 	
-	bus.emit('feature-did-install', 'card-code', 'Card: Code')
+	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }
 
 function disable_default_input_behavior(key, bus, editor) {

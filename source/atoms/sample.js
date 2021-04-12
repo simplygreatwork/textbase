@@ -32,5 +32,5 @@ export function initialize_sample_atoms(bus, editor, toolbar) {
 		logger('system').log('atom-did-exit:sample')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'atom-sample', 'Atom: Sample')
+	bus.emit('feature-did-enable', 'atom-sample', 'Atom: Sample')
 }

@@ -6,8 +6,6 @@ const logger = Logger()
 
 export function initialize_sample_cards(bus, editor, toolbar) {
 	
-	toolbar.append(`<button data-action="card-sample">Card: Sample</button>`)
-	
 	bus.on('action:card-sample', function() {
 		insert_card(editor, 'sample', `
 			<div class="card">Sample</div>
@@ -34,5 +32,5 @@ export function initialize_sample_cards(bus, editor, toolbar) {
 		logger('system').log('card-did-exit:sample')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'card-sample', 'Card: Sample')
+	bus.emit('feature-did-enable', 'card-sample', 'Card: Sample')
 }

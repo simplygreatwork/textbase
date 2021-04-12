@@ -30,5 +30,5 @@ export function initialize_image_cards(bus, editor, toolbar) {
 		logger('system').log('card-did-exit:image')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'card-image', 'Card: Image')
+	bus.emit('feature-did-enable', 'card-image', 'Card: Image')
 }

@@ -52,5 +52,5 @@ export function initialize_design_block_cards(bus, editor, toolbar) {
 		logger('system').log('card-did-exit:designed')
 	}.bind(this))
 	
-	bus.emit('feature-did-install', 'card-designed', 'Card: Design Block')
+	bus.emit('feature-did-enable', 'card-designed', 'Card: Design Block')
 }
