@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_animated_atoms(bus, editor, toolbar) {
 	
-	bus.on('request:atom-animated', function() {
+	bus.on('action:atom-animated', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="animated"></span>
 		`)

@@ -46,8 +46,8 @@ export class Toolbar {
 		element.on('click', function() {
 			let action = element.data('action')
 			let event = null
-			this.bus.emit('request', action)
-			this.bus.emit(`request:${action}`, event)				// null event to ensure that a bus interruptable does not replace event
+			this.bus.emit('action', action)
+			this.bus.emit(`action:${action}`, event)				// null event to ensure that a bus interruptable does not replace event
 		}.bind(this))
 		return element
 	}

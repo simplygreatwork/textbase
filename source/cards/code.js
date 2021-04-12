@@ -9,7 +9,7 @@ const logger = Logger()
 
 export function initialize_code_cards(bus, editor, toolbar) {
 	
-	bus.on('request:card-code', function() {
+	bus.on('action:card-code', function() {
 		insert_card(editor, 'code', `
 			<div contentEditable="true" class="code-card">
 				<pre>let editable = true</pre>
@@ -33,12 +33,12 @@ export function initialize_code_cards(bus, editor, toolbar) {
 		return
 	}.bind(this))
 	
-	disable_default_input_behavior('request-insert-character', bus, editor)
-	disable_default_input_behavior('request-split-content', bus, editor)
-	disable_default_input_behavior('request-delete', bus, editor)
-	disable_default_input_behavior('request:select-all', bus, editor)
-	disable_default_input_behavior('request:caret-right', bus, editor)
-	disable_default_input_behavior('request:caret-left', bus, editor)
+	disable_default_input_behavior('action:insert-character', bus, editor)
+	disable_default_input_behavior('action:split-content', bus, editor)
+	disable_default_input_behavior('action:delete', bus, editor)
+	disable_default_input_behavior('action:select-all', bus, editor)
+	disable_default_input_behavior('action:caret-right', bus, editor)
+	disable_default_input_behavior('action:caret-left', bus, editor)
 	
 	bus.emit('feature-did-install', 'card-code', 'Card: Code')
 }

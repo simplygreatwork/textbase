@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_editable_cards(bus, editor, toolbar) {
 	
-	bus.on('request:card-editable', function() {
+	bus.on('action:card-editable', function() {
 		insert_card(editor, 'editable', `
 			<div class="card">
 				<div>card's non-editable text</div>

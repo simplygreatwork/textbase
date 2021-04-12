@@ -125,3 +125,11 @@ export function between(keycode, a, b) {
 	const max = Math.max(a, b)
 	return keycode >= min && keycode <= max
 }
+
+export function event_consume(event) {
+	
+	if (! event) return
+	if (! event instanceof Event) throw Error(`Expected argument type "Event" in function "event_consume"`)
+	if (event.stopPropagation) event.stopPropagation()
+	if (event.preventDefault) event.preventDefault()
+}

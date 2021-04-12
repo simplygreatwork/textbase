@@ -62,10 +62,18 @@ export class System {
 	}
 	
 	enable_feature(feature, bus) {
+		
+		bus.emit(`feature`, feature)
 		bus.emit(`feature:${feature}`)
 	}
 	
 	offer_features(bus, editor, history, toolbar) {
+		
+		let features = {}
+		bus.on('feature', function(name) {
+			if (features[name]) throw Error(`The feature "${name}" cannot be enabled a second time.`)
+			features[name] = true
+		}.bind(this))
 		
 		bus.on('feature:essentials', function() {
 			this.enable_feature('toolbar', bus)
@@ -76,7 +84,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:toolbar', function() {
-			bus.on('feature-did-install', function(name, label) {
+			bus.on('feature-did-enable', function(name, label) {
 				toolbar.append(`<button data-action="${name}">${label}</button>`)
 			}.bind(this))
 		}.bind(this))
@@ -121,49 +129,61 @@ export class System {
 				event.preventDefault()
 			}.bind(this))
 			
-			bus.on('request:select-all', function(event) {
+			bus.on('action:select-all', function(event) {
 				select_all(editor, event)
 			}.bind(this))
 			
 			bus.on('keydown:control-a', function(event) {
-				bus.emit('request:select-all', event)
+				bus.emit('action:select-all', event)
 			}.bind(this))
 			
-			bus.on('request:caret-right', function(event) {
+			bus.on('action:caret-right', function(event) {
 				skip_right_over_zero_width_whitespace(event, editor)
 			}.bind(this))
 			
 			bus.on('keyup:arrowright', function(event) {
-				bus.emit('request:caret-right', event)
+				bus.emit('action:caret-right', event)
 			}.bind(this))
 			
-			bus.on('request:caret-left', function(event) {
+			bus.on('action:caret-left', function(event) {
 				skip_left_over_zero_width_whitespace(event, editor)
 			}.bind(this))
 			
 			bus.on('keyup:arrowleft', function(event) {
-				bus.emit('request:caret-left', event)
+				bus.emit('action:caret-left', event)
 			}.bind(this))
 			
-			bus.on('request:undo', function() {
+			bus.on('action:undo', function() {
 				this.history.undo(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-z', function(event) {
-				bus.emit('request:undo', event)
+				bus.emit('action:undo', event)
 			}.bind(this))
 			
-			bus.emit('feature-did-install', 'undo', 'Undo')
+			bus.emit('feature-did-enable', 'undo', 'Undo')
 			
-			bus.on('request:redo', function() {
+			bus.on('action:redo', function() {
 				this.history.redo(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-shift-z', function(event) {
-				bus.emit('request:redo', event)
+				bus.emit('action:redo', event)
 			}.bind(this))
-
-			bus.emit('feature-did-install', 'redo', 'Redo')
+			
+			bus.emit('feature-did-enable', 'redo', 'Redo')
+			
+			bus.on('keydown:control-b', function(event) {
+				event.preventDefault()
+			}.bind(this))
+			
+			bus.on('keydown:control-i', function(event) {
+				event.preventDefault()
+			}.bind(this))
+			
+			bus.on('keydown:control-u', function(event) {
+				event.preventDefault()
+			}.bind(this))
 			
 		}.bind(this))
 		
@@ -279,7 +299,7 @@ export class System {
 		bus.on('feature:format-hyperlink', function() {
 			initialize_hyperlinks(editor, bus)
 			detect_hyperlinks(editor, bus)
-			bus.on('request:hyperlink', function() {
+			bus.on('action:hyperlink', function() {
 				let result = window.prompt('Enter a URL', 'http://github.com')
 				if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
 			}.bind(this))
@@ -290,58 +310,61 @@ export class System {
 					window.location.href = href
 				}
 			}.bind(this))
-			bus.emit('feature-did-install', 'hyperlink', 'Hyperlink')
+			bus.emit('feature-did-enable', 'hyperlink', 'Hyperlink')
 		}.bind(this))
 		
 		bus.on('feature:format-strong', function() {
-			bus.on('request:strong', function(event) {
+			bus.on('action:strong', function(event, interrupt) {
 				toggle_format(editor, 'strong', event)
 			}.bind(this))
-			bus.on('keydown:control-b', function(event) {
-				bus.emit('request:strong', event)
+			bus.unshift('keydown:control-b', function(event, interrupt) {
+				bus.emit('action:strong', event)
+				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-install', 'strong', 'Strong')
+			bus.emit('feature-did-enable', 'strong', 'Strong')
 		}.bind(this))
 		
 		bus.on('feature:format-emphasis', function() {
-			bus.on('request:emphasis', function(event) {
+			bus.on('action:emphasis', function(event) {
 				toggle_format(editor, 'emphasis', event)
 			}.bind(this))
-			bus.on('keydown:control-i', function(event) {
-				bus.emit('request:emphasis', event)
+			bus.unshift('keydown:control-i', function(event, interrupt) {
+				bus.emit('action:emphasis', event)
+				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-install', 'emphasis', 'Emphasis')
+			bus.emit('feature-did-enable', 'emphasis', 'Emphasis')
 		}.bind(this))
 		
 		bus.on('feature:format-underline', function() {
-			bus.on('request:underline', function(event) {
+			bus.on('action:underline', function(event) {
 				toggle_format(editor, 'underline', event)
 			}.bind(this))
-			bus.on('keydown:control-u', function(event) {
-				bus.emit('request:underline', event)
+			bus.unshift('keydown:control-u', function(event, interrupt) {
+				bus.emit('action:underline', event)
+				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-install', 'underline', 'Underline')
+			bus.emit('feature-did-enable', 'underline', 'Underline')
 		}.bind(this))
 		
 		bus.on('feature:format-strikethrough', function() {
-			bus.on('request:strikethrough', function() {
+			bus.on('action:strikethrough', function() {
 				toggle_format(editor, 'strikethrough')
 			}.bind(this))
-			bus.emit('feature-did-install', 'strikethrough', 'Strikethrough')
+			bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough')
 		}.bind(this))
 		
 		bus.on('feature:format-highlight', function() {
-			bus.on('request:highlight', function() {
+			bus.on('action:highlight', function() {
 				toggle_format(editor, 'highlight')
 			}.bind(this))
-			bus.emit('feature-did-install', 'highlight', 'Highlight')
+			bus.emit('feature-did-enable', 'highlight', 'Highlight')
 		}.bind(this))
 		
 		bus.on('feature:format-clear', function() {
-			bus.on('request:clear-formatting', function() {
+			bus.on('action:clear-formatting', function() {
 				remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
 			}.bind(this))
-			bus.emit('feature-did-install', 'clear-formatting', 'Clear Formatting')
+			bus.emit('feature-did-enable', 'clear-formatting', 'Clear Formatting')
 		}.bind(this))
 		
 		bus.on('feature:blocks', function() {
@@ -368,94 +391,94 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:blocks-paragraph', function() {
-			bus.on('request:paragraph', function() {
+			bus.on('action:paragraph', function() {
 				toggle_block(editor, 'p')
 			}.bind(this))
-			bus.emit('feature-did-install', 'paragraph', 'Paragraph')
+			bus.emit('feature-did-enable', 'paragraph', 'Paragraph')
 		}.bind(this))
 		
 		bus.on('feature:blocks-heading-1', function() {
-			bus.on('request:heading-1', function() {
+			bus.on('action:heading-1', function() {
 				toggle_block(editor, 'h1')
 			}.bind(this))
-			bus.emit('feature-did-install', 'heading-1', 'Heading 1')
+			bus.emit('feature-did-enable', 'heading-1', 'Heading 1')
 		}.bind(this))
 		
 		bus.on('feature:blocks-heading-2', function() {
-			bus.on('request:heading-2', function() {
+			bus.on('action:heading-2', function() {
 				toggle_block(editor, 'h2')
 			}.bind(this))
-			bus.emit('feature-did-install', 'heading-2', 'Heading 2')
+			bus.emit('feature-did-enable', 'heading-2', 'Heading 2')
 		}.bind(this))
 		
 		bus.on('feature:blocks-list-item', function() {
-			bus.on('request:list-item', function() {
+			bus.on('action:list-item', function() {
 				toggle_block(editor, 'li')
 			}.bind(this))
-			bus.emit('feature-did-install', 'list-item', 'List Item')
+			bus.emit('feature-did-enable', 'list-item', 'List Item')
 		}.bind(this))
 		
 		bus.on('feature:blocks-ordered-list', function() {
-			bus.on('request:ordered-list', function() {
+			bus.on('action:ordered-list', function() {
 				toggle_block(editor, 'ol')
 			}.bind(this))
-			bus.emit('feature-did-install', 'ordered-list', 'Ordered List')
+			bus.emit('feature-did-enable', 'ordered-list', 'Ordered List')
 		}.bind(this))
 		
 		bus.on('feature:blocks-unordered-list', function() {
-			bus.on('request:unordered-list', function() {
+			bus.on('action:unordered-list', function() {
 				toggle_block(editor, 'ul')
 			}.bind(this))
-			bus.emit('feature-did-install', 'unordered-list', 'Unordered List')
+			bus.emit('feature-did-enable', 'unordered-list', 'Unordered List')
 		}.bind(this))
 		
 		bus.on('feature:blocks-blockquote', function() {
-			bus.on('request:blockquote', function() {
+			bus.on('action:blockquote', function() {
 				toggle_block(editor, 'blockquote')
 			}.bind(this))
-			bus.emit('feature-did-install', 'blockquote', 'Blockquote')
+			bus.emit('feature-did-enable', 'blockquote', 'Blockquote')
 		}.bind(this))
 		
 		bus.on('feature:blocks-indentation', function() {
-			bus.on('request:indent', function(event) {
+			bus.on('action:indent', function(event) {
 				indent(editor, event)
 			}.bind(this))
 			bus.on('keydown:tab', function(event) {
-				bus.emit('request:indent', event)
+				bus.emit('action:indent', event)
 			}.bind(this))
 			bus.on('keydown:control-]', function(event) {
-				bus.emit('request:indent', event)
+				bus.emit('action:indent', event)
 			}.bind(this))
-			bus.emit('feature-did-install', 'indent', 'Indent')
-			bus.on('request:dedent', function(event) {
+			bus.emit('feature-did-enable', 'indent', 'Indent')
+			bus.on('action:dedent', function(event) {
 				dedent(editor, event)
 			}.bind(this))
 			bus.on('keydown:shift-tab', function(event) {
-				bus.emit('request:dedent', event)
+				bus.emit('action:dedent', event)
 			}.bind(this))
 			bus.on('keydown:control-[', function(event) {
-				bus.emit('request:dedent', event)
+				bus.emit('action:dedent', event)
 			}.bind(this))
-			bus.emit('feature-did-install', 'dedent', 'Dedent')
+			bus.emit('feature-did-enable', 'dedent', 'Dedent')
 		}.bind(this))
 		
 		bus.on('feature:blocks-alignment', function() {
-			bus.on('request:align-left', function() {
+			bus.on('action:align-left', function() {
 				align(editor, 'left')
 			}.bind(this))
-			bus.emit('feature-did-install', 'align-left', 'Align Left')
-			bus.on('request:align-right', function() {
+			bus.emit('feature-did-enable', 'align-left', 'Align Left')
+			bus.on('action:align-right', function() {
 				align(editor, 'right')
 			}.bind(this))
-			bus.emit('feature-did-install', 'align-right', 'Align Right')
-			bus.on('request:align-center', function() {
+			bus.emit('feature-did-enable', 'align-right', 'Align Right')
+			bus.on('action:align-center', function() {
 				align(editor, 'center')
 			}.bind(this))
-			bus.emit('feature-did-install', 'align-center', 'Align Center')
-			bus.on('request:align-justify', function() {
+			bus.emit('feature-did-enable', 'align-center', 'Align Center')
+			bus.on('action:align-justify', function() {
 				align(editor, 'justify')
 			}.bind(this))
-			bus.emit('feature-did-install', 'align-justified', 'Align Justify')
+			bus.emit('feature-did-enable', 'align-justified', 'Align Justify')
 		}.bind(this))
 		
 		bus.on('feature:atoms', function() {
@@ -484,10 +507,10 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:other', function() {
-			bus.on('request:validate', function() {
+			bus.on('action:validate', function() {
 				this.scanner.scan(document.querySelector('.content'))
 			}.bind(this))
-			bus.emit('feature-did-install', 'validate', 'Validate')
+			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
 				logger('system').log('selection-did-change')
 				document.querySelector('.structure-html').textContent = serialize(editor)

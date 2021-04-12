@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_mention_atoms(bus, editor, toolbar) {
 	
-	bus.on('request:atom-mention', function() {
+	bus.on('action:atom-mention', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="mention">
 				<span>@</span>

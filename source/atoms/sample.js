@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_sample_atoms(bus, editor, toolbar) {
 	
-	bus.on('request:atom-sample', function() {
+	bus.on('action:atom-sample', function() {
 		insert_atom(editor, `
 			<span class="atom" data-atom-type="sample">Atom</span>
 		`)

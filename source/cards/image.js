@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_image_cards(bus, editor, toolbar) {
 	
-	bus.on('request:card-image', function() {
+	bus.on('action:card-image', function() {
 		insert_card(editor, 'image', `
 			<div class="image-card">
 				<img src="images/cosmic.jpg">

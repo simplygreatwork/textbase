@@ -61,19 +61,19 @@ export class Editor {
 	
 	initialize_requests(bus) {
 		
-		bus.on('request-insert-character', function(event, interrupt) {
+		bus.on('action:insert-character', function(event, interrupt) {
 			this.insert_character(event)
 			if (event) event.preventDefault()
 			interrupt()
 		}.bind(this))
 		
-		bus.on('request-split-content', function(event, interrupt) {
+		bus.on('action:split-content', function(event, interrupt) {
 			this.split_content(a_block_element, event)
 			if (event) event.preventDefault()
 			interrupt()
 		}.bind(this))
 		
-		bus.on('request-delete', function(event, interrupt) {
+		bus.on('action:delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
@@ -82,7 +82,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		bus.on('request-delete', function(event, interrupt) {
+		bus.on('action:delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
@@ -91,7 +91,7 @@ export class Editor {
 			}
 		}.bind(this))
 		
-		bus.on('request-delete', function(event, interrupt) {
+		bus.on('action:delete', function(event, interrupt) {
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
@@ -121,7 +121,7 @@ export class Editor {
 	}
 	
 	request_to_insert_character(event) {
-		this.emit('request-insert-character', event)
+		this.emit('action:insert-character', event)
 	}
 	
 	insert_character(event) {
@@ -152,7 +152,7 @@ export class Editor {
 	}
 	
 	request_to_split_content(event) {
-		this.emit('request-split-content', event)
+		this.emit('action:split-content', event)
 	}
 	
 	split_content(limit) {
@@ -179,7 +179,7 @@ export class Editor {
 	
 	request_to_delete(event) {
 		
-		this.bus.emit('request-delete', event)
+		this.bus.emit('action:delete', event)
 	}
 	
 	can_delete_character(selection) {

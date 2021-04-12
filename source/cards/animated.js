@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize_animated_cards(bus, editor, toolbar) {
 	
-	bus.on('request:card-animated', function() {
+	bus.on('action:card-animated', function() {
 		insert_card(editor, 'animated', `
 			<div class="card"></div>
 		`)
