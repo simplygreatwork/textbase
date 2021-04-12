@@ -2,6 +2,7 @@
 import { get_selection, set_caret, selection_edge } from '../selection.js'
 import { a_text_node, an_element_node, element_iterator } from '../basics.js'
 import { find_previous_editable_text_node } from '../basics.js'
+import { event_consume } from '../basics.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -25,7 +26,7 @@ export function initialize_atoms(bus, editor, history) {
 	bus.unshift('action:split-content', function(event, interrupt) {
 		let selection = get_selection(this)
 		if (is_atom(selection.head.container) && is_atom(selection.tail.container)) {
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}
 	}.bind(this))
@@ -35,7 +36,7 @@ export function initialize_atoms(bus, editor, history) {
 		if (selection.range.collapsed) {
 			if (can_delete_atom(editor, selection)) {
 				delete_atom(editor, selection, history)
-				if (event) event.preventDefault()
+				event_consume(event)
 				interrupt()
 			}
 		}

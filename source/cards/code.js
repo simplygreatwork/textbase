@@ -46,6 +46,7 @@ export function initialize_code_cards(bus, editor, toolbar) {
 function disable_default_input_behavior(key, bus, editor) {
 	
 	bus.unshift(key, function(event, interrupt) {
+		
 		if (! is_code_card(editor)) return
 		if (! is_selection_inside_card_content(get_selection(editor))) return 
 		interrupt()

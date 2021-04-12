@@ -3,6 +3,7 @@ import { an_inline_element, a_block_element, find_previous_block, find_previous_
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { zero_width_whitespace } from '../basics.js'
 import { find_previous_editable_text_node } from '../basics.js'
+import { event_consume } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
 import { is_atom } from './atoms.js'
 import { Logger } from '../logger.js'
@@ -28,7 +29,7 @@ export function initialize_cards(bus, editor, history) {
 	bus.unshift('action:insert-character', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}
 	}.bind(this))
@@ -38,10 +39,10 @@ export function initialize_cards(bus, editor, history) {
 		if (is_selection_inside_card_container_caret(selection)) {
 			let container = find_card_container(selection)
 			insert_paragraph_after_card_container(container, editor)
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		} else if (is_card(selection.head.container) || is_card(selection.tail.container)) {
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}
 	}.bind(this))
@@ -50,7 +51,7 @@ export function initialize_cards(bus, editor, history) {
 		let selection = get_selection(editor)
 		if (can_delete_card(editor, selection)) {
 			delete_card(editor, selection, history)
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}
 	})

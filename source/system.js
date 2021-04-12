@@ -4,7 +4,7 @@ import { Editor } from './editor.js'
 import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
 import { Scanner } from './scanner.js'
-import { a_block_element } from './basics.js'
+import { a_block_element, event_consume } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
@@ -126,7 +126,7 @@ export class System {
 			}.bind(this))
 			
 			bus.on('keyup:backspace', function(event) {
-				event.preventDefault()
+				event_consume(event)
 			}.bind(this))
 			
 			bus.on('action:select-all', function(event) {
@@ -174,15 +174,15 @@ export class System {
 			bus.emit('feature-did-enable', 'redo', 'Redo')
 			
 			bus.on('keydown:control-b', function(event) {
-				event.preventDefault()
+				event_consume(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-i', function(event) {
-				event.preventDefault()
+				event_consume(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-u', function(event) {
-				event.preventDefault()
+				event_consume(event)
 			}.bind(this))
 			
 		}.bind(this))

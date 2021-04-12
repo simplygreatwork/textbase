@@ -4,6 +4,7 @@ import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, element_iterator, text_iterator } from './basics.js'
 import { is_editable_node, is_alphanumeric } from './basics.js'
 import { find_previous_inline_sibling, find_next_block } from './basics.js'
+import { event_consume } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -63,13 +64,13 @@ export class Editor {
 		
 		bus.on('action:insert-character', function(event, interrupt) {
 			this.insert_character(event)
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}.bind(this))
 		
 		bus.on('action:split-content', function(event, interrupt) {
 			this.split_content(a_block_element, event)
-			if (event) event.preventDefault()
+			event_consume(event)
 			interrupt()
 		}.bind(this))
 		
@@ -77,7 +78,7 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_character(selection)) {
 				this.delete_character(selection)
-				if (event) event.preventDefault()
+				event_consume(event)
 				interrupt()
 			}
 		}.bind(this))
@@ -86,7 +87,7 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_block(selection)) {
 				this.delete_block(selection)
-				if (event) event.preventDefault()
+				event_consume(event)
 				interrupt()
 			}
 		}.bind(this))
@@ -95,7 +96,7 @@ export class Editor {
 			let selection = get_selection(this)
 			if (this.can_delete_content(selection)) {
 				this.delete_content(selection)
-				if (event) event.preventDefault()
+				event_consume(event)
 				interrupt()
 			}
 		}.bind(this))
@@ -127,7 +128,7 @@ export class Editor {
 	insert_character(event) {
 		
 		logger('trace').log('insert_character')
-		if (event) event.preventDefault()
+		event_consume(event)
 		this.insert_string(event.key)
 	}
 	
