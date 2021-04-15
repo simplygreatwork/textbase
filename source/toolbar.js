@@ -22,9 +22,9 @@ export class Toolbar {
 				u(each).removeClass('active')
 			}.bind(this))
 			toolbar.find(`button[data-element=${active_block}]`).addClass('active')
-			active_formats.forEach(function(format) {
-				toolbar.find(`button[data-format=${format}]`).addClass('active')
-			})
+			// active_formats.forEach(function(format) {
+			// 	toolbar.find(`button[data-format=${format}]`).addClass('active')
+			// })
 		})
 	}
 	

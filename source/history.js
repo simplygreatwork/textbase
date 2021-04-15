@@ -167,10 +167,11 @@ export class History {
 		logger('history').log('--- PERFORM UNDO ---')
 		let added = []
 		let removed = []
+		let changed = []
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
 			switch (mutation.type) {
 				case 'characterData':
-					this.mutate_character_data(mutation, mutation.oldValue)
+					this.mutate_character_data(mutation, mutation.oldValue, changed)
 					break
 				case 'attributes':
 					this.mutate_attributes(mutation, mutation.oldValue)
@@ -180,7 +181,7 @@ export class History {
 					break
 			}
 		}.bind(this))
-		this.bus.emit('history-did-undo', added, removed)
+		this.bus.emit('history-did-undo', added, removed, changed)
 	}
 	
 	perform_redo(record) {
@@ -188,10 +189,11 @@ export class History {
 		logger('history').log('--- PERFORM REDO ---')
 		let added = []
 		let removed = []
+		let changed = []
 		record.mutations.forEach(function(mutation) {
 			switch (mutation.type) {
 				case 'characterData':
-					this.mutate_character_data(mutation, mutation.newValue)
+					this.mutate_character_data(mutation, mutation.newValue, changed)
 					break
 				case 'attributes':
 					this.mutate_attributes(mutation, mutation.newValue)
@@ -201,13 +203,14 @@ export class History {
 					break
 			}
 		}.bind(this))
-		this.bus.emit('history-did-redo', added, removed)
+		this.bus.emit('history-did-redo', added, removed, changed)
 	}
 	
-	mutate_character_data(mutation, value) {
+	mutate_character_data(mutation, value, changed) {
 		
 		logger('history').log(`Setting character data to "${value}" at mutation target's parent "${mutation.target.parentNode ? mutation.target.parentNode.outerHTML : null}"`)
 		mutation.target.textContent = value
+		changed.push(mutation.target)
 	}
 	
 	mutate_attributes(mutation, value) {

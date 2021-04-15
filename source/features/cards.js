@@ -3,7 +3,7 @@ import { an_inline_element, a_block_element, find_previous_block, find_previous_
 import { a_text_node, an_element_node, element_iterator, text_iterator } from '../basics.js'
 import { zero_width_whitespace } from '../basics.js'
 import { find_previous_editable_text_node } from '../basics.js'
-import { event_consume } from '../basics.js'
+import { consume_event } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
 import { is_atom } from './atoms.js'
 import { Logger } from '../logger.js'
@@ -26,10 +26,22 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
+	bus.on('document-will-serialize', function(document_) {
+		u(document_).find('[data-card-type]').each(function(container) {
+			dehydrate(container)
+		})
+	})
+	
+	bus.on('document-did-unserialize', function(document_) {
+		u(document_).find('[data-card-type]').each(function(container) {
+			hydrate(container)
+		})
+	})
+	
 	bus.unshift('action:insert-character', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
-			event_consume(event)
+			consume_event(event)
 			interrupt()
 		}
 	}.bind(this))
@@ -37,12 +49,12 @@ export function initialize_cards(bus, editor, history) {
 	bus.unshift('action:split-content', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) {
-			let container = find_card_container(selection)
+			let container = find_card_container(selection.head.container)
 			insert_paragraph_after_card_container(container, editor)
-			event_consume(event)
+			consume_event(event)
 			interrupt()
 		} else if (is_card(selection.head.container) || is_card(selection.tail.container)) {
-			event_consume(event)
+			consume_event(event)
 			interrupt()
 		}
 	}.bind(this))
@@ -51,7 +63,7 @@ export function initialize_cards(bus, editor, history) {
 		let selection = get_selection(editor)
 		if (can_delete_card(editor, selection)) {
 			delete_card(editor, selection, history)
-			event_consume(event)
+			consume_event(event)
 			interrupt()
 		}
 	})
@@ -153,7 +165,7 @@ export function insert_card(editor, type, string) {
 	let selection = get_selection(editor)
 	let sibling = null
 	if (is_selection_inside_card_container_caret(selection)) {
-		sibling = find_card_container(selection)
+		sibling = find_card_container(selection.head.container)
 	} else {
 		sibling = editor.split_content(a_block_element)[0]
 	}
@@ -188,7 +200,7 @@ export function can_delete_card(editor, selection) {
 	
 	logger('trace').log('can_delete_card')
 	if (! selection.range.collapsed) return false
-	if (is_selection_inside_card_container_caret(selection)) return find_card_container(selection)
+	if (is_selection_inside_card_container_caret(selection)) return find_card_container(selection.head.container)
 	if (selection.head.offset > 0) return false
 	let element = find_previous_element(editor.element, selection.head.container)
 	if (! element) return false
@@ -225,7 +237,7 @@ function batch_emit(key, nodes, bus) {
 	})
 }
 
-function each_card(top, begin, end, fn) {
+export function each_card(top, begin, end, fn) {
 	
 	let node = begin
 	let iterator = element_iterator(top, begin)
@@ -252,12 +264,21 @@ export function is_card(node) {
 	return false
 }
 
-export function find_card_container(selection) {
+export function find_card_container(node, type) {
 	
-	let node = u(selection.head.container)
+	let result = null
+	node = u(node)
 	if (node.is(a_text_node)) node = node.parent()
-	if (node.is(u('[data-card-type]'))) return node
-	return node.closest('[data-card-type]').first()
+	if (node.is('[data-card-type]')) {
+		result = node
+	} else {
+		let closest = node.closest('[data-card-type]')
+		if (closest) result = closest
+	}
+	if (type !== undefined) {
+		if (result.data('card-type') != type) result = null
+	}
+	return result ? result.first() : null
 }
 
 export function is_selection_inside_card_container_caret(selection) {
@@ -300,4 +321,19 @@ function disable_resize_observer(card) {
 	if (! container.observer_) return
 	container.observer_.unobserve(container)
 	container.observer_ = null
+}
+
+function hydrate(container) {
+	return
+}
+
+function dehydrate(container) {
+	
+	container = u(container)
+	let type = container.data('card-type')
+	let card = container.find('.card-content').clone()
+	card = u(card.html())
+	card.data('card-type', type)
+	container.after(card)
+	container.remove()
 }

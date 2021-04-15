@@ -15,7 +15,7 @@ export function initialize_hyperlinks(editor, bus) {
 
 export function detect_hyperlinks(editor, bus) {
 	
-	bus.on('keydown:space', function(event) {
+	bus.on('keydown:shift-space', function(event) {
 		logger('trace').log('detect_hyperlink keydown:space')
 	})
 }

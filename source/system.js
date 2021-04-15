@@ -3,8 +3,9 @@ import { Bus } from './bus.js'
 import { Editor } from './editor.js'
 import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
+import { Structure } from './structure.js'
 import { Scanner } from './scanner.js'
-import { a_block_element, event_consume } from './basics.js'
+import { a_block_element, consume_event } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
@@ -51,6 +52,7 @@ export class System {
 		this.editor = new Editor(this.bus, document.querySelector('.editor'))
 		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
+		this.structure = new Structure(this.bus, this.editor)
 		this.scanner = new Scanner(this.editor)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar)
 		this.enable_features(this.bus, features)
@@ -96,6 +98,7 @@ export class System {
 				logger('system').log('document-did-install')
 				this.history.enable()
 				this.scanner.scan(document.querySelector('.content'))
+				this.structure.render()
 			}.bind(this))
 			bus.on('document-did-uninstall', function(document_) {
 				logger('system').log('document-did-uninstall')
@@ -104,6 +107,11 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:basics', function() {
+			
+			bus.on('action:toggle-structure', function() {
+				this.structure.toggle()
+			}.bind(this))
+			bus.emit('feature-did-enable', 'toggle-structure', 'Toggle Structure')
 			
 			if (false) {
 				toolbar.append(`<button data-action="hyperlink">Link</button>`)
@@ -128,7 +136,7 @@ export class System {
 			}.bind(this))
 			
 			bus.on('keyup:backspace', function(event) {
-				event_consume(event)
+				consume_event(event)
 			}.bind(this))
 			
 			bus.on('action:select-all', function(event) {
@@ -176,15 +184,15 @@ export class System {
 			bus.emit('feature-did-enable', 'redo', 'Redo')
 			
 			bus.on('keydown:control-b', function(event) {
-				event_consume(event)
+				consume_event(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-i', function(event) {
-				event_consume(event)
+				consume_event(event)
 			}.bind(this))
 			
 			bus.on('keydown:control-u', function(event) {
-				event_consume(event)
+				consume_event(event)
 			}.bind(this))
 			
 		}.bind(this))
@@ -515,12 +523,12 @@ export class System {
 			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
 				logger('system').log('selection-did-change')
-				document.querySelector('.structure-html').textContent = serialize(editor)
+				this.structure.render()
 			}.bind(this))
 			bus.on('content-did-change', function(begin, end) {
 				logger('system').log('content-did-change')
 				this.scanner.scan(begin, end)
-				document.querySelector('.structure-html').textContent = serialize(editor)
+				this.structure.render()
 			}.bind(this))
 			bus.on('content-did-insert', function() {
 				logger('system').log('content-did-insert')
@@ -541,6 +549,8 @@ export class System {
 	install_document(document_) {
 		
 		this.document_ = document_
+		// this.bus.emit('document-did-unserialize', document_)
+		this.bus.emit('document-will-install', document_)
 		u('.content').empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
 	}

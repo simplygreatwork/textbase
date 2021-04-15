@@ -7,9 +7,13 @@ const logger = Logger()
 export function serialize(editor) {
 	
 	logger('trace').log('serialize')
+	let bus = editor.bus
 	let result = []
 	let selection = get_selection(editor)
-	serialize_(selection, u(editor.element), [], result)
+	u.prototype.mirror.events = false
+	let document_ = u(editor.element).clone()
+	bus.emit('document-will-serialize', document_)
+	serialize_(selection, document_, [], result)
 	return result.join('')
 }
 
