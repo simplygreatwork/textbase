@@ -6,6 +6,7 @@ import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
 import { is_selection_inside_card_content } from '../features/cards.js'
+import { inject_css, get_placeholder_code } from './code-support.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -53,12 +54,28 @@ export function initialize_code_cards(bus, editor, toolbar) {
 		interrupt()
 	})
 	
-	bus.unshift('action:split-content', function(event, interrupt) {
+	bus.unshift('keydown:space', function(event, interrupt) {
+		if (! is_selection_inside_code_card_content(editor)) return
+		editor.insert_character(event)
+		let selection = get_selection(editor)
+		let container = find_card_container(selection.head.container, 'code')
+		bus.emit('content-did-change', container, container)
+		consume_event(event)
+		interrupt()
+	})
+	
+	bus.unshift('keydown:enter', function(event, interrupt) {
 		if (! is_selection_inside_code_card_content(editor)) return
 		editor.insert_string('\n')
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
 		bus.emit('content-did-change', container, container)
+		consume_event(event)
+		interrupt()
+	})
+	
+	bus.unshift('action:split-content', function(event, interrupt) {
+		if (! is_selection_inside_code_card_content(editor)) return
 		consume_event(event)
 		interrupt()
 	})
@@ -119,6 +136,16 @@ export function initialize_code_cards(bus, editor, toolbar) {
 		})
 	})
 	
+	bus.unshift('clipboard-paste', function(event, editor, interrupt) {
+		if (! is_selection_inside_code_card_content(editor)) return
+		let selection = get_selection(editor)
+		let container = find_card_container(selection.head.container, 'code')
+		setTimeout(function() {
+			render(container)
+		})
+		interrupt()
+	})
+	
 	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }
 
@@ -156,53 +183,4 @@ function hydrate(container) {
 
 function dehydrate(container) {
 	u(container).find('.code-highlighted').remove()
-}
-
-function inject_css() {
-	
-	let style = document.createElement('style')
-	style.type = 'text/css'
-	style.innerHTML = `
-		.code-card {
-			position: relative;
-			font-size:110%;
-			font-weight:700;
-			color:white;
-			background:black;
-			border-radius:8px;
-			tab-size:2;
-		}
-		.code-source {
-			position: absolute;
-			z-index: 0;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			border:1px solid black;
-			border-radius:8px;
-			background:rgba(0,0,0,0);
-			color:rgba(0,0,0,0);
-			caret-color: white;
-		}
-		.code-highlighted {
-			z-index: 1;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			border:1px solid black;
-			border-radius:8px;
-			pointer-events:none;
-		}
-	`
-	document.querySelector('head').appendChild(style)
-}
-
-function get_placeholder_code() {
-return `bus.on('content-did-split', function(a, b) {
-	if (block_has_content(a)) return
-	if (block_has_content(b)) return
-	transform_block(editor, b, 'p')
-}.bind(this))`
 }

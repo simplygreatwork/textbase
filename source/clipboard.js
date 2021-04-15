@@ -9,58 +9,65 @@ const logger = Logger()
 
 export function initialize_clipboard(editor) {
 	
+	let bus = editor.bus
 	let target = editor.element
+	
 	target.addEventListener('cut', function(event) {
-		cut(event, editor)
+		bus.emit('clipboard-will-cut', event, editor)
+		bus.emit('clipboard-cut', event, editor)
+		bus.emit('clipboard-did-cut', event, editor)
 	})
+	
 	target.addEventListener('copy', function(event) {
-		copy(event, editor)
+		bus.emit('clipboard-will-copy', event, editor)
+		bus.emit('clipboard-copy', event, editor)
+		bus.emit('clipboard-did-copy', event, editor)
 	})
+	
 	target.addEventListener('paste', function(event) {
-		paste(event, editor)
+		bus.emit('clipboard-will-paste', event, editor)
+		bus.emit('clipboard-paste', event, editor)
+		bus.emit('clipboard-did-paste', event, editor)
 	})
-}
-
-export function cut(event, editor) {
 	
-	logger('trace').log('event:cut')
-	event.preventDefault()
-	let selection = get_selection(editor)
-	if (selection == null) return
-	let range = selection.range
-	let fragment = range.extractContents()
-	let clip = document.createElement('internal-transfer')
-	clip.appendChild(fragment.cloneNode(true))
-	let content = clip.outerHTML
-	logger('trace').log('cut content: ' + content)
-	event.clipboardData.setData('text/html', content)
-}
-
-export function copy(event, editor) {
+	bus.on('clipboard-cut', function(event, editor) {
+		logger('trace').log('event:cut')
+		event.preventDefault()
+		let selection = get_selection(editor)
+		if (selection == null) return
+		let range = selection.range
+		let fragment = range.extractContents()
+		let clip = document.createElement('internal-transfer')
+		clip.appendChild(fragment.cloneNode(true))
+		let content = clip.outerHTML
+		logger('trace').log('cut content: ' + content)
+		event.clipboardData.setData('text/html', content)
+	}.bind(this))
 	
-	logger('trace').log('event:copy')
-	event.preventDefault()
-	let selection = get_selection(editor)
-	if (selection == null) return
-	let range = selection.range
-	let fragment = range.cloneContents()
-	let clip = document.createElement('internal-transfer')
-	clip.appendChild(fragment.cloneNode(true))
-	let content = clip.outerHTML
-	logger('trace').log('copy content: ' + content)
-	event.clipboardData.setData('text/html', content)
-}
-
-export function paste(event, editor) {  	//todo: need to edge selection
+	bus.on('clipboard-copy', function(event, editor) {
+		logger('trace').log('event:copy')
+		event.preventDefault()
+		let selection = get_selection(editor)
+		if (selection == null) return
+		let range = selection.range
+		let fragment = range.cloneContents()
+		let clip = document.createElement('internal-transfer')
+		clip.appendChild(fragment.cloneNode(true))
+		let content = clip.outerHTML
+		logger('trace').log('copy content: ' + content)
+		event.clipboardData.setData('text/html', content)
+	}.bind(this))
 	
-	logger('trace').log('event:paste')
-	event.preventDefault()
-	let clipboard_data = (event.clipboardData || window.clipboardData)
-	let content = clipboard_data.getData('text/html')
-	logger('trace').log('paste content: ' + content)
-	if (is_internal_transfer(content)) {
-		paste_internally(content, editor)
-	}
+	bus.on('clipboard-paste', function(event, editor) {		// todo: need to edge selection
+		logger('trace').log('event:paste')
+		event.preventDefault()
+		let clipboard_data = (event.clipboardData || window.clipboardData)
+		let content = clipboard_data.getData('text/html')
+		logger('trace').log('paste content: ' + content)
+		if (is_internal_transfer(content)) {
+			paste_internally(content, editor)
+		}
+	}.bind(this))
 }
 
 function paste_internally(content, editor) {

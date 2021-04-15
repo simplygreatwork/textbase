@@ -12,6 +12,14 @@ const logger = Logger()
 
 export function initialize_cards(bus, editor, history) {
 	
+	bus.on('document-will-install', function(document_) {
+		let content = u(`<div>${document_.content}</div>`)
+		content.find('[data-card-type]').each(function(card) {
+			hydrate(card)
+		})
+		document_.content = content.first().innerHTML
+	}.bind(this))
+	
 	bus.on('document-did-install', function(document_) {
 		each_card(editor.element, editor.element, null, function(card, type) {
 			bus.emit('card-will-enter', card, type)
@@ -323,8 +331,14 @@ function disable_resize_observer(card) {
 	container.observer_ = null
 }
 
-function hydrate(container) {
-	return
+function hydrate(card) {
+	
+	card = u(card)
+	let type = card.data('card-type')
+	card.first().removeAttribute('data-card-type')
+	let container = create_container(card.clone(), type)
+	card.after(container)
+	card.remove()
 }
 
 function dehydrate(container) {
