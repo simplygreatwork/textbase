@@ -21,10 +21,10 @@ export class Toolbar {
 			toolbar.find('button').each(function(each) {
 				u(each).removeClass('active')
 			}.bind(this))
-			toolbar.find(`button[data-element=${active_block}]`).addClass('active')
-			// active_formats.forEach(function(format) {
-			// 	toolbar.find(`button[data-format=${format}]`).addClass('active')
-			// })
+			toolbar.find(`button[data-block=${active_block}]`).addClass('active')
+			active_formats.forEach(function(format) {
+				toolbar.find(`button[data-format=${format}]`).addClass('active')
+			})
 		})
 	}
 	

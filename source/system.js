@@ -88,8 +88,10 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:toolbar', function() {
-			bus.on('feature-did-enable', function(name, label) {
-				toolbar.append(`<button data-action="${name}">${label}</button>`)
+			bus.on('feature-did-enable', function(name, label, kind, value) {
+				let element = u(`<button data-action="${name}">${label}</button>`)
+				if (kind) element.data(kind, value)
+				toolbar.append(element.first())
 			}.bind(this))
 		}.bind(this))
 		
@@ -331,7 +333,7 @@ export class System {
 				bus.emit('action:strong', event)
 				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-enable', 'strong', 'Strong')
+			bus.emit('feature-did-enable', 'strong', 'Strong', 'format', 'strong')
 		}.bind(this))
 		
 		bus.on('feature:format-emphasis', function() {
@@ -342,7 +344,7 @@ export class System {
 				bus.emit('action:emphasis', event)
 				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-enable', 'emphasis', 'Emphasis')
+			bus.emit('feature-did-enable', 'emphasis', 'Emphasis', 'format', 'emphasis')
 		}.bind(this))
 		
 		bus.on('feature:format-underline', function() {
@@ -353,21 +355,21 @@ export class System {
 				bus.emit('action:underline', event)
 				interrupt()
 			}.bind(this))
-			bus.emit('feature-did-enable', 'underline', 'Underline')
+			bus.emit('feature-did-enable', 'underline', 'Underline', 'format', 'underline')
 		}.bind(this))
 		
 		bus.on('feature:format-strikethrough', function() {
 			bus.on('action:strikethrough', function() {
 				toggle_format(editor, 'strikethrough')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough')
+			bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough', 'format', 'strikethrough')
 		}.bind(this))
 		
 		bus.on('feature:format-highlight', function() {
 			bus.on('action:highlight', function() {
 				toggle_format(editor, 'highlight')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'highlight', 'Highlight')
+			bus.emit('feature-did-enable', 'highlight', 'Highlight', 'format', 'highlight')
 		}.bind(this))
 		
 		bus.on('feature:format-clear', function() {
@@ -404,49 +406,49 @@ export class System {
 			bus.on('action:paragraph', function() {
 				toggle_block(editor, 'p')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'paragraph', 'Paragraph')
+			bus.emit('feature-did-enable', 'paragraph', 'Paragraph', 'block', 'p')
 		}.bind(this))
 		
 		bus.on('feature:blocks-heading-1', function() {
 			bus.on('action:heading-1', function() {
 				toggle_block(editor, 'h1')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'heading-1', 'Heading 1')
+			bus.emit('feature-did-enable', 'heading-1', 'Heading 1', 'block', 'h1')
 		}.bind(this))
 		
 		bus.on('feature:blocks-heading-2', function() {
 			bus.on('action:heading-2', function() {
 				toggle_block(editor, 'h2')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'heading-2', 'Heading 2')
+			bus.emit('feature-did-enable', 'heading-2', 'Heading 2', 'block', 'h2')
 		}.bind(this))
 		
 		bus.on('feature:blocks-list-item', function() {
 			bus.on('action:list-item', function() {
 				toggle_block(editor, 'li')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'list-item', 'List Item')
+			bus.emit('feature-did-enable', 'list-item', 'List Item', 'block', 'li')
 		}.bind(this))
 		
 		bus.on('feature:blocks-ordered-list', function() {
 			bus.on('action:ordered-list', function() {
 				toggle_block(editor, 'ol')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'ordered-list', 'Ordered List')
+			bus.emit('feature-did-enable', 'ordered-list', 'Ordered List', 'block', 'ol')
 		}.bind(this))
 		
 		bus.on('feature:blocks-unordered-list', function() {
 			bus.on('action:unordered-list', function() {
 				toggle_block(editor, 'ul')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'unordered-list', 'Unordered List')
+			bus.emit('feature-did-enable', 'unordered-list', 'Unordered List', 'block', 'ul')
 		}.bind(this))
 		
 		bus.on('feature:blocks-blockquote', function() {
 			bus.on('action:blockquote', function() {
 				toggle_block(editor, 'blockquote')
 			}.bind(this))
-			bus.emit('feature-did-enable', 'blockquote', 'Blockquote')
+			bus.emit('feature-did-enable', 'blockquote', 'Blockquote', 'block', 'blockquote')
 		}.bind(this))
 		
 		bus.on('feature:blocks-indentation', function() {

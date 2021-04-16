@@ -151,7 +151,7 @@ export function initialize_cards(bus, editor, history) {
 	bus.on('card-did-enter', function(container) {
 		enable_resize_observer(container)
 	})
-
+	
 	bus.on('card-will-exit', function(container) {
 		disable_resize_observer(container)
 	})
