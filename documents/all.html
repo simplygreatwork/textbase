@@ -19,6 +19,11 @@
 <p><span>paragraph 3</span></p>
 <p><span>paragraph 4</span></p>
 <p><span>paragraph 5</span></p>
+<div class="code-card" data-card-type="code"><div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+	if (block_has_content(a)) return
+	if (block_has_content(b)) return
+	transform_block(editor, b, 'p')
+}.bind(this))</code></pre></div></div>
 <p><span>paragraph 6</span></p>
 <div data-card-type="animated" class="card">Animated Card: 0.5870276973571691</div>
 <p><span>A paragraph with an</span><span data-atom-type="animated" class="atom" contenteditable="false">Animated atom: 0.15557748125354842</span><span>inside of it.</span></p>

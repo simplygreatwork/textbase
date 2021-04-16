@@ -15,7 +15,9 @@ export function initialize_cards(bus, editor, history) {
 	bus.on('document-will-install', function(document_) {
 		let content = u(`<div>${document_.content}</div>`)
 		content.find('[data-card-type]').each(function(card) {
-			hydrate(card)
+			let type = u(card).data('card-type')
+			bus.emit(`card-will-deserialize:${type}`, card)
+			bus.emit(`card-will-deserialize`, card)
 		})
 		document_.content = content.first().innerHTML
 	}.bind(this))
@@ -26,13 +28,6 @@ export function initialize_cards(bus, editor, history) {
 			bus.emit('card-did-enter', card, type)
 		})
 	}.bind(this))
-	
-	bus.on('document-did-uninstall', function(document_) {
-		each_card(editor.element, editor.element, null, function(card, type) {
-			bus.emit('card-will-exit', card, type)
-			bus.emit('card-did-exit', card, type)
-		})
-	})
 	
 	bus.on('document-will-serialize', function(document_) {
 		u(document_).find('[data-card-type]').each(function(container) {
@@ -103,6 +98,14 @@ export function initialize_cards(bus, editor, history) {
 			bus.emit('card-will-exit', card, type)
 		})
 	})
+	
+	bus.on('card-will-serialize', function(card) {
+		dehydrate(find_card_container(card))
+	}.bind(this))
+	
+	bus.on('card-will-deserialize', function(card) {
+		hydrate(card)
+	}.bind(this))
 	
 	bus.on('card-will-enter', function(card, type) {
 		bus.emit(`card-will-enter:${type}`, card)

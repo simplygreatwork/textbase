@@ -25,8 +25,17 @@ export function initialize_code_cards(bus, editor) {
 		`)
 	}.bind(this))
 	
+	bus.on('card-will-serialize:code', function(card) {
+		dehydrate(find_card_container(card, 'code'))
+	}.bind(this))
+	
+	bus.on('card-will-deserialize:code', function(card) {
+		hydrate(card)
+	}.bind(this))
+	
 	bus.on('card-will-enter:code', function(card) {
-		return
+		let container = find_card_container(card, 'code')
+		render(container)
 	}.bind(this))
 	
 	bus.on('card-did-enter:code', function(card) {
@@ -130,12 +139,6 @@ export function initialize_code_cards(bus, editor) {
 		})
 	})
 	
-	bus.on('document-did-unserialize', function(document_) {
-		u(document_).find('[data-card-type="code"]').each(function(container) {
-			hydrate(container)
-		})
-	})
-	
 	bus.unshift('clipboard-paste', function(event, editor, interrupt) {
 		if (! is_selection_inside_code_card_content(editor)) return
 		let selection = get_selection(editor)
@@ -177,8 +180,8 @@ function render(container) {
 	}
 }
 
-function hydrate(container) {
-	u(container).find('.code-source').after('<div class="code-highlighted"><pre><code></code></pre></div>')
+function hydrate(card) {
+	u(card).find('.code-source').after('<div class="code-highlighted"><pre><code></code></pre></div>')
 }
 
 function dehydrate(container) {
