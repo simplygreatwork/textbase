@@ -133,6 +133,14 @@ export function initialize_code_cards(bus, editor) {
 		})
 	}.bind(this))
 	
+	bus.on('clipboard-cut', function(event, editor, interrupt) {
+		let selection = get_selection(editor)
+		if (selection == null) return
+		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
+		consume_event(event)
+		interrupt()
+	}.bind(this))
+
 	bus.on('clipboard-copy', function(event, editor, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
@@ -147,7 +155,6 @@ export function initialize_code_cards(bus, editor) {
 		let container = find_card_container(selection.head.container, 'code')
 		let clipboard_data = (event.clipboardData || window.clipboardData)
 		let content = clipboard_data.getData('text/plain')
-		console.log('content: ' + content)
 		editor.insert_string(content)
 		setTimeout(function() {
 			render(container)
