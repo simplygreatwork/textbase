@@ -286,7 +286,6 @@ export class System {
 			bus.on('clipboard-did-paste', function() {
 				logger('system').log('clipboard-did-paste')
 			})
-			
 		}.bind(this))
 		
 		bus.on('feature:formats', function() {
