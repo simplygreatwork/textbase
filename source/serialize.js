@@ -1,4 +1,5 @@
 
+import { a_text_node } from './basics.js'
 import { get_selection } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -10,11 +11,22 @@ export function serialize(editor) {
 	let bus = editor.bus
 	let result = []
 	let selection = get_selection(editor)
-	u.prototype.mirror.events = false
-	let document_ = u(editor.element).clone()
-	bus.emit('document-will-serialize', document_)
-	serialize_(selection, document_, [], result)
+	let content = u(editor.element)
+	content = clone(content, selection)
+	bus.emit('document-will-serialize', content)
+	serialize_(selection, content, [], result)
 	return result.join('')
+}
+
+function clone(content, selection) {
+	
+	return content.clone({
+		map_selections: function(src, dest) {
+			if (! selection) return
+			if (selection.head.container == src.firstChild) selection.head.container = dest.firstChild
+			if (selection.tail.container == src.firstChild) selection.tail.container = dest.firstChild
+		}
+	})
 }
 
 export function serialize_(selection, node, level, result) {

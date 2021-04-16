@@ -549,7 +549,6 @@ export class System {
 	install_document(document_) {
 		
 		this.document_ = document_
-		// this.bus.emit('document-did-unserialize', document_)
 		this.bus.emit('document-will-install', document_)
 		u('.content').empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
