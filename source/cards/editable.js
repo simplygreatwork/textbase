@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_editable_cards(bus, editor, toolbar) {
+export function initialize_editable_cards(bus, editor) {
 	
 	bus.on('action:card-editable', function() {
 		insert_card(editor, 'editable', `

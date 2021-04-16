@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_design_block_cards(bus, editor, toolbar) {
+export function initialize_design_block_cards(bus, editor) {
 	
 	let style = document.createElement('style')
 	style.type = 'text/css'

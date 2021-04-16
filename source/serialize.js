@@ -1,5 +1,6 @@
 
-import { a_text_node } from './basics.js'
+import { an_element_node, a_text_node } from './basics.js'
+import { an_inline_element } from './basics.js'
 import { get_selection } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -15,6 +16,7 @@ export function serialize(editor) {
 	content = clone(content, selection)
 	bus.emit('document-will-serialize', content)
 	serialize_(selection, content, [], result)
+	bus.emit('document-did-serialize', content)
 	return result.join('')
 }
 
@@ -33,13 +35,13 @@ export function serialize_(selection, node, level, result) {
 	
 	level.push('\t')
 	node.contents().each(function(each) {
-		if (each.nodeType === 1) {
-			let tag = each.tagName.toLowerCase()
+		if (u(each).is(an_element_node)) {
 			if (selection && selection.range) {
 				if (each == selection.tail.container) result.push(']')
 				if (each == selection.head.container) result.push('[')
 			}
-			if (tag == 'span') {
+			let tag = each.tagName.toLowerCase()
+			if (u(each).is(an_inline_element)) {
 				result.push(`${serialize_tag_head(each)}`)
 				serialize_(selection, u(each), level, result)
 				result.push(`</${tag}>`)
@@ -50,23 +52,26 @@ export function serialize_(selection, node, level, result) {
 				let tail = serialize_tag_tail(tag)
 				if (tail) result.push(tail)
 			}
-		} else if (each.nodeType === 3) {
+		} else if (u(each).is(a_text_node)) {
 			let text = u(each).text()
 			if (selection && selection.range) {
-				if (each == selection.tail.container) {
-					let offset = selection.tail.offset
-					text = text.substring(0, offset) + ']' + text.substring(offset)
-				}
-				if (each == selection.head.container) {
-					let offset = selection.head.offset
-					text = text.substring(0, offset) + '[' + text.substring(offset)
-				}
+				text = render_text_node_selection(text, each, selection.tail, ']')
+				text = render_text_node_selection(text, each, selection.head, '[')
 			}
 			text = text.trim()
 			if (text.length > 0) result.push(text.trim())
 		}
 	}.bind(this))
 	level.pop()
+}
+
+function render_text_node_selection(text, node, part, character) {
+	
+	if (node == part.container) {
+		let offset = part.offset
+		return text.substring(0, offset) + character + text.substring(offset)
+	}
+	return text
 }
 
 export function serialize_tag_head(node) {

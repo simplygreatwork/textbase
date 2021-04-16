@@ -11,7 +11,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_code_cards(bus, editor, toolbar) {
+export function initialize_code_cards(bus, editor) {
 	
 	bus.on('action:card-code', function() {
 		
