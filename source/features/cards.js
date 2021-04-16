@@ -31,14 +31,14 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.on('document-will-serialize', function(document_) {
 		u(document_).find('[data-card-type]').each(function(container) {
-			dehydrate(container)
+			let type = u(container).data('card-type')
+			bus.emit(`card-will-serialize:${type}`, container)
+			bus.emit(`card-will-serialize`, container)
 		})
 	})
 	
 	bus.on('document-did-unserialize', function(document_) {
-		u(document_).find('[data-card-type]').each(function(container) {
-			hydrate(container)
-		})
+		return
 	})
 	
 	bus.unshift('action:insert-character', function(event, interrupt) {
@@ -99,8 +99,8 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
-	bus.on('card-will-serialize', function(card) {
-		dehydrate(find_card_container(card))
+	bus.on('card-will-serialize', function(container) {
+		dehydrate(container)
 	}.bind(this))
 	
 	bus.on('card-will-deserialize', function(card) {
@@ -315,25 +315,6 @@ function insert_paragraph_after_card_container(node, editor) {
 	editor.emit('content-did-change', paragraph, paragraph)
 }
 
-function enable_resize_observer(card) {
-	
-	let container = u(card).closest('[data-card-type]').first()
-	container.observer_ = new ResizeObserver(function(entries) {
-		let height = container.clientHeight - 50
-		if (height > 200) height = 200
-		u(container).find('.card-caret').first().style.fontSize = `${height}px`			// revisit: defensively debounce
-	})
-	container.observer_.observe(container)
-}
-
-function disable_resize_observer(card) {
-	
-	let container = u(card).closest('[data-card-type]').first()
-	if (! container.observer_) return
-	container.observer_.unobserve(container)
-	container.observer_ = null
-}
-
 function hydrate(card) {
 	
 	card = u(card)
@@ -353,4 +334,23 @@ function dehydrate(container) {
 	card.data('card-type', type)
 	container.after(card)
 	container.remove()
+}
+
+function enable_resize_observer(card) {
+	
+	let container = u(card).closest('[data-card-type]').first()
+	container.observer_ = new ResizeObserver(function(entries) {
+		let height = container.clientHeight - 50
+		if (height > 200) height = 200
+		u(container).find('.card-caret').first().style.fontSize = `${height}px`			// revisit: defensively debounce
+	})
+	container.observer_.observe(container)
+}
+
+function disable_resize_observer(card) {
+	
+	let container = u(card).closest('[data-card-type]').first()
+	if (! container.observer_) return
+	container.observer_.unobserve(container)
+	container.observer_ = null
 }
