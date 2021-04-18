@@ -56,6 +56,7 @@ export function initialize_clipboard(editor) {
 		let content = clip.outerHTML
 		logger('trace').log('copy content: ' + content)
 		event.clipboardData.setData('text/html', content)
+		event.clipboardData.setData('text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-paste', function(event, editor) {		// todo: need to edge selection

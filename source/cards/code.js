@@ -34,8 +34,7 @@ export function initialize_code_cards(bus, editor) {
 	}.bind(this))
 	
 	bus.on('card-will-enter:code', function(card) {
-		let container = find_card_container(card, 'code')
-		render(container)
+		render(find_card_container(card, 'code'))
 	}.bind(this))
 	
 	bus.on('card-did-enter:code', function(card) {
@@ -154,16 +153,20 @@ export function initialize_code_cards(bus, editor) {
 	bus.unshift('clipboard-paste', function(event, editor, interrupt) {
 		if (! is_selection_inside_code_card_content(editor)) return
 		let selection = get_selection(editor)
+		if (selection == null) return
 		let container = find_card_container(selection.head.container, 'code')
 		let clipboard_data = (event.clipboardData || window.clipboardData)
 		let content = clipboard_data.getData('text/plain')
 		editor.insert_string(content)
-		setTimeout(function() {
-			render(container)
-		})
+		render(container)
 		consume_event(event)
 		interrupt()
 	})
+	
+	bus.on('selection-did-change', function(event, editor) {
+		if (is_selection_inside_code_card_content(editor)) bus.contexts.add('card-code')
+		else bus.contexts.delete('card-code')
+	}.bind(this))
 	
 	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }

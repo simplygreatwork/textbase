@@ -3,6 +3,25 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
+// when creating a bus, call: this.bus = Bus.create().context('main')
+// or internally Bus.create can return bus.context('main')
+// never pass a context to emit
+// but when emitting, cycle thrugh active contexts of the set
+// context('code-card') is simply sugar
+// so then every function will expect a context
+// if you happen to call bus.context('code-card').emit() - will emit to all anyway?
+
+// actually: bus.on('select', fn, 'context')
+// actually: bus.unshift('select', fn, 'context')
+
+// let bus = Bus.create()
+// bus.on('card-did-enter', function() {})
+// bus.on('card-did-enter', function() {}, 'card-code')
+// bus.context('card-code').on('card-did-enter', function() {})
+// bus.contexts.add('card-code')
+// bus.context('card-code').emit('card-did-enter', ...)
+// bus.contexts.delete('card-code')
+
 export class Bus {
 	
 	constructor() {
@@ -25,7 +44,7 @@ export class Bus {
 		}.bind(this)
 	}
 	
-	unshift(key, fn, context) {
+	unshift(key, func, context) {
 		
 		context = context || 'main'
 		this.channels = this.channels || {}
@@ -44,14 +63,14 @@ export class Bus {
 		let arguments_ = Array.from(arguments)
 		arguments_ = arguments_.splice(1)
 		arguments_.push(this.interruptable(state))
-		this.iterate(key, state, function(fn) {
+		iterate(key, state, function(fn) {
 			fn.apply(this, arguments_)
 		}.bind(this))
 	}
 	
 	iterate(key, state, fn) {
 		
-		Array.from(this.contexts).forEach(function(context) {
+		Array.fromArray(this.contexts).forEach(function(context) {
 			if (! this.channels[context]) return 
 			if (! this.channels[context][key]) return 
 			this.channels[context][key].forEach(function(fn_) {
