@@ -52,8 +52,8 @@ export function initialize_code_cards(bus, editor) {
 	disable_default_input_behavior('action:caret-right', bus, editor)
 	disable_default_input_behavior('action:caret-left', bus, editor)
 	
-	bus.unshift('action:insert-character', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	let context = bus.context('card-code')
+	context.unshift('action:insert-character', function(event, interrupt) {
 		editor.insert_character(event)
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
@@ -62,8 +62,7 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	bus.unshift('keydown:space', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('keydown:space', function(event, interrupt) {
 		editor.insert_character(event)
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
@@ -72,8 +71,7 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	bus.unshift('keydown:enter', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('keydown:enter', function(event, interrupt) {
 		editor.insert_string('\n')
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
@@ -82,14 +80,12 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	bus.unshift('action:split-content', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('action:split-content', function(event, interrupt) {
 		consume_event(event)
 		interrupt()
 	})
 	
-	bus.unshift('action:delete', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('action:delete', function(event, interrupt) {
 		editor.delete_character(get_selection(editor))
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
@@ -98,42 +94,47 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	bus.unshift('action:select-all', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('action:select-all', function(event, interrupt) {
 		consume_event(event)
 		interrupt()
 	})
 	
-	bus.unshift('action:indent', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('action:indent', function(event, interrupt) {
 		consume_event(event)
 		interrupt()
 	})
 	
-	bus.unshift('action:dedent', function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.unshift('action:dedent', function(event, interrupt) {
 		consume_event(event)
 		interrupt()
 	})
 	
-	bus.on('content-did-change', function(head, tail) {
+	context.on('content-did-change', function(head, tail) {
 		render(find_card_container(head, 'code'))
 	}.bind(this))
 	
-	bus.on('history-did-undo', function(added, removed, changed) {
+	context.on('history-did-undo', function(added, removed, changed) {
 		changed.forEach(function(node) {
 			render(find_card_container(node, 'code'))
 		})
 	}.bind(this))
 	
-	bus.on('history-did-redo', function(added, removed, changed) {
+	context.on('history-did-redo', function(added, removed, changed) {
 		changed.forEach(function(node) {
 			render(find_card_container(node, 'code'))
 		})
 	}.bind(this))
 	
-	bus.on('clipboard-cut', function(event, editor, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	context.on('clipboard-cut', function(event, editor, interrupt) {
+		let selection = get_selection(editor)
+		if (selection == null) return
+		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
+		render(find_card_container(selection.head.container, 'code'))
+		consume_event(event)
+		interrupt()
+	}.bind(this))
+	
+	context.on('clipboard-copy', function(event, editor, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
 		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
@@ -141,24 +142,14 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	}.bind(this))
 	
-	bus.on('clipboard-copy', function(event, editor, interrupt) {
+	context.unshift('clipboard-paste', function(event, editor, interrupt) {
 		if (! is_selection_inside_code_card_content(editor)) return
 		let selection = get_selection(editor)
 		if (selection == null) return
-		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
-		consume_event(event)
-		interrupt()
-	}.bind(this))
-	
-	bus.unshift('clipboard-paste', function(event, editor, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
-		let selection = get_selection(editor)
-		if (selection == null) return
-		let container = find_card_container(selection.head.container, 'code')
 		let clipboard_data = (event.clipboardData || window.clipboardData)
 		let content = clipboard_data.getData('text/plain')
 		editor.insert_string(content)
-		render(container)
+		render(find_card_container(selection.head.container, 'code'))
 		consume_event(event)
 		interrupt()
 	})

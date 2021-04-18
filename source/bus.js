@@ -51,7 +51,7 @@ export class Bus {
 	
 	iterate(key, state, fn) {
 		
-		Array.from(this.contexts).forEach(function(context) {
+		Array.from(this.contexts).reverse().forEach(function(context) {
 			if (! this.channels[context]) return 
 			if (! this.channels[context][key]) return 
 			this.channels[context][key].forEach(function(fn_) {
@@ -86,7 +86,7 @@ export class Bus {
 		
 		return {
 			on: (key, fn) => this.on(key, fn, context_),
-			unshift: (key) => this.unshift(key, fn, context_),
+			unshift: (key, fn) => this.unshift(key, fn, context_),
 			emit: (key) => this.emit(...arguments),
 			replace: (key, index, fn) => this.replace(key, index, fn, context_),
 			remap: (from, to) => this.remap(from, to, context_)
