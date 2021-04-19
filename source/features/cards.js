@@ -37,26 +37,30 @@ export function initialize_cards(bus, editor, history) {
 		})
 	})
 	
-	bus.on('document-did-unserialize', function(document_) {
-		return
-	})
-	
-	bus.unshift('action:insert-character', function(event, interrupt) {
+	bus.on('selection-did-change', function(event, editor) {
 		let selection = get_selection(editor)
-		if (is_selection_inside_card_container_caret(selection)) {
-			consume_event(event)
-			interrupt()
-		}
+		if (is_selection_inside_card_container_caret(selection)) bus.contexts.add('card-caret')
+		else bus.contexts.delete('card-caret')
+	}.bind(this))
+	
+	let context = bus.context('card-caret')
+	context.unshift('action:insert-character', function(event, interrupt) {
+		consume_event(event)
+		interrupt()
+	}.bind(this))
+	
+	context.unshift('action:split-content', function(event, interrupt) {
+		let selection = get_selection(editor)
+		let container = find_card_container(selection.head.container)
+		insert_paragraph_after_card_container(container, editor)
+		consume_event(event)
+		interrupt()
 	}.bind(this))
 	
 	bus.unshift('action:split-content', function(event, interrupt) {
 		let selection = get_selection(editor)
-		if (is_selection_inside_card_container_caret(selection)) {
-			let container = find_card_container(selection.head.container)
-			insert_paragraph_after_card_container(container, editor)
-			consume_event(event)
-			interrupt()
-		} else if (is_card(selection.head.container) || is_card(selection.tail.container)) {
+		if (is_selection_inside_card_container_caret(selection)) return
+		if (is_node_inside_card(selection.head.container) || is_node_inside_card(selection.tail.container)) {
 			consume_event(event)
 			interrupt()
 		}
@@ -85,7 +89,7 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.on('content-will-delete', function(fragment) {
 		u(fragment).find('[data-card-type]').each(function(container) {
-			let card = u(container).children(':first-child').children(':first-child').first()
+			let card = container_to_card(container)
 			let type = u(container).data('card-type')
 			bus.emit('card-will-exit', card, type)
 		})
@@ -93,7 +97,7 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.on('content-did-delete', function(fragment) {
 		u(fragment).find('[data-card-type]').each(function(container) {
-			let card = u(container).children(':first-child').children(':first-child').first()
+			let card = container_to_card(container)
 			let type = u(container).data('card-type')
 			bus.emit('card-will-exit', card, type)
 		})
@@ -165,7 +169,7 @@ export function can_insert_card(editor) {
 	let selection = get_selection(editor)
 	if (is_selection_inside_card_container_caret(selection)) return true
 	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false		// fixme: dependency
-	if (is_card(selection.head.container) && is_card(selection.tail.container)) return false
+	if (is_node_inside_card(selection.head.container) && is_node_inside_card(selection.tail.container)) return false
 	return true
 }
 
@@ -228,7 +232,7 @@ export function delete_card(editor, selection, history) {
 	logger('trace').log('delete_card')
 	let container = can_delete_card(editor, selection)
 	if (container) {
-		let card = u(container).children(':first-child').children(':first-child').first()
+		let card = container_to_card(container)
 		let type = u(container).data('card-type')
 		editor.emit(`card-will-exit`, card, type)
 		let selectable = find_previous_editable_text_node(editor, container)
@@ -256,7 +260,7 @@ export function each_card(top, begin, end, fn) {
 		let node_ = u(node)
 		if (node_.is(an_element_node)) {
 			if (node_.is('[data-card-type]')) {
-				let card = u(node_).children(':first-child').children(':first-child').first()
+				let card = container_to_card(node_)
 				let type = u(node_).data('card-type')
 				fn(card, type)
 			}
@@ -266,13 +270,9 @@ export function each_card(top, begin, end, fn) {
 	}
 }
 
-export function is_card(node) {
+export function is_node_inside_card(node) {
 	
-	node = u(node)
-	if (node.is(a_text_node)) node = node.parent()
-	if (node.is(u('[data-card-type]'))) return true
-	if (node.closest(u('[data-card-type]')).first()) return true
-	return false
+	return find_card_container(node)
 }
 
 export function find_card_container(node, type) {
@@ -292,18 +292,25 @@ export function find_card_container(node, type) {
 	return result ? result.first() : null
 }
 
+export function container_to_card(container) {
+	
+	return u(container).children(':first-child').children(':first-child').first()
+}
+
+export function is_selection_inside_card_container_content(selection, type) {
+	
+	let node = u(selection.head.container)
+	if (node.is(a_text_node)) node = node.parent()
+	if (type) return u(node).closest(`[data-card-type="${type}"] .card-content`).length > 0
+	else return u(node).closest(`[data-card-type] .card-content`).length > 0
+}
+
 export function is_selection_inside_card_container_caret(selection) {
 	
 	if (! selection.range.collapsed) return false
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()
-	if (node.closest(u('.card-caret')).first()) return true
-	return false
-}
-
-export function is_selection_inside_card_content(selection) {
-	
-	return (is_card(selection.head.container) && (! is_selection_inside_card_container_caret(selection))) 
+	return u(node).closest(`[data-card-type] .card-caret`).length > 0
 }
 
 function insert_paragraph_after_card_container(node, editor) {

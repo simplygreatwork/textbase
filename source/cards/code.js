@@ -5,7 +5,7 @@ import { get_selection } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
-import { is_selection_inside_card_content } from '../features/cards.js'
+import { is_selection_inside_card_container_content } from '../features/cards.js'
 import { inject_css, get_placeholder_code } from './code-support.js'
 import { Logger } from '../logger.js'
 
@@ -13,9 +13,10 @@ const logger = Logger()
 
 export function initialize_code_cards(bus, editor) {
 	
+	if (false) inject_css()
+	
 	bus.on('action:card-code', function() {
 		
-		if (false) inject_css()
 		let code = get_placeholder_code()
 		insert_card(editor, 'code', `
 			<div class="code-card">
@@ -49,8 +50,10 @@ export function initialize_code_cards(bus, editor) {
 		return
 	}.bind(this))
 	
-	disable_default_input_behavior('action:caret-right', bus, editor)
-	disable_default_input_behavior('action:caret-left', bus, editor)
+	bus.on('selection-did-change', function(event, editor) {
+		if (is_selection_inside_card_container_content(get_selection(editor), 'code')) bus.contexts.add('card-code')
+		else bus.contexts.delete('card-code')
+	}.bind(this))	
 	
 	let context = bus.context('card-code')
 	context.unshift('action:insert-character', function(event, interrupt) {
@@ -109,6 +112,9 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
+	disable_default_input_behavior('action:caret-right', bus, editor)
+	disable_default_input_behavior('action:caret-left', bus, editor)
+	
 	context.on('content-did-change', function(head, tail) {
 		render(find_card_container(head, 'code'))
 	}.bind(this))
@@ -143,7 +149,6 @@ export function initialize_code_cards(bus, editor) {
 	}.bind(this))
 	
 	context.unshift('clipboard-paste', function(event, editor, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
 		let selection = get_selection(editor)
 		if (selection == null) return
 		let clipboard_data = (event.clipboardData || window.clipboardData)
@@ -154,29 +159,15 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	bus.on('selection-did-change', function(event, editor) {
-		if (is_selection_inside_code_card_content(editor)) bus.contexts.add('card-code')
-		else bus.contexts.delete('card-code')
-	}.bind(this))
-	
 	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }
 
 function disable_default_input_behavior(key, bus, editor) {
 	
-	bus.unshift(key, function(event, interrupt) {
-		if (! is_selection_inside_code_card_content(editor)) return
+	bus.context('card-code').unshift(key, function(event, interrupt) {
+		consume_event(event)
 		interrupt()
 	})
-}
-
-function is_selection_inside_code_card_content(editor) {
-	
-	let result = true
-	let selection = get_selection(editor)
-	if (! find_card_container(selection.head.container, 'code')) result = false
-	if (! is_selection_inside_card_content(selection)) result = false
-	return result
 }
 
 function render(container) {

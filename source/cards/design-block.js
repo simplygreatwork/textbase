@@ -6,25 +6,7 @@ const logger = Logger()
 
 export function initialize_design_block_cards(bus, editor) {
 	
-	let style = document.createElement('style')
-	style.type = 'text/css'
-	style.innerHTML = `
-		.hero {
-			border-radius:10px;
-			background:royalblue;
-			text-align:center;
-			padding-top:50px;
-			padding-bottom:50px;
-		}
-		.hero-text {
-			padding-top:50px;
-			padding-bottom:50px;
-			color:white;
-			font-weight:900;
-			font-size:500%;
-		}
-	`
-	document.querySelector('head').appendChild(style)
+	inject_css()
 	
 	bus.on('action:card-designed', function() {
 		insert_card(editor, 'designed', `
@@ -53,4 +35,27 @@ export function initialize_design_block_cards(bus, editor) {
 	}.bind(this))
 	
 	bus.emit('feature-did-enable', 'card-designed', 'Card: Design Block')
+}
+
+export function inject_css() {
+	
+	let style = document.createElement('style')
+	style.type = 'text/css'
+	style.innerHTML = `
+		.hero {
+			border-radius:10px;
+			background:royalblue;
+			text-align:center;
+			padding-top:50px;
+			padding-bottom:50px;
+		}
+		.hero-text {
+			padding-top:50px;
+			padding-bottom:50px;
+			color:white;
+			font-weight:900;
+			font-size:500%;
+		}
+	`
+	document.querySelector('head').appendChild(style)
 }
