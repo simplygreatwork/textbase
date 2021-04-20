@@ -1,7 +1,7 @@
 
 import { a_text_node } from '../basics.js'
 import { consume_event } from '../basics.js'
-import { get_selection } from '../selection.js'
+import { get_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
@@ -67,24 +67,22 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
+	context.unshift('action:split-content', function(event, interrupt) {
+		consume_event(event)
+		interrupt()
+	})
+	
 	context.unshift('keydown:enter', function(event, interrupt) {
 		editor.insert_string('\n')
 		consume_event(event)
 		interrupt()
 	})
 	
-	context.unshift('action:split-content', function(event, interrupt) {
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('action:delete', function(event, interrupt) {
-		editor.delete_character(get_selection(editor))
-		consume_event(event)
-		interrupt()
-	})
-	
 	context.unshift('action:select-all', function(event, interrupt) {
+		let selection = get_selection(editor)
+		let container = find_card_container(selection.head.container, 'code')
+		let content = u(container).find('.code-highlighted code').first()
+		select_range(editor, content, content)
 		consume_event(event)
 		interrupt()
 	})
