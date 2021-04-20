@@ -29,6 +29,10 @@
 	border-radius:8px;
 	tab-size:2;
 }
+[data-card-type=code] .card-content {
+	overflow-x:scroll;
+	background:black;
+}
 .code-source {
 	position: absolute;
 	z-index: 0;

@@ -13,6 +13,10 @@ export function inject_css() {
 			border-radius:8px;
 			tab-size:2;
 		}
+		[data-card-type=code] .card-content {
+			overflow-x:scroll;
+			background:black;
+		}
 		.code-source {
 			position: absolute;
 			z-index: 0;
@@ -25,6 +29,7 @@ export function inject_css() {
 			background:rgba(0,0,0,0);
 			color:rgba(0,0,0,0);
 			caret-color: white;
+			overflow-x:scroll;
 		}
 		.code-highlighted {
 			z-index: 1;
@@ -35,6 +40,7 @@ export function inject_css() {
 			border:1px solid black;
 			border-radius:8px;
 			pointer-events:none;
+			overflow-x:scroll;
 		}
 	`
 	document.querySelector('head').appendChild(style)
