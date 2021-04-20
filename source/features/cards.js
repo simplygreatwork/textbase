@@ -5,7 +5,7 @@ import { zero_width_whitespace } from '../basics.js'
 import { find_previous_editable_text_node } from '../basics.js'
 import { consume_event } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
-import { is_node_inside_atom } from './atoms.js'
+import { is_node_atom_descendant } from './atoms.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -60,7 +60,7 @@ export function initialize_cards(bus, editor, history) {
 	bus.unshift('action:split-content', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (is_selection_inside_card_container_caret(selection)) return
-		if (is_node_inside_card(selection.head.container) || is_node_inside_card(selection.tail.container)) {
+		if (is_node_card_descendant(selection.head.container) || is_node_card_descendant(selection.tail.container)) {
 			consume_event(event)
 			interrupt()
 		}
@@ -168,8 +168,8 @@ export function can_insert_card(editor) {
 	
 	let selection = get_selection(editor)
 	if (is_selection_inside_card_container_caret(selection)) return true
-	if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) return false		// fixme: dependency
-	if (is_node_inside_card(selection.head.container) && is_node_inside_card(selection.tail.container)) return false
+	if (is_node_atom_descendant(selection.head.container) && is_node_atom_descendant(selection.tail.container)) return false		// fixme: dependency
+	if (is_node_card_descendant(selection.head.container) && is_node_card_descendant(selection.tail.container)) return false
 	return true
 }
 
@@ -270,7 +270,7 @@ export function each_card(top, begin, end, fn) {
 	}
 }
 
-export function is_node_inside_card(node) {
+export function is_node_card_descendant(node) {
 	
 	return find_card_container(node)
 }

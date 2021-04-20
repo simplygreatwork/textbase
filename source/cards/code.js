@@ -57,27 +57,18 @@ export function initialize_code_cards(bus, editor) {
 	let context = bus.context('card-code')
 	context.unshift('action:insert-character', function(event, interrupt) {
 		editor.insert_character(event)
-		let selection = get_selection(editor)
-		let container = find_card_container(selection.head.container, 'code')
-		bus.emit('content-did-change', container, container)
 		consume_event(event)
 		interrupt()
 	})
 	
 	context.unshift('keydown:space', function(event, interrupt) {
 		editor.insert_character(event)
-		let selection = get_selection(editor)
-		let container = find_card_container(selection.head.container, 'code')
-		bus.emit('content-did-change', container, container)
 		consume_event(event)
 		interrupt()
 	})
 	
 	context.unshift('keydown:enter', function(event, interrupt) {
 		editor.insert_string('\n')
-		let selection = get_selection(editor)
-		let container = find_card_container(selection.head.container, 'code')
-		bus.emit('content-did-change', container, container)
 		consume_event(event)
 		interrupt()
 	})
@@ -89,9 +80,6 @@ export function initialize_code_cards(bus, editor) {
 	
 	context.unshift('action:delete', function(event, interrupt) {
 		editor.delete_character(get_selection(editor))
-		let selection = get_selection(editor)
-		let container = find_card_container(selection.head.container, 'code')
-		bus.emit('content-did-change', container, container)
 		consume_event(event)
 		interrupt()
 	})

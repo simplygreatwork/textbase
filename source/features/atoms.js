@@ -25,7 +25,7 @@ export function initialize_atoms(bus, editor, history) {
 	
 	bus.on('selection-did-change', function(event, editor) {
 		let selection = get_selection(editor)
-		if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) bus.contexts.add('atom')
+		if (is_node_atom_descendant(selection.head.container) && is_node_atom_descendant(selection.tail.container)) bus.contexts.add('atom')
 		else bus.contexts.delete('atom')
 	}.bind(this))
 	
@@ -115,7 +115,7 @@ export function initialize_atoms(bus, editor, history) {
 	})
 }
 
-export function is_node_inside_atom(node) {
+export function is_node_atom_descendant(node) {
 	
 	node = u(node)
 	if (node.is(a_text_node)) node = node.parent()
@@ -127,7 +127,7 @@ export function is_node_inside_atom(node) {
 export function can_insert_atom(editor) {
 	
 	let selection = get_selection(editor)
-	if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) return false
+	if (is_node_atom_descendant(selection.head.container) && is_node_atom_descendant(selection.tail.container)) return false
 	return true
 }
 
