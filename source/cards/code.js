@@ -16,7 +16,6 @@ export function initialize_code_cards(bus, editor) {
 	if (false) inject_css()
 	
 	bus.on('action:card-code', function() {
-		
 		let code = get_placeholder_code()
 		insert_card(editor, 'code', `
 			<div class="code-card">
@@ -112,8 +111,8 @@ export function initialize_code_cards(bus, editor) {
 		interrupt()
 	})
 	
-	disable_default_input_behavior('action:caret-right', bus, editor)
-	disable_default_input_behavior('action:caret-left', bus, editor)
+	disable_default_input_behavior(context, 'action:caret-right',)
+	disable_default_input_behavior(context, 'action:caret-left')
 	
 	context.on('content-did-change', function(head, tail) {
 		render(find_card_container(head, 'code'))
@@ -162,9 +161,9 @@ export function initialize_code_cards(bus, editor) {
 	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }
 
-function disable_default_input_behavior(key, bus, editor) {
+function disable_default_input_behavior(context, key) {
 	
-	bus.context('card-code').unshift(key, function(event, interrupt) {
+	context.unshift(key, function(event, interrupt) {
 		consume_event(event)
 		interrupt()
 	})

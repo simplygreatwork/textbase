@@ -23,12 +23,16 @@ export function initialize_atoms(bus, editor, history) {
 		})
 	})
 	
-	bus.unshift('action:split-content', function(event, interrupt) {
-		let selection = get_selection(this)
-		if (is_atom(selection.head.container) && is_atom(selection.tail.container)) {
-			consume_event(event)
-			interrupt()
-		}
+	bus.on('selection-did-change', function(event, editor) {
+		let selection = get_selection(editor)
+		if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) bus.contexts.add('atom')
+		else bus.contexts.delete('atom')
+	}.bind(this))
+	
+	let context = bus.context('atom')
+	context.unshift('action:split-content', function(event, interrupt) {
+		consume_event(event)
+		interrupt()
 	}.bind(this))
 	
 	bus.unshift('action:delete', function(event, interrupt) {
@@ -67,23 +71,23 @@ export function initialize_atoms(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		batch_emit('atom-will-enter', added, bus)
-		batch_emit('atom-will-exit', removed, bus)
+		emit_many('atom-will-enter', added, bus)
+		emit_many('atom-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		batch_emit('atom-did-enter', added, bus)
-		batch_emit('atom-did-exit', removed, bus)
+		emit_many('atom-did-enter', added, bus)
+		emit_many('atom-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		batch_emit('atom-will-enter', added, bus)
-		batch_emit('atom-will-exit', removed, bus)
+		emit_many('atom-will-enter', added, bus)
+		emit_many('atom-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		batch_emit('atom-did-enter', added, bus)
-		batch_emit('atom-did-exit', removed, bus)
+		emit_many('atom-did-enter', added, bus)
+		emit_many('atom-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('atom-did-enter', function(atom) {
@@ -111,7 +115,7 @@ export function initialize_atoms(bus, editor, history) {
 	})
 }
 
-export function is_atom(node) {
+export function is_node_inside_atom(node) {
 	
 	node = u(node)
 	if (node.is(a_text_node)) node = node.parent()
@@ -123,7 +127,7 @@ export function is_atom(node) {
 export function can_insert_atom(editor) {
 	
 	let selection = get_selection(editor)
-	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false
+	if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) return false
 	return true
 }
 
@@ -172,7 +176,7 @@ export function delete_atom(editor, selection, history) {
 	}
 }
 
-function batch_emit(key, nodes, bus) {
+function emit_many(key, nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_atom(node, node, null, function(atom) {

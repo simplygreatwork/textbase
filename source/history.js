@@ -2,6 +2,7 @@
 // derived from lohfu/snapback
 
 import { is_editable_node } from './basics.js'
+import { consume_event } from './basics.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -105,7 +106,7 @@ export class History {
 	
 	undo(event) {
 		
-		if (event) event.preventDefault()
+		consume_event(event)
 		this.capture()
 		if (this.enabled && this.index >= 0) {
 			this.disable()
@@ -118,7 +119,7 @@ export class History {
 	
 	redo(event) {
 		
-		if (event) event.preventDefault()
+		consume_event(event)
 		if (this.enabled && this.index < this.records.length - 1) {
 			this.disable()
 			this.will_redo(this.records[this.index + 1])
@@ -132,6 +133,7 @@ export class History {
 		
 		let added = []
 		let removed = []
+		let changed = []
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
 			if (mutation.type == 'childList') {
 				Array.from(mutation.removedNodes).forEach(function(node) {
@@ -142,13 +144,14 @@ export class History {
 				})
 			}
 		})
-		this.bus.emit('history-will-undo', added, removed)
+		this.bus.emit('history-will-undo', added, removed, changed)
 	}
 	
 	will_redo(record) {
 		
 		let added = []
 		let removed = []
+		let changed = []
 		record.mutations.forEach(function(mutation) {
 			if (mutation.type == 'childList') {
 				Array.from(mutation.addedNodes).forEach(function(node) {
@@ -159,7 +162,7 @@ export class History {
 				})
 			}
 		})
-		this.bus.emit('history-will-redo', added, removed)
+		this.bus.emit('history-will-redo', added, removed, changed)
 	}
 	
 	perform_undo(record) {

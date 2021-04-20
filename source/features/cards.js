@@ -5,7 +5,7 @@ import { zero_width_whitespace } from '../basics.js'
 import { find_previous_editable_text_node } from '../basics.js'
 import { consume_event } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
-import { is_atom } from './atoms.js'
+import { is_node_inside_atom } from './atoms.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -128,23 +128,23 @@ export function initialize_cards(bus, editor, history) {
 	})
 	
 	bus.on('history-will-undo', function(added, removed) {
-		batch_emit('card-will-enter', added, bus)
-		batch_emit('card-will-exit', removed, bus)
+		emit_many('card-will-enter', added, bus)
+		emit_many('card-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-undo', function(added, removed) {
-		batch_emit('card-did-enter', added, bus)
-		batch_emit('card-did-exit', removed, bus)
+		emit_many('card-did-enter', added, bus)
+		emit_many('card-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-will-redo', function(added, removed) {
-		batch_emit('card-will-enter', added, bus)
-		batch_emit('card-will-exit', removed, bus)
+		emit_many('card-will-enter', added, bus)
+		emit_many('card-will-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('history-did-redo', function(added, removed) {
-		batch_emit('card-did-enter', added, bus)
-		batch_emit('card-did-exit', removed, bus)
+		emit_many('card-did-enter', added, bus)
+		emit_many('card-did-exit', removed, bus)
 	}.bind(this))
 	
 	bus.on('card-did-enter', function(card) {
@@ -168,7 +168,7 @@ export function can_insert_card(editor) {
 	
 	let selection = get_selection(editor)
 	if (is_selection_inside_card_container_caret(selection)) return true
-	if (is_atom(selection.head.container) && is_atom(selection.tail.container)) return false		// fixme: dependency
+	if (is_node_inside_atom(selection.head.container) && is_node_inside_atom(selection.tail.container)) return false		// fixme: dependency
 	if (is_node_inside_card(selection.head.container) && is_node_inside_card(selection.tail.container)) return false
 	return true
 }
@@ -243,7 +243,7 @@ export function delete_card(editor, selection, history) {
 	}
 }
 
-function batch_emit(key, nodes, bus) {
+function emit_many(key, nodes, bus) {
 	
 	nodes.forEach(function(node) {
 		each_card(node, node, null, function(card, type) {
@@ -294,7 +294,7 @@ export function find_card_container(node, type) {
 
 export function container_to_card(container) {
 	
-	return u(container).children(':first-child').children(':first-child').first()
+	return u(container).find('.card-content').children(':first-child').first()
 }
 
 export function is_selection_inside_card_container_content(selection, type) {
