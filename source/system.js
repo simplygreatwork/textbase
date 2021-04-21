@@ -537,17 +537,11 @@ export class System {
 				}.bind(this), 1000)
 				this.debounce_content_did_change(begin, end)
 			}.bind(this))
-			bus.on('content-did-insert', function() {
-				logger('system').log('content-did-insert')
-			})
-			bus.on('content-did-delete', function(fragment) {
-				if (false) logger('system').log('content-did-delete: ' + fragment)
-			})
 			bus.on('content-valid', function(html) {
 				return
 			}.bind(this))
 			bus.on('content-invalid', function(result) {
-				console.log('content-invalid: ' + JSON.stringify(result))
+				logger('system').log(`content-invalid: ${JSON.stringify(result)}`)
 				u('.structure').addClass('invalid')
 			}.bind(this))
 		}.bind(this))
