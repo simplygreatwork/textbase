@@ -98,8 +98,8 @@ export class System {
 		bus.on('feature:documents', function() {
 			bus.on('document-did-install', function(document_) {
 				logger('system').log('document-did-install')
-				this.history.enable()
 				this.scanner.scan(document.querySelector('.content'))
+				this.history.enable()
 				this.structure.render()
 			}.bind(this))
 			bus.on('document-did-uninstall', function(document_) {

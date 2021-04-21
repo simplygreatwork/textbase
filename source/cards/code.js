@@ -52,7 +52,7 @@ export function initialize_code_cards(bus, editor, history) {
 	bus.on('selection-did-change', function(event, editor) {
 		if (is_selection_inside_card_container_content(get_selection(editor), 'code')) bus.contexts.add('card-code')
 		else bus.contexts.delete('card-code')
-	}.bind(this))	
+	}.bind(this))
 	
 	let context = bus.context('card-code')
 	context.unshift('action:insert-character', function(event, interrupt) {
