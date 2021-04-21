@@ -495,19 +495,19 @@ export class System {
 		
 		bus.on('feature:atoms', function() {
 			initialize_atoms(bus, editor, history)
-			initialize_sample_atoms(bus, editor, toolbar)
-			initialize_animated_atoms(bus, editor, toolbar)
-			initialize_mention_atoms(bus, editor, toolbar)
+			initialize_sample_atoms(bus, editor, history)
+			initialize_animated_atoms(bus, editor, history)
+			initialize_mention_atoms(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:cards', function() {
 			initialize_cards(bus, editor, history)
-			initialize_sample_cards(bus, editor, toolbar)
-			initialize_animated_cards(bus, editor, toolbar)
-			initialize_image_cards(bus, editor, toolbar)
-			initialize_editable_cards(bus, editor, toolbar)
-			initialize_design_block_cards(bus, editor, toolbar)
-			initialize_code_cards(bus, editor, toolbar)
+			initialize_sample_cards(bus, editor, history)
+			initialize_animated_cards(bus, editor, history)
+			initialize_image_cards(bus, editor, history)
+			initialize_editable_cards(bus, editor, history)
+			initialize_design_block_cards(bus, editor, history)
+			initialize_code_cards(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:recognizers', function() {

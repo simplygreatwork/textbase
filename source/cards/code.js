@@ -11,7 +11,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_code_cards(bus, editor) {
+export function initialize_code_cards(bus, editor, history) {
 	
 	if (false) inject_css()
 	
@@ -74,6 +74,7 @@ export function initialize_code_cards(bus, editor) {
 	
 	context.unshift('keydown:enter', function(event, interrupt) {
 		editor.insert_string('\n')
+		history.capture()
 		consume_event(event)
 		interrupt()
 	})

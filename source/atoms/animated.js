@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_animated_atoms(bus, editor, toolbar) {
+export function initialize_animated_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-animated', function() {
 		insert_atom(editor, `
