@@ -227,7 +227,7 @@ export function can_delete_card(editor, selection) {
 	else return false
 }
 
-export function delete_card(editor, selection, history) {
+export function delete_card(editor, selection) {
 	
 	logger('trace').log('delete_card')
 	let container = can_delete_card(editor, selection)

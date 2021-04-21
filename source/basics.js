@@ -133,3 +133,14 @@ export function consume_event(event) {
 	if (event.stopPropagation) event.stopPropagation()
 	if (event.preventDefault) event.preventDefault()
 }
+
+export function debounce(fn, timeout = 300) {
+	
+	let timer
+	return function(...args) {
+		clearTimeout(timer)
+		timer = setTimeout(function() {
+			fn.apply(this, args)
+		}, timeout)
+	}
+}

@@ -5,7 +5,7 @@ import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
 import { Structure } from './structure.js'
 import { Scanner } from './scanner.js'
-import { a_block_element, consume_event } from './basics.js'
+import { a_block_element, consume_event, debounce } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
@@ -524,12 +524,18 @@ export class System {
 			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
 				logger('system').log('selection-did-change')
-				this.structure.render()
+				this.debounce_selection_did_change = this.debounce_selection_did_change || debounce(function() {
+					this.structure.render()
+				}.bind(this), 1000)
+				this.debounce_selection_did_change()
 			}.bind(this))
 			bus.on('content-did-change', function(begin, end) {
 				logger('system').log('content-did-change')
-				this.scanner.scan(begin, end)
-				this.structure.render()
+				this.debounce_content_did_change = this.debounce_content_did_change || debounce(function(begin, end) {
+					this.scanner.scan(begin, end)
+					this.structure.render()
+				}.bind(this), 1000)
+				this.debounce_content_did_change(begin, end)
 			}.bind(this))
 			bus.on('content-did-insert', function() {
 				logger('system').log('content-did-insert')

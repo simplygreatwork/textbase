@@ -28,7 +28,9 @@ export class Application {
 		
 		bus.on('content-did-change', function(begin, end) {
 			this.debounce(function() {
-				system.document_.content = document.querySelector('.content').innerHTML
+				let content = u(system.editor.content).clone().first()
+				bus.emit('document-will-serialize', content)
+				system.document_.content = content.innerHTML
 				storage.save(system.document_)
 			}.bind(this))
 		}.bind(this))
