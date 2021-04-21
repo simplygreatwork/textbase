@@ -131,6 +131,7 @@ export class System {
 			
 			bus.on('keydown:enter', function(event) {
 				editor.request_to_split_content(event)
+				this.history.capture()
 			}.bind(this))
 			
 			bus.on('keydown:backspace', function(event) {
