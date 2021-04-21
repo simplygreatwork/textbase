@@ -526,7 +526,7 @@ export class System {
 				logger('system').log('selection-did-change')
 				this.debounce_selection_did_change = this.debounce_selection_did_change || debounce(function() {
 					this.structure.render()
-				}.bind(this), 1000)
+				}.bind(this), 10)
 				this.debounce_selection_did_change()
 			}.bind(this))
 			bus.on('content-did-change', function(begin, end) {
@@ -534,7 +534,7 @@ export class System {
 				this.debounce_content_did_change = this.debounce_content_did_change || debounce(function(begin, end) {
 					this.scanner.scan(begin, end)
 					this.structure.render()
-				}.bind(this), 1000)
+				}.bind(this), 10)
 				this.debounce_content_did_change(begin, end)
 			}.bind(this))
 			bus.on('content-valid', function(html) {
