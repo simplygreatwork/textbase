@@ -105,17 +105,8 @@ export function initialize_code_cards(bus, editor, history) {
 		render(find_card_container(head, 'code'))
 	}.bind(this))
 	
-	context.on('history-did-undo', function(added, removed, changed) {
-		changed.forEach(function(node) {
-			render(find_card_container(node, 'code'))
-		})
-	}.bind(this))
-	
-	context.on('history-did-redo', function(added, removed, changed) {
-		changed.forEach(function(node) {
-			render(find_card_container(node, 'code'))
-		})
-	}.bind(this))
+	context.on('history-did-undo', mutated)
+	context.on('history-did-redo', mutated)
 	
 	context.on('clipboard-cut', function(event, editor, interrupt) {
 		let selection = get_selection(editor)
@@ -153,6 +144,19 @@ function disable_default_input_behavior(context, key) {
 	context.unshift(key, function(event, interrupt) {
 		consume_event(event)
 		interrupt()
+	})
+}
+
+function mutated(added, removed, changed) {
+	
+	added.forEach(function(node) {
+		render(find_card_container(node, 'code'))
+	})
+	removed.forEach(function(node) {
+		render(find_card_container(node, 'code'))
+	})
+	changed.forEach(function(node) {
+		render(find_card_container(node, 'code'))
 	})
 }
 
