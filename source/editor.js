@@ -4,7 +4,7 @@ import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, element_iterator, text_iterator } from './basics.js'
 import { is_editable_node, is_alphanumeric } from './basics.js'
 import { find_previous_inline_sibling, find_next_block } from './basics.js'
-import { consume_event } from './basics.js'
+import { consume_event, decode_entities } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection } from './selection.js'
 import { Logger } from './logger.js'
 
@@ -150,7 +150,7 @@ export class Editor {
 		let parent = node.parent()
 		parent.html(text.trim())
 		node = parent.first().firstChild
-		set_caret(this, { container: node, offset: selection.head.offset + string.split('&nbsp;').join(' ').length })
+		set_caret(this, { container: node, offset: selection.head.offset + decode_entities(string).length })
 		this.emit('content-did-change', node, node)
 	}
 	

@@ -144,3 +144,10 @@ export function debounce(fn, timeout = 300) {
 		}, timeout)
 	}
 }
+
+export function decode_entities(html) {
+	
+	let textarea = document.createElement('textarea')
+	textarea.innerHTML = html
+	return textarea.value
+}
