@@ -166,7 +166,7 @@ export class Scanner {
 		bus.on('detected:empty-span', function(element) {
 			logger('scanner').log('detected:empty-span')
 			let selection = get_selection(this.editor)
-			let apply_selection = element.firstChild == selection.head.container
+			let apply_selection = selection && selection.head ? element.firstChild == selection.head.container : false
 			let iterator = text_iterator(this.editor.element, element.firstChild)
 			let next = iterator.nextNode()
 			element.remove()

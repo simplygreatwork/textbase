@@ -59,6 +59,7 @@ export function initialize_cards(bus, editor, history) {
 	
 	bus.unshift('action:split-content', function(event, interrupt) {
 		let selection = get_selection(editor)
+		if (! selection) return 
 		if (is_selection_inside_card_container_caret(selection)) return
 		if (is_node_card_descendant(selection.head.container) || is_node_card_descendant(selection.tail.container)) {
 			consume_event(event)
@@ -307,6 +308,7 @@ export function is_selection_inside_card_container_content(selection, type) {
 
 export function is_selection_inside_card_container_caret(selection) {
 	
+	if (! selection) return false
 	if (! selection.range.collapsed) return false
 	let node = u(selection.head.container)
 	if (node.is(a_text_node)) node = node.parent()

@@ -147,7 +147,7 @@ export class Editor {
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
-		node.text(text.trim())
+		node.parent().html(text.trim())
 		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
 		this.emit('content-did-change', selection.head.container, selection.tail.container)
 	}
@@ -295,6 +295,7 @@ export class Editor {
 	is_editable() {
 		
 		let selection = get_selection(this)
+		if (! selection) return false 
 		if (! is_editable_node(selection.head.container)) return false 
 		if (! is_editable_node(selection.tail.container)) return false 
 		return true
