@@ -147,9 +147,11 @@ export class Editor {
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
-		node.parent().html(text.trim())
-		set_caret(this, { container: selection.head.container, offset: selection.head.offset + string.length })
-		this.emit('content-did-change', selection.head.container, selection.tail.container)
+		let parent = node.parent()
+		parent.html(text.trim())
+		node = parent.first().firstChild
+		set_caret(this, { container: node, offset: selection.head.offset + string.split('&nbsp;').join(' ').length })
+		this.emit('content-did-change', node, node)
 	}
 	
 	request_to_split_content(event) {
