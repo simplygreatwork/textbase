@@ -89,11 +89,18 @@ export function initialize_code_cards(bus, editor, history) {
 	})
 	
 	context.unshift('action:indent', function(event, interrupt) {
+		let selection = get_selection(editor)
+		if (selection.range.collapsed) {
+			editor.insert_string('a')
+		} else {
+			indent_lines(editor)
+		}
 		consume_event(event)
 		interrupt()
 	})
 	
 	context.unshift('action:dedent', function(event, interrupt) {
+		dedent_lines(editor)
 		consume_event(event)
 		interrupt()
 	})
@@ -170,6 +177,14 @@ function mutated(added, removed, changed) {
 	changed.forEach(function(node) {
 		render(find_card_container(node, 'code'))
 	})
+}
+
+function indent_lines(editor) {
+	let selection = get_selection(editor)
+}
+
+function dedent_line(editor) {
+	let selection = get_selection(editor)
 }
 
 function hydrate(card) {

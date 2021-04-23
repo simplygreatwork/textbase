@@ -143,14 +143,13 @@ export class Editor {
 		}
 		let node = u(selection.head.container)
 		if (! node.is(a_text_node)) throw Error('Expected the selection container to be a text node.') 
-		let text = node.parent().html()
+		node = node.first()
+		let text = node.nodeValue
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
-		let parent = node.parent()
-		parent.html(text.trim())
-		node = parent.first().firstChild
-		set_caret(this, { container: node, offset: selection.head.offset + decode_entities(string).length })
+		node.nodeValue = text.trim()
+		set_caret(this, { container: node, offset: selection.head.offset + string.length })
 		this.emit('content-did-change', node, node)
 	}
 	
