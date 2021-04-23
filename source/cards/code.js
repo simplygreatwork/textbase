@@ -82,7 +82,7 @@ export function initialize_code_cards(bus, editor, history) {
 	context.unshift('action:select-all', function(event, interrupt) {
 		let selection = get_selection(editor)
 		let container = find_card_container(selection.head.container, 'code')
-		let content = u(container).find('.code-highlighted code').first()
+		let content = u(container).find('.code-source code').first()
 		select_range(editor, content, content)
 		consume_event(event)
 		interrupt()
@@ -105,13 +105,8 @@ export function initialize_code_cards(bus, editor, history) {
 		render(find_card_container(head, 'code'))
 	}.bind(this))
 	
-	context.on('history-did-undo', function(added, removed, changed) {
-		render(find_card_container(added.concat(removed).concat(removed).slice(0, 1), 'code'))
-	})
-	
-	context.on('history-did-redo', function(added, removed, changed) {
-		render(find_card_container(added.concat(removed).concat(removed).slice(0, 1), 'code'))
-	})
+	context.on('history-did-undo', mutated)
+	context.on('history-did-redo', mutated)
 	
 	context.on('clipboard-cut', function(event, editor, interrupt) {
 		let selection = get_selection(editor)
@@ -158,12 +153,29 @@ function render(container) {
 	container = u(container)
 	let content = container.find('.code-source')
 	if (content.first()) {
-		let html = Prism.highlight(content.text(), Prism.languages.javascript, 'javascript')
+		let text = content.text()
+		let html = Prism.highlight(text, Prism.languages.javascript, 'javascript')
 		container.find('.code-highlighted code').html(html)
 	}
 }
 
+function mutated(added, removed, changed) {
+	
+	added.forEach(function(node) {
+		render(find_card_container(node, 'code'))
+	})
+	removed.forEach(function(node) {
+		render(find_card_container(node, 'code'))
+	})
+	changed.forEach(function(node) {
+		render(find_card_container(node, 'code'))
+	})
+}
+
 function hydrate(card) {
+	
+	let source = u(card).find('.code-source code')
+	source.html(source.html().trim())
 	u(card).find('.code-source').after('<div class="code-highlighted"><pre><code></code></pre></div>')
 }
 

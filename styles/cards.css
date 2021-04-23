@@ -25,13 +25,14 @@
 	font-size:110%;
 	font-weight:700;
 	color:white;
-	background:black;
+	background:#2F2F2F;
 	border-radius:8px;
 	tab-size:2;
 }
 [data-card-type=code] .card-content {
 	overflow-x:scroll;
-	background:black;
+	background:#2F2F2F;
+	border-radius:8px;
 }
 .code-source {
 	position: absolute;

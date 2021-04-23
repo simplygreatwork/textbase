@@ -1,36 +1,64 @@
 <h1><span>Textbase</span></h1>
-<h2><span>Example</span></h2>
+<h2><span>Insert custom block content as cards</span></h2>
 <div class="code-card" data-card-type="code">
-<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('action:card-image', function() {
+	insert_card(editor, 'image', `
+		&lt;div class="image-card"&gt;
+			&lt;img src="images/cosmic.jpg"&gt;
+		&lt;/div&gt;
+	`)
+}.bind(this))
+</code></pre></div></div>
+<h2><span>Extend list behavior to allow for list exit</span></h2>
+<div class="code-card" data-card-type="code">
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('content-did-split', function(a, b) {
 	if (block_has_content(a)) return
 	if (block_has_content(b)) return
 	transform_block(editor, b, 'p')
-}.bind(this))</code></pre></div></div>
+}.bind(this))
+</code></pre></div></div>
+<h2><span>Contextual event handling</span></h2>
+<div class="code-card" data-card-type="code">
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('selection-did-change', function(event, editor) {
+	if (is_selection_inside_card_container_content(get_selection(editor), 'code'))
+		bus.contexts.add('card-code')
+	else
+		bus.contexts.delete('card-code')
+}.bind(this))
+
+bus.context('card-code').unshift('action:insert-character', function(event, interrupt) {
+	editor.insert_character(event)
+	consume_event(event)
+	interrupt()
+})
+</code></pre></div></div>
 <h2><span>Example</span></h2>
 <div class="code-card" data-card-type="code">
-<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('content-did-split', function(a, b) {
 	if (block_has_content(a)) return
 	if (block_has_content(b)) return
 	transform_block(editor, b, 'p')
-}.bind(this))</code></pre></div></div>
+}.bind(this))
+</code></pre></div></div>
 <h2><span>Example</span></h2>
 <div class="code-card" data-card-type="code">
-<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('content-did-split', function(a, b) {
 	if (block_has_content(a)) return
 	if (block_has_content(b)) return
 	transform_block(editor, b, 'p')
-}.bind(this))</code></pre></div></div>
+}.bind(this))
+</code></pre></div></div>
 <h2><span>Example</span></h2>
 <div class="code-card" data-card-type="code">
-<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+<div class="code-source"><pre><code contenteditable="true">
+bus.on('content-did-split', function(a, b) {
 	if (block_has_content(a)) return
 	if (block_has_content(b)) return
 	transform_block(editor, b, 'p')
-}.bind(this))</code></pre></div></div>
-<h2><span>Example</span></h2>
-<div class="code-card" data-card-type="code">
-<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
-	if (block_has_content(a)) return
-	if (block_has_content(b)) return
-	transform_block(editor, b, 'p')
-}.bind(this))</code></pre></div></div>
+}.bind(this))
+</code></pre></div></div>

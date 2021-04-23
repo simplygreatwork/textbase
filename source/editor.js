@@ -143,7 +143,7 @@ export class Editor {
 		}
 		let node = u(selection.head.container)
 		if (! node.is(a_text_node)) throw Error('Expected the selection container to be a text node.') 
-		let text = node.text()
+		let text = node.parent().html()
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
 		text = head + string + tail
