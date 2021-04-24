@@ -1,7 +1,7 @@
 
 import { a_text_node } from '../basics.js'
 import { consume_event } from '../basics.js'
-import { get_selection, select_range } from '../selection.js'
+import { get_selection, set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
@@ -93,14 +93,14 @@ export function initialize_code_cards(bus, editor, history) {
 		if (selection.range.collapsed) {
 			editor.insert_string('\t')
 		} else {
-			indent_lines(editor)
+			indent_lines(editor, history)
 		}
 		consume_event(event)
 		interrupt()
 	})
 	
 	context.unshift('action:dedent', function(event, interrupt) {
-		dedent_lines(editor)
+		dedent_lines(editor, history)
 		consume_event(event)
 		interrupt()
 	})
@@ -179,12 +179,52 @@ function mutated(added, removed, changed) {
 	})
 }
 
-function indent_lines(editor) {
-	let selection = get_selection(editor)
+function indent_lines(editor, history) {
+	
+	shift_selected_lines(editor, history, function(line, selection) {
+		selection.tail.offset++
+		return `\t${line}`
+	})
 }
 
-function dedent_line(editor) {
+function dedent_lines(editor, history) {
+	
+	shift_selected_lines(editor, history, function(line, selection) {
+		let result = line
+		if (line.charAt(0) == '\t') {
+			selection.tail.offset--
+			result = line.slice(1)
+		}
+		return result
+	})
+}
+
+function shift_selected_lines(editor, history, fn) {
+	
 	let selection = get_selection(editor)
+	let container = find_card_container(selection.head.container, 'code')
+	let node = u(container).find('.code-source code').first().firstChild
+	let begin = 0
+	node.nodeValue = node.nodeValue.split('\n').map(function(line) {
+		let result = line
+		let end = begin + line.length + 1
+		if (is_line_selected(selection, begin, end)) {
+			result = fn(line, selection)
+		}
+		begin = begin + line.length + 1
+		return result
+	}).join('\n')
+	set_selection(editor, selection)
+	history.capture()
+	render(container)
+}
+
+function is_line_selected(selection, begin, end) {
+	
+	if (begin < selection.head.offset && selection.head.offset < end) return true
+	if (begin < selection.tail.offset && selection.tail.offset < end) return true
+	if (begin > selection.head.offset && end < selection.tail.offset) return true
+	return false
 }
 
 function hydrate(card) {
