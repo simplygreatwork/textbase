@@ -91,7 +91,7 @@ export function initialize_code_cards(bus, editor, history) {
 	context.unshift('action:indent', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (selection.range.collapsed) {
-			editor.insert_string('a')
+			editor.insert_string('\t')
 		} else {
 			indent_lines(editor)
 		}
