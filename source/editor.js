@@ -147,8 +147,9 @@ export class Editor {
 		let text = node.nodeValue
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
+		string = decode_entities(string)
 		text = head + string + tail
-		node.nodeValue = text.trim()
+		node.nodeValue = text
 		set_caret(this, { container: node, offset: selection.head.offset + string.length })
 		this.emit('content-did-change', node, node)
 	}
