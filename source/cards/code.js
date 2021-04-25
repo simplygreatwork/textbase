@@ -181,19 +181,21 @@ function mutated(added, removed, changed) {
 
 function indent_lines(editor, history) {
 	
-	shift_selected_lines(editor, history, function(line, selection) {
+	shift_selected_lines(editor, history, function(line, index, selection) {
 		selection.tail.offset++
+		if (index === 0) selection.head.offset++
 		return `\t${line}`
 	})
 }
 
 function dedent_lines(editor, history) {
 	
-	shift_selected_lines(editor, history, function(line, selection) {
+	shift_selected_lines(editor, history, function(line, index, selection) {
 		let result = line
 		if (line.charAt(0) == '\t') {
 			selection.tail.offset--
 			result = line.slice(1)
+			if (index === 0) selection.head.offset--
 		}
 		return result
 	})
@@ -202,27 +204,30 @@ function dedent_lines(editor, history) {
 function shift_selected_lines(editor, history, fn) {
 	
 	let selection = get_selection(editor)
+	let selection_ = get_selection(editor)
 	let container = find_card_container(selection.head.container, 'code')
 	let node = u(container).find('.code-source code').first().firstChild
 	let begin = 0
+	let index = 0
 	node.nodeValue = node.nodeValue.split('\n').map(function(line) {
 		let result = line
 		let end = begin + line.length + 1
 		if (is_line_selected(selection, begin, end)) {
-			result = fn(line, selection)
+			result = fn(line, index, selection_)
+			index++
 		}
 		begin = begin + line.length + 1
 		return result
 	}).join('\n')
-	set_selection(editor, selection)
+	set_selection(editor, selection_)
 	history.capture()
 	render(container)
 }
 
 function is_line_selected(selection, begin, end) {
 	
-	if (begin < selection.head.offset && selection.head.offset < end) return true
-	if (begin < selection.tail.offset && selection.tail.offset < end) return true
+	if (begin <= selection.head.offset && selection.head.offset < end) return true
+	if (begin < selection.tail.offset && selection.tail.offset <= end) return true
 	if (begin > selection.head.offset && end < selection.tail.offset) return true
 	return false
 }
