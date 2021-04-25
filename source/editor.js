@@ -129,12 +129,19 @@ export class Editor {
 		
 		logger('trace').log('insert_character')
 		consume_event(event)
-		this.insert_string(event.key)
+		this.insert_text(event.key)
 	}
 	
 	insert_string(string) {
 		
 		logger('trace').log('insert_string')
+		string = decode_entities(string)
+		this.insert_text(string)
+	}
+	
+	insert_text(string) {
+		
+		logger('trace').log('insert_text')
 		if (! this.is_editable()) return
 		let selection = get_selection(this)
 		if (! selection.range.collapsed) {
@@ -147,7 +154,6 @@ export class Editor {
 		let text = node.nodeValue
 		let head = text.substring(0, selection.head.offset)
 		let tail = text.substring(selection.tail.offset)
-		string = decode_entities(string)
 		text = head + string + tail
 		node.nodeValue = text
 		set_caret(this, { container: node, offset: selection.head.offset + string.length })

@@ -15,7 +15,8 @@ export function serialize(editor) {
 	let content = u(editor.element)
 	content = clone(content, selection)
 	bus.emit('document-will-serialize', content)
-	serialize_(selection, content, [], result)
+	apply_selection(selection)
+	serialize_(content, [], result)
 	bus.emit('document-did-serialize', content)
 	return result.join('')
 }
@@ -31,47 +32,47 @@ function clone(content, selection) {
 	})
 }
 
-export function serialize_(selection, node, level, result) {
+function apply_selection(selection) {
+	
+	if (! selection) return 
+	apply_selection_(selection.tail, ']')
+	apply_selection_(selection.head, '[')
+}
+
+function apply_selection_(component, string) {
+	
+	let node = component.container
+	let offset = component.offset
+	if (u(node).is(a_text_node)) {
+		node.nodeValue = node.nodeValue.substring(0, offset) + string + node.nodeValue.substring(offset)
+	} else if (u(node).is(an_element_node)) {
+		return													// todo: insert brackets before or after the element
+	}
+}
+
+function serialize_(node, level, result) {
 	
 	level.push('\t')
 	node.contents().each(function(each) {
 		if (u(each).is(an_element_node)) {
-			if (selection && selection.range) {
-				if (each == selection.tail.container) result.push(']')
-				if (each == selection.head.container) result.push('[')
-			}
 			let tag = each.tagName.toLowerCase()
-			if (u(each).is(an_inline_element)) {
+			if (u(each).is(`${an_inline_element},pre,code`)) {
 				result.push(`${serialize_tag_head(each)}`)
-				serialize_(selection, u(each), level, result)
+				serialize_(u(each), level, result)
 				result.push(`</${tag}>`)
 			} else {
 				result.push('\n')
 				result.push(`${level.join('')}${serialize_tag_head(each)}`)
-				serialize_(selection, u(each), level, result)
+				serialize_(u(each), level, result)
 				let tail = serialize_tag_tail(tag)
 				if (tail) result.push(tail)
 			}
 		} else if (u(each).is(a_text_node)) {
-			let text = u(each).text()
-			if (selection && selection.range) {
-				text = render_text_node_selection(text, each, selection.tail, ']')
-				text = render_text_node_selection(text, each, selection.head, '[')
-			}
-			text = text.trim()
-			if (text.length > 0) result.push(text.trim())
+			let text = u(each).text().trim()
+			if (text.length > 0) result.push(text)
 		}
 	}.bind(this))
 	level.pop()
-}
-
-function render_text_node_selection(text, node, part, character) {
-	
-	if (node == part.container) {
-		let offset = part.offset
-		return text.substring(0, offset) + character + text.substring(offset)
-	}
-	return text
 }
 
 export function serialize_tag_head(node) {

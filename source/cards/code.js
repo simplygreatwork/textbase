@@ -1,6 +1,6 @@
 
 import { a_text_node } from '../basics.js'
-import { consume_event } from '../basics.js'
+import { consume_event, decode_entities } from '../basics.js'
 import { get_selection, set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
@@ -241,5 +241,8 @@ function hydrate(card) {
 }
 
 function dehydrate(container) {
+	
+	let source = u(container).find('.code-source code')
+	source.text(source.html())										// encode html entities
 	u(container).find('.code-highlighted').remove()
 }
