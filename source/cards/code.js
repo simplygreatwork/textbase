@@ -182,9 +182,10 @@ function mutated(added, removed, changed) {
 function indent_lines(editor, history) {
 	
 	shift_selected_lines(editor, history, function(line, index, selection) {
-		selection.tail.offset++
+		let result = `\t${line}`
 		if (index === 0) selection.head.offset++
-		return `\t${line}`
+		selection.tail.offset++
+		return result
 	})
 }
 
@@ -193,9 +194,9 @@ function dedent_lines(editor, history) {
 	shift_selected_lines(editor, history, function(line, index, selection) {
 		let result = line
 		if (line.charAt(0) == '\t') {
-			selection.tail.offset--
 			result = line.slice(1)
 			if (index === 0) selection.head.offset--
+			selection.tail.offset--
 		}
 		return result
 	})
