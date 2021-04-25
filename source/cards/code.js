@@ -189,7 +189,7 @@ function indent_lines(editor, history) {
 	})
 }
 
-function dedent_lines(editor, history) {
+function dedent_lines(editor, history) {	
 	
 	shift_selected_lines(editor, history, function(line, index, selection) {
 		let result = line
