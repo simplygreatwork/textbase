@@ -48,7 +48,7 @@ export class Application {
 		} else {
 			return {
 				mutable: false,
-				path: './documents/intro.html'
+				path: './documents/all.html'
 			}
 		}
 	}
