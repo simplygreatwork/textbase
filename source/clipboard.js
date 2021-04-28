@@ -71,9 +71,8 @@ export function initialize_clipboard(editor) {
 		if (clipboard_data.types.indexOf('internal/text/html') > -1) {
 			let content = clipboard_data.getData('internal/text/html')
 			logger('clipboard').log('paste content: ' + content)
-			let node = u(content)
-			if (node.children().length === 0) {
-				content = u(node).first().innerHTML
+			if (u(content).children().length === 0) {
+				content = u(content).first().innerHTML
 				paste_plain_text(content, editor)
 			} else {
 				paste_html_text(content, editor)
