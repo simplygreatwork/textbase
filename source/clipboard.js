@@ -90,6 +90,22 @@ export function initialize_clipboard(editor) {
 			paste_plain_text(content, editor)
 		}
 	}.bind(this))
+	
+	bus.on('clipboard-paste:internal/text/html', function(event, editor) {
+		return
+	}.bind(this))
+	
+	bus.on('clipboard-paste:internal/text/plain', function(event, editor) {
+		return
+	}.bind(this))
+	
+	bus.on('clipboard-paste:text/html', function(event, editor) {
+		return
+	}.bind(this))
+	
+	bus.on('clipboard-paste:text/plain', function(event, editor) {
+		return
+	}.bind(this))
 }
 
 function paste_html_text(content, editor) {
