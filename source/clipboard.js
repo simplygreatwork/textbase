@@ -71,52 +71,60 @@ export function initialize_clipboard(editor) {
 		if (clipboard_data.types.indexOf('internal/text/html') > -1) {
 			let content = clipboard_data.getData('internal/text/html')
 			logger('clipboard').log('paste content: ' + content)
-			if (is_internal_transfer(content)) {
-				content = extract_internal_transfer(content)
-				paste_internally(content, editor)
+			let node = u(content)
+			if (node.children().length === 0) {
+				content = u(node).first().innerHTML
+				paste_plain_text(content, editor)
+			} else {
+				paste_html_text(content, editor)
 			}
 		} else if (clipboard_data.types.indexOf('internal/text/plain') > -1) {
 			let content = clipboard_data.getData('internal/text/plain')
 			logger('clipboard').log('paste content: ' + content)
-			paste_internally(content, editor)
+			paste_plain_text(content, editor)
 		} else if (clipboard_data.types.indexOf('text/plain') > -1) {
 			let content = clipboard_data.getData('text/plain')
 			logger('clipboard').log('paste content: ' + content)
-			paste_internally(content, editor)
+			paste_plain_text(content, editor)
 		}
 	}.bind(this))
 }
 
-function paste_internally(content, editor) {
+function paste_html_text(content, editor) {
 	
 	let bus = editor.bus
 	let node = u(content)
 	let selection = get_selection(editor)
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
-	if (node.children().length === 0) {
-		insert_string(content, editor, bus)
-		editor.emit('content-did-change', edges[1], edges[0])
-		editor.emit('clipboard-did-paste')
-	} else {
-		let part = null
-		node.children().each(function(each) {
-			each = u(each)
-			if (each.is(an_inline_element)) {
-				insert_inline(edges[0], each, editor, bus)
-			} else if (each.is(a_block_element)) {
-				if (part === null) {
-					part = u(editor.split_content(a_block_element)[0])
-				}
-				insert_block(part, each, editor, bus)
-				part = each
+	let part = null
+	node.children().each(function(each) {
+		each = u(each)
+		if (each.is(an_inline_element)) {
+			insert_inline(edges[0], each, editor, bus)
+		} else if (each.is(a_block_element)) {
+			if (part === null) {
+				part = u(editor.split_content(a_block_element)[0])
 			}
-		})
-		set_caret(editor, { container: edges[0], offset: 0 })
-		normalize_selection(editor)
-		editor.emit('content-did-change', edges[1], edges[0])
-		editor.emit('clipboard-did-paste')
-	}
+			insert_block(part, each, editor, bus)
+			part = each
+		}
+	})
+	set_caret(editor, { container: edges[0], offset: 0 })
+	normalize_selection(editor)
+	editor.emit('content-did-change', edges[1], edges[0])
+	editor.emit('clipboard-did-paste')
+}
+
+function paste_plain_text(content, editor) {
+	
+	let bus = editor.bus
+	let selection = get_selection(editor)
+	let edges = selection_edge(editor, selection)
+	selection.range.deleteContents()
+	insert_string(content, editor, bus)
+	bus.emit('content-did-change', edges[1], edges[0])
+	bus.emit('clipboard-did-paste')
 }
 
 function insert_string(string, editor, bus) {
@@ -140,10 +148,6 @@ function insert_block(parent, node, editor, bus) {
 	bus.emit('content-did-insert', node, bus)
 }
 
-function is_internal_transfer(node) {
-	return u(node).first().tagName == 'internal-transfer'.toUpperCase()
-}
-
-function extract_internal_transfer(node) {
+function extract_plain_text(node) {
 	return u(node).first().innerHTML
 }
