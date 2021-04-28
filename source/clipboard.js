@@ -54,9 +54,9 @@ export function initialize_clipboard(editor) {
 		if (selection == null) return
 		let range = selection.range
 		let fragment = range.cloneContents()
-		let clip = document.createElement('internal-transfer')
-		clip.appendChild(fragment.cloneNode(true))
-		let content = clip.outerHTML
+		let div = document.createElement('div')
+		div.appendChild(fragment.cloneNode(true))
+		let content = div.outerHTML
 		logger('clipboard').log('copy content: ' + content)
 		event.clipboardData.setData('text/html', content)
 		event.clipboardData.setData('internal/text/html', content)
@@ -78,6 +78,8 @@ export function initialize_clipboard(editor) {
 			} else {
 				paste_html_text(content, editor)
 			}
+		} else if (clipboard_data.types.indexOf('text/html') > -1) {
+			return 'sanitize'
 		} else if (clipboard_data.types.indexOf('internal/text/plain') > -1) {
 			let content = clipboard_data.getData('internal/text/plain')
 			logger('clipboard').log('paste content: ' + content)
