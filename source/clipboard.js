@@ -40,8 +40,11 @@ export function initialize_clipboard(editor) {
 		let clip = document.createElement('internal-transfer')
 		clip.appendChild(fragment.cloneNode(true))
 		let content = clip.outerHTML
-		logger('trace').log('cut content: ' + content)
+		logger('clipboard').log('cut content: ' + content)
 		event.clipboardData.setData('text/html', content)
+		event.clipboardData.setData('internal/text/html', content)
+		event.clipboardData.setData('text/plain', u(fragment).text())
+		event.clipboardData.setData('internal/text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-copy', function(event, editor) {
@@ -54,18 +57,31 @@ export function initialize_clipboard(editor) {
 		let clip = document.createElement('internal-transfer')
 		clip.appendChild(fragment.cloneNode(true))
 		let content = clip.outerHTML
-		logger('trace').log('copy content: ' + content)
+		logger('clipboard').log('copy content: ' + content)
 		event.clipboardData.setData('text/html', content)
+		event.clipboardData.setData('internal/text/html', content)
 		event.clipboardData.setData('text/plain', u(fragment).text())
+		event.clipboardData.setData('internal/text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-paste', function(event, editor) {		// todo: need to edge selection
 		logger('trace').log('event:paste')
 		event.preventDefault()
 		let clipboard_data = (event.clipboardData || window.clipboardData)
-		let content = clipboard_data.getData('text/html')
-		logger('trace').log('paste content: ' + content)
-		if (is_internal_transfer(content)) {
+		if (clipboard_data.types.indexOf('internal/text/html') > -1) {
+			let content = clipboard_data.getData('internal/text/html')
+			logger('clipboard').log('paste content: ' + content)
+			if (is_internal_transfer(content)) {
+				content = extract_internal_transfer(content)
+				paste_internally(content, editor)
+			}
+		} else if (clipboard_data.types.indexOf('internal/text/plain') > -1) {
+			let content = clipboard_data.getData('internal/text/plain')
+			logger('clipboard').log('paste content: ' + content)
+			paste_internally(content, editor)
+		} else if (clipboard_data.types.indexOf('text/plain') > -1) {
+			let content = clipboard_data.getData('text/plain')
+			logger('clipboard').log('paste content: ' + content)
 			paste_internally(content, editor)
 		}
 	}.bind(this))
@@ -79,7 +95,6 @@ function paste_internally(content, editor) {
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
 	if (node.children().length === 0) {
-		content = extract_internal_transfer(content)
 		insert_string(content, editor, bus)
 		editor.emit('content-did-change', edges[1], edges[0])
 		editor.emit('clipboard-did-paste')
@@ -88,7 +103,7 @@ function paste_internally(content, editor) {
 		node.children().each(function(each) {
 			each = u(each)
 			if (each.is(an_inline_element)) {
-				insert_inline(edges[0], each.first(), editor, bus)
+				insert_inline(edges[0], each, editor, bus)
 			} else if (each.is(a_block_element)) {
 				if (part === null) {
 					part = u(editor.split_content(a_block_element)[0])

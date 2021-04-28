@@ -304,6 +304,7 @@ export class System {
 			this.enable_feature('format-emphasis', bus)
 			this.enable_feature('format-underline', bus)
 			this.enable_feature('format-strikethrough', bus)
+			if (false) this.enable_feature('format-code', bus)
 			this.enable_feature('format-highlight', bus)
 			this.enable_feature('format-clear', bus)
 		}.bind(this))
@@ -363,6 +364,13 @@ export class System {
 				toggle_format(editor, 'strikethrough')
 			}.bind(this))
 			bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough', 'format', 'strikethrough')
+		}.bind(this))
+		
+		bus.on('feature:format-code', function() {
+			bus.on('action:code', function() {
+				toggle_format(editor, 'code')
+			}.bind(this))
+			bus.emit('feature-did-enable', 'code', 'Code', 'format', 'code')
 		}.bind(this))
 		
 		bus.on('feature:format-highlight', function() {

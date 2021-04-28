@@ -13,6 +13,13 @@
 .highlight {
 	background-color:lightyellow;
 }
+.code {
+	font-family:monospace;
+	border-top:1px solid royalblue;
+	border-bottom:1px solid royalblue;
+	padding-top:4px;
+	padding-bottom:4px;
+}
 .hyperlink {
 	text-decoration:underline;
 	color:royalblue;

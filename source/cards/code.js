@@ -118,7 +118,7 @@ export function initialize_code_cards(bus, editor, history) {
 	context.on('clipboard-cut', function(event, editor, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
-		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
+		event.clipboardData.setData('text/plain', u(selection.range.extractContents()).text())
 		render(find_card_container(selection.head.container, 'code'))
 		consume_event(event)
 		interrupt()
