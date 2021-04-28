@@ -37,14 +37,14 @@ export function initialize_clipboard(editor) {
 		if (selection == null) return
 		let range = selection.range
 		let fragment = range.extractContents()
-		let clip = document.createElement('internal-transfer')
-		clip.appendChild(fragment.cloneNode(true))
-		let content = clip.outerHTML
+		let div = document.createElement('div')
+		div.appendChild(fragment.cloneNode(true))
+		let content = div.outerHTML
 		logger('clipboard').log('cut content: ' + content)
-		event.clipboardData.setData('text/html', content)
-		event.clipboardData.setData('internal/text/html', content)
-		event.clipboardData.setData('text/plain', u(fragment).text())
-		event.clipboardData.setData('internal/text/plain', u(fragment).text())
+		clipboard_data.setData('text/html', content)
+		clipboard_data.setData('internal/text/html', content)
+		clipboard_data.setData('text/plain', u(fragment).text())
+		clipboard_data.setData('internal/text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-copy', function(event, editor) {
@@ -58,10 +58,11 @@ export function initialize_clipboard(editor) {
 		div.appendChild(fragment.cloneNode(true))
 		let content = div.outerHTML
 		logger('clipboard').log('copy content: ' + content)
-		event.clipboardData.setData('text/html', content)
-		event.clipboardData.setData('internal/text/html', content)
-		event.clipboardData.setData('text/plain', u(fragment).text())
-		event.clipboardData.setData('internal/text/plain', u(fragment).text())
+		let clipboard_data = (event.clipboardData || window.clipboardData)
+		clipboard_data.setData('text/html', content)
+		clipboard_data.setData('internal/text/html', content)
+		clipboard_data.setData('text/plain', u(fragment).text())
+		clipboard_data.setData('internal/text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-paste', function(event, editor) {		// todo: need to edge selection
@@ -113,8 +114,8 @@ function paste_html_text(content, editor) {
 	})
 	set_caret(editor, { container: edges[0], offset: 0 })
 	normalize_selection(editor)
-	editor.emit('content-did-change', edges[1], edges[0])
-	editor.emit('clipboard-did-paste')
+	bus.emit('content-did-change', edges[1], edges[0])
+	bus.emit('clipboard-did-paste')
 }
 
 function paste_plain_text(content, editor) {
