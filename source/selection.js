@@ -111,8 +111,7 @@ export function get_selected_content(editor) {
 	let selection = get_selection(editor)
 	let edges = selection_edge(editor, selection)
 	selection = get_selection(editor)
-	let fragment = selection.range.cloneContents()
-	return fragment
+	return selection.range.cloneContents()
 }
 
 export function select_range(editor, from, to) {

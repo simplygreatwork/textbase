@@ -1,4 +1,5 @@
 
+import { get_selected_content } from '../selection.js'
 import { insert_atom } from '../features/atoms.js'
 import { Logger } from '../logger.js'
 
@@ -7,12 +8,12 @@ const logger = Logger()
 export function initialize_mention_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-mention', function() {
-		insert_atom(editor, `
-			<span class="atom" data-atom-type="mention">
+		insert_atom(editor, u(`
+			<span data-atom-type="mention" class="atom">
 				<span>@</span>
-				<span contentEditable=true>mention</span>
+				<span data-role="content" contentEditable=true></span>
 			</span>
-		`)
+		`).find('[data-role="content"]').append(get_selected_content(editor)).parent().first())
 	}.bind(this))
 	
 	bus.on('atom-will-enter:mention', function(atom) {

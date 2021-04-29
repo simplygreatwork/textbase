@@ -1,6 +1,6 @@
 
-import { insert_atom } from '../features/atoms.js'
 import { get_selected_content } from '../selection.js'
+import { insert_atom } from '../features/atoms.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
@@ -10,9 +10,9 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 	bus.on('action:atom-hyperlink', function() {
 		insert_atom(editor, u(`
 			<a data-atom-type="hyperlink" class="atom-hyperlink" href="http://github.com">
-				<span contentEditable=true></span>
+				<span data-role="content" contentEditable=true></span>
 			</a>
-		`).find('span').append(get_selected_content(editor)).parent().first())
+		`).find('[data-role="content"]').append(get_selected_content(editor)).parent().first())
 	}.bind(this))
 	
 	bus.on('atom-will-enter:hyperlink', function(atom) {

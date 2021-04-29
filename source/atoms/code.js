@@ -1,4 +1,5 @@
 
+import { get_selected_content } from '../selection.js'
 import { insert_atom } from '../features/atoms.js'
 import { Logger } from '../logger.js'
 
@@ -7,11 +8,11 @@ const logger = Logger()
 export function initialize_code_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-code', function() {
-		insert_atom(editor, `
-			<span class="atom-code" data-atom-type="code">
-				<span contentEditable=true>Code</span>
+		insert_atom(editor, u(`
+			<span data-atom-type="code" class="atom-code">
+				<span data-role="content" contentEditable=true></span>
 			</span>
-		`)
+		`).find('[data-role="content"]').append(get_selected_content(editor)).parent().first())
 	}.bind(this))
 	
 	bus.on('atom-will-enter:code', function(atom) {
