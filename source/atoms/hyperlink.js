@@ -8,11 +8,13 @@ const logger = Logger()
 export function initialize_hyperlink_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-hyperlink', function() {
+		let content = get_selected_content(editor)
+		if (u(content).text().length == 0) content = 'hyperlink'
 		insert_atom(editor, u(`
 			<a data-atom-type="hyperlink" class="atom-hyperlink" href="http://github.com">
 				<span data-role="content" contentEditable=true></span>
 			</a>
-		`).find('[data-role="content"]').append(get_selected_content(editor)).parent().first())
+		`).find('[data-role="content"]').append(content).parent().first())
 	}.bind(this))
 	
 	bus.on('atom-will-enter:hyperlink', function(atom) {

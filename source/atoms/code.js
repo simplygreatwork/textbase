@@ -8,11 +8,13 @@ const logger = Logger()
 export function initialize_code_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-code', function() {
+		let content = get_selected_content(editor)
+		if (u(content).text().length == 0) content = 'code'
 		insert_atom(editor, u(`
 			<span data-atom-type="code" class="atom-code">
 				<span data-role="content" contentEditable=true></span>
 			</span>
-		`).find('[data-role="content"]').append(get_selected_content(editor)).parent().first())
+		`).find('[data-role="content"]').append(content).parent().first())
 	}.bind(this))
 	
 	bus.on('atom-will-enter:code', function(atom) {
