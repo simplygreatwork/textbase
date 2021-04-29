@@ -19,6 +19,8 @@ import { initialize_cards } from './features/cards.js'
 import { initialize_sample_atoms } from './atoms/sample.js'
 import { initialize_animated_atoms } from './atoms/animated.js'
 import { initialize_mention_atoms } from './atoms/mention.js'
+import { initialize_code_atoms } from './atoms/code.js'
+import { initialize_hyperlink_atoms } from './atoms/hyperlink.js'
 import { initialize_sample_cards } from './cards/sample.js'
 import { initialize_animated_cards } from './cards/animated.js'
 import { initialize_editable_cards } from './cards/editable.js'
@@ -506,6 +508,8 @@ export class System {
 			initialize_sample_atoms(bus, editor, history)
 			initialize_animated_atoms(bus, editor, history)
 			initialize_mention_atoms(bus, editor, history)
+			initialize_code_atoms(bus, editor, history)
+			initialize_hyperlink_atoms(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:cards', function() {

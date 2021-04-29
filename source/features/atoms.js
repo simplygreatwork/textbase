@@ -131,7 +131,7 @@ export function can_insert_atom(editor) {
 	return true
 }
 
-export function insert_atom(editor, string) {
+export function insert_atom(editor, node) {
 	
 	logger('trace').log('insert_atom')
 	if (! can_insert_atom(editor)) return 
@@ -140,7 +140,7 @@ export function insert_atom(editor, string) {
 		editor.request_to_delete()
 		selection = get_selection(editor)
 	}
-	let atom = u(string)
+	let atom = u(node)
 	atom.attr('contenteditable', 'false')
 	editor.emit(`atom-will-enter`, atom.first())
 	let edges = selection_edge(editor, selection)

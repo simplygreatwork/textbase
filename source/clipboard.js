@@ -140,14 +140,9 @@ function paste_plain_text(content, editor) {
 	let selection = get_selection(editor)
 	let edges = selection_edge(editor, selection)
 	selection.range.deleteContents()
-	insert_string(content, editor, bus)
+	editor.insert_string(content)
 	bus.emit('content-did-change', edges[1], edges[0])
 	bus.emit('clipboard-did-paste')
-}
-
-function insert_string(string, editor, bus) {
-	
-	editor.insert_string(string)
 }
 
 function insert_inline(parent, node, editor, bus) {
@@ -164,8 +159,4 @@ function insert_block(parent, node, editor, bus) {
 	bus.emit('content-will-insert', node, bus)
 	u(parent).after(node)
 	bus.emit('content-did-insert', node, bus)
-}
-
-function extract_plain_text(node) {
-	return u(node).first().innerHTML
 }

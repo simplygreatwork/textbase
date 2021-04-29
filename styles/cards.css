@@ -1,3 +1,25 @@
+[data-card-type] {
+	margin-top:4px;
+	margin-bottom:4px;
+}
+.card {
+	border:1px solid royalblue;
+	padding:10px;
+	height:50px;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+.card-content {
+	width:95%;
+	height:inherit;
+}
+.card-caret {
+	width:5%;
+	height:inherit;
+	font-size:50px;
+	padding-left:6px;
+	vertical-align:middle;
+}
 .hero {
 	border-radius:10px;
 	background:royalblue;

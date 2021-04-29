@@ -1,0 +1,24 @@
+.atom {
+	border:1px solid royalblue;
+	padding:4px;
+	border-radius:2px;
+	margin-left:6px;
+	margin-right:6px;
+}
+.atom-hyperlink {
+	padding:0px;
+	margin-left:0px;
+	margin-right:0px;
+}
+.atom-code {
+	padding:4px;
+	margin-left:4px;
+	margin-right:4px;
+	font-family:monospace;
+	font-size:110%;
+	font-weight:900;
+	background:gray;
+	color:white;
+	border:1px solid #000000;
+	border-radius:4px;
+}
