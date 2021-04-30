@@ -11,17 +11,23 @@ export class Structure {
 		
 		this.bus = bus
 		this.editor = editor
-		this.render_ = true
+		this.should_render = true
 	}
 	
 	toggle() {
 		
-		this.render_ = !this.render_
-		this.render()
+		this.should_render = ! this.should_render
+		if (this.should_render) {
+			this.render()
+			u('.structure').removeClass('structure-off')
+		} else {
+			u('.structure').addClass('structure-off')
+		}
 	}
 	
 	render() {
 		
+		if (this.should_render === false) return
 		let content = this.render_ ? serialize(this.editor) : ''
 		document.querySelector('.structure-html').textContent = content
 	}

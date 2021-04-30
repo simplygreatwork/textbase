@@ -9,7 +9,7 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-hyperlink', function() {
 		let content = get_selected_content(editor)
-		if (u(content).text().length == 0) content = 'hyperlink'
+		if (u(content).text().length === 0) content = 'hyperlink'
 		insert_atom(editor, u(`
 			<a data-atom-type="hyperlink" class="atom-hyperlink" href="http://github.com">
 				<span data-role="content" contentEditable=true></span>

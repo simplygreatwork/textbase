@@ -16,7 +16,7 @@ body {
 	overflow-y:none;
 }
 .editor {
-	width:45%;
+	flex:1;
 	overflow-y:scroll;
 	padding-left:40px;
 }
@@ -61,10 +61,13 @@ button:focus {
 	outline:0;
 }
 .structure {
-	width:45%;
+	flex:1;
 	overflow-y:scroll;
 	height:100%;
 	background-color:white;
+}
+.structure-off {
+	display:none;
 }
 .structure-html {
 	white-space: pre-wrap;

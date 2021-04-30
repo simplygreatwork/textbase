@@ -9,7 +9,7 @@ export function initialize_mention_atoms(bus, editor, history) {
 	
 	bus.on('action:atom-mention', function() {
 		let content = get_selected_content(editor)
-		if (u(content).text().length == 0) content = 'mention'
+		if (u(content).text().length === 0) content = 'mention'
 		insert_atom(editor, u(`
 			<span data-atom-type="mention" class="atom">
 				<span>@</span>
