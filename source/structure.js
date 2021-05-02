@@ -28,7 +28,7 @@ export class Structure {
 	render() {
 		
 		if (this.should_render === false) return
-		let content = this.render_ ? serialize(this.editor) : ''
+		let content = this.should_render ? serialize(this.editor) : ''
 		document.querySelector('.structure-html').textContent = content
 	}
 }

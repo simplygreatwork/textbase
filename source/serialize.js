@@ -74,11 +74,11 @@ function serialize_(node, level, result) {
 	level.pop()
 }
 
-export function serialize_tag_head(node) {
+function serialize_tag_head(node) {
 	return u(node).clone().empty().first().outerHTML.split('><')[0] + '>'
 }
 
-export function serialize_tag_tail(tag) {
+function serialize_tag_tail(tag) {
 	
 	if (tag == 'img') {
 		return null

@@ -18,7 +18,7 @@ export class Editor {
 		this.element = element
 		this.initialize_content()
 		this.initialize_keymap()
-		this.initialize_requests(bus)
+		this.initialize_actions(bus)
 		this.initialize_selection()
 	}
 	
@@ -60,7 +60,7 @@ export class Editor {
 		}
 	}
 	
-	initialize_requests(bus) {
+	initialize_actions(bus) {
 		
 		bus.on('action:insert-character', function(event, interrupt) {
 			this.insert_character(event)

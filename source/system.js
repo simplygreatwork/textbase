@@ -7,7 +7,9 @@ import { Structure } from './structure.js'
 import { Scanner } from './scanner.js'
 import { a_block_element, consume_event, debounce } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
-import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './keyboard.js'
+import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './navigation.js'
+import { extend_selection_right, extend_selection_left } from './navigation.js'
+import { extend_selection_down, extend_selection_up } from './navigation.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
 import { toggle_block, transform_block, block_has_content } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
@@ -168,6 +170,38 @@ export class System {
 				bus.emit('action:caret-left', event)
 			}.bind(this))
 			
+			bus.on('action:caret-right-extend-selection', function(event) {
+				extend_selection_right(event, editor)
+			}.bind(this))
+			
+			bus.on('keydown:shift-arrowright', function(event) {
+				bus.emit('action:caret-right-extend-selection', event)
+			}.bind(this))
+			
+			bus.on('action:caret-left-extend-selection', function(event) {
+				extend_selection_left(event, editor)
+			}.bind(this))
+			
+			bus.on('keydown:shift-arrowleft', function(event) {
+				bus.emit('action:caret-left-extend-selection', event)
+			}.bind(this))
+			
+			bus.on('action:caret-down-extend-selection', function(event) {
+				extend_selection_down(event, editor)
+			}.bind(this))
+			
+			bus.on('keydown:shift-arrowdown', function(event) {
+				bus.emit('action:caret-down-extend-selection', event)
+			}.bind(this))
+			
+			bus.on('action:caret-up-extend-selection', function(event) {
+				extend_selection_up(event, editor)
+			}.bind(this))
+			
+			bus.on('keydown:shift-arrowup', function(event) {
+				bus.emit('action:caret-up-extend-selection', event)
+			}.bind(this))
+			
 			bus.on('action:undo', function() {
 				this.history.undo(event)
 			}.bind(this))
@@ -306,7 +340,6 @@ export class System {
 			this.enable_feature('format-emphasis', bus)
 			this.enable_feature('format-underline', bus)
 			this.enable_feature('format-strikethrough', bus)
-			if (false) this.enable_feature('format-code', bus)
 			this.enable_feature('format-highlight', bus)
 			this.enable_feature('format-clear', bus)
 		}.bind(this))
