@@ -29,20 +29,20 @@ export class Scanner {
 	
 	configure(walker, bus) {
 		
-		walker.on('text', function(element) {
-			if (! is_editable_node(element)) return
-			if (element.nodeValue.length === 0) {
-				bus.emit('detected:text-node-without-content', element)
+		walker.on('text', function(node) {
+			if (! is_editable_node(node)) return
+			if (node.nodeValue.length === 0) {
+				bus.emit('detected:text-node-without-content', node)
 			} else {
-				bus.emit('detected:text-node-with-content', element)
+				bus.emit('detected:text-node-with-content', node)
 			}
 		}.bind(this))
 		
-		walker.on('text', function(element) {
-			if (! is_editable_node(element)) return
-			if (element.nodeValue.indexOf('\n') === -1) {
-				if (! u(element.parentElement).is('span')) {
-					bus.emit('detected:text-node-without-span-parent', element)
+		walker.on('text', function(node) {
+			if (! is_editable_node(node)) return
+			if (node.nodeValue.indexOf('\n') === -1) {
+				if (! u(node.parentElement).is('span')) {
+					bus.emit('detected:text-node-without-span-parent', node)
 				}
 			}
 		}.bind(this))

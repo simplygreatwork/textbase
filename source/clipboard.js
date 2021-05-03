@@ -2,12 +2,29 @@
 import { a_text_node, node_iterator } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { get_selection, set_caret, selection_edge, normalize_selection } from './selection.js'
-import { sanitize } from './sanitize.js'
+import { Sanitizer } from './sanitize.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
 
 export function initialize_clipboard(editor) {
+	
+	let sanitizer = new Sanitizer()
+	let result = sanitizer.sanitize(`
+		<div>
+			<div contentEditable="true">
+				<script></script>
+				<b>bold</b>
+				<i>italic</i>
+				<div contentEditable="false">
+					<script></script>
+					<b>bold</b>
+					<i>italic</i>
+				</div>
+			</div>
+		</div>
+	`)
+	console.log('sanitized: ' + result)
 	
 	let bus = editor.bus
 	let target = editor.element

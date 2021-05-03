@@ -1,57 +1,51 @@
 
+import { is_editable_node } from './basics.js'
+import { Bus } from './bus.js'
+import { Walker } from './walker.js'
 import { Logger } from './logger.js'
-import { node_iterator, a_text_node } from './basics.js'
 
 const logger = Logger()
 
-// todo: need to skip atom and card content when sanitizing
-// todo: need to resolve nested levels of content
-
-export function sanitize(fragment) {
+export class Sanitizer {
 	
-	logger('trace').log('sanitize')
-	sanitize_walk(fragment)
-	return sanitize_fragment(fragment)
-}
-
-export function sanitize_fragment(fragment) {
-	
-	logger('trace').log('sanitize')
-	let result = fragment
-	let node = fragment
-	let iterator = node_iterator(fragment, node)
-	while (node) {
-		if (node.hasAttributes && node.hasAttributes()) {
-			Array.from(node.attributes).forEach(function(attribute) {
-				let name = attribute.nodeName
-				let value = attribute.nodeValue
-				if (name != 'class') {
-					node.removeAttribute(attribute.nodeName)
-				}
-			})
-		}
-		if (node.removeAttribute) node.removeAttribute('style')
-		if (node.setAttribute) node.setAttribute('woot', 'woot')
-		if (node == null) break
-		node = iterator.nextNode()
+	constructor(editor) {
+		
+		this.walker = new Walker()
+		this.configure(this.walker.bus)
+		this.blacklist = []
 	}
-	return result
-}
-
-export function sanitize_walk(fragment) {
 	
-	let parents = [fragment]
-	let node = fragment
-	let iterator = node_iterator(fragment, node)
-	while (node) {
-		if (node.nodeType === 1) {
-			console.log('element: ' + node.tagName)
-			console.log('parent: ' + node.parentNode)
-		}
-		if (node.nodeType === 3) {
-			console.log('text: ' + node.nodeValue)
-		} 
-		if (node == null) break
-		node = iterator.nextNode()
+	sanitize(html) {
+		
+		logger('sanitize').log('sanitizing...')
+		let top = u(html).first()
+		this.walker.walk(top)
+		this.blacklist.forEach(function(each) {
+			u(each).remove()
+		})
+		return top.outerHTML
+	}
+	
+	configure(bus) {
+		
+		bus.on('element', function(node) {
+			if (is_editable_node(node)) {
+				bus.emit('element:editable', node)
+			} else {
+				bus.emit('element:non-editable', node)
+			}
+		}.bind(this))
+		
+		bus.on('element:editable', function(node) {
+			if (node.tagName == 'I') this.blacklist.push(node)
+		}.bind(this))
+		
+		bus.on('element:editable', function(node) {
+			if (node.tagName == 'SCRIPT') this.blacklist.push(node)
+		}.bind(this))
+		
+		bus.on('element:non-editable', function(node) {
+			if (node.tagName == 'SCRIPT') this.blacklist.push(node)
+		}.bind(this))
 	}
 }
