@@ -9,27 +9,9 @@ const logger = Logger()
 
 export function initialize_clipboard(editor) {
 	
-	let sanitizer = new Sanitizer()
-	let result = sanitizer.sanitize(`
-		<div>
-			<div contentEditable="true">
-				<script></script>
-				<table></table>
-				<b>bold</b>
-				<i>italic</i>
-				<div contentEditable="false">
-					<script></script>
-					<table></table>
-					<b>bold</b>
-					<i>italic</i>
-				</div>
-			</div>
-		</div>
-	`)
-	console.log('sanitized: ' + result)
-	
 	let bus = editor.bus
 	let target = editor.element
+	if (true) sanitize_example()
 	
 	target.addEventListener('cut', function(event) {
 		bus.emit('clipboard-will-cut', event, editor)
@@ -178,4 +160,24 @@ function insert_block(parent, node, editor, bus) {
 	bus.emit('content-will-insert', node, bus)
 	u(parent).after(node)
 	bus.emit('content-did-insert', node, bus)
+}
+
+function sanitize_example() {
+	
+	logger('clipboard').log('sanitized: ' + new Sanitizer().sanitize(`
+		<div>
+			<div contentEditable="true">
+				<script></script>
+				<table></table>
+				<b>bold</b>
+				<i>italic</i>
+				<div contentEditable="false">
+					<script></script>
+					<table></table>
+					<b>bold</b>
+					<i>italic</i>
+				</div>
+			</div>
+		</div>
+	`))
 }
