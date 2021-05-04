@@ -14,10 +14,12 @@ export function initialize_clipboard(editor) {
 		<div>
 			<div contentEditable="true">
 				<script></script>
+				<table></table>
 				<b>bold</b>
 				<i>italic</i>
 				<div contentEditable="false">
 					<script></script>
+					<table></table>
 					<b>bold</b>
 					<i>italic</i>
 				</div>
