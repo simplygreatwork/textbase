@@ -10,7 +10,7 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export class Scanner {
+export class Enforcer {
 	
 	constructor(editor) {
 		

@@ -3,8 +3,9 @@ import { Bus } from './bus.js'
 import { Editor } from './editor.js'
 import { History } from './history.js'
 import { Toolbar } from './toolbar.js'
+import { Enforcer } from './enforcer.js'
+import { Sanitizer } from './sanitizer.js'
 import { Structure } from './structure.js'
-import { Scanner } from './scanner.js'
 import { a_block_element, consume_event, debounce } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './navigation.js'
@@ -33,7 +34,7 @@ import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'formats-off', 'scanner-off', 'clipboard'])
+const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
 
 export class System {
 	
@@ -54,11 +55,12 @@ export class System {
 		
 		this.bus = new Bus()
 		this.editor = new Editor(this.bus, document.querySelector('.editor'))
-		this.toolbar = new Toolbar(this.bus)
 		this.history = new History(this.bus, document.querySelector('.content'))
+		this.toolbar = new Toolbar(this.bus)
+		this.enforcer = new Enforcer(this.editor)
+		this.sanitizer = new Sanitizer(this.editor)
 		this.structure = new Structure(this.bus, this.editor)
-		this.scanner = new Scanner(this.editor)
-		this.offer_features(this.bus, this.editor, this.history, this.toolbar)
+		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.bus, features)
 	}
 	
@@ -75,7 +77,7 @@ export class System {
 		bus.emit(`feature:${feature}`)
 	}
 	
-	offer_features(bus, editor, history, toolbar) {
+	offer_features(bus, editor, history, toolbar, enforcer, sanitizer, structure) {
 		
 		let features = {}
 		bus.on('feature', function(name) {
@@ -102,7 +104,7 @@ export class System {
 		bus.on('feature:documents', function() {
 			bus.on('document-did-install', function(document_) {
 				logger('system').log('document-did-install')
-				this.scanner.scan(document.querySelector('.content'))
+				this.enforcer.scan(document.querySelector('.content'))
 				this.history.enable()
 				this.structure.render()
 			}.bind(this))
@@ -304,7 +306,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:clipboard', function() {
-			initialize_clipboard(editor)
+			initialize_clipboard(editor, sanitizer)
 			bus.on('clipboard-will-cut', function() {
 				logger('system').log('clipboard-will-cut')
 			})
@@ -565,7 +567,7 @@ export class System {
 		
 		bus.on('feature:other', function() {
 			bus.on('action:validate', function() {
-				this.scanner.scan(document.querySelector('.content'))
+				this.enforcer.scan(document.querySelector('.content'))
 			}.bind(this))
 			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
@@ -578,7 +580,7 @@ export class System {
 			bus.on('content-did-change', function(begin, end) {
 				logger('system').log('content-did-change')
 				this.debounce_content_did_change = this.debounce_content_did_change || debounce(function(begin, end) {
-					this.scanner.scan(begin, end)
+					this.enforcer.scan(begin, end)
 					this.structure.render()
 				}.bind(this), 10)
 				this.debounce_content_did_change(begin, end)

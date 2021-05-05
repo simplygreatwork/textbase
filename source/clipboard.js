@@ -7,11 +7,11 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export function initialize_clipboard(editor) {
+export function initialize_clipboard(editor, sanitizer) {
 	
 	let bus = editor.bus
 	let target = editor.element
-	if (true) sanitize_example()
+	if (true) sanitizer.example()
 	
 	target.addEventListener('cut', function(event) {
 		bus.emit('clipboard-will-cut', event, editor)
@@ -42,10 +42,11 @@ export function initialize_clipboard(editor) {
 		div.appendChild(fragment.cloneNode(true))
 		let content = div.outerHTML
 		logger('clipboard').log('cut content: ' + content)
+		let clipboard_data = (event.clipboardData || window.clipboardData)
 		clipboard_data.setData('text/html', content)
-		clipboard_data.setData('internal/text/html', content)
+		clipboard_data.setData('textbase/text/html', content)
 		clipboard_data.setData('text/plain', u(fragment).text())
-		clipboard_data.setData('internal/text/plain', u(fragment).text())
+		clipboard_data.setData('textbase/text/plain', u(fragment).text())
 	}.bind(this))
 	
 	bus.on('clipboard-copy', function(event, editor) {
@@ -61,17 +62,18 @@ export function initialize_clipboard(editor) {
 		logger('clipboard').log('copy content: ' + content)
 		let clipboard_data = (event.clipboardData || window.clipboardData)
 		clipboard_data.setData('text/html', content)
-		clipboard_data.setData('internal/text/html', content)
+		clipboard_data.setData('textbase/text/html', content)
 		clipboard_data.setData('text/plain', u(fragment).text())
-		clipboard_data.setData('internal/text/plain', u(fragment).text())
+		clipboard_data.setData('textbase/text/plain', u(fragment).text())
 	}.bind(this))
 	
-	bus.on('clipboard-paste', function(event, editor) {		// todo: need to edge selection
+	bus.on('clipboard-paste', function(event, editor) {				// todo: need to edge selection
 		logger('trace').log('event:paste')
 		event.preventDefault()
 		let clipboard_data = (event.clipboardData || window.clipboardData)
-		if (clipboard_data.types.indexOf('internal/text/html') > -1) {
-			let content = clipboard_data.getData('internal/text/html')
+		logger('clipboard').log('pastable data types: ' + Array.from(clipboard_data.types).join(' : '))
+		if (clipboard_data.types.indexOf('textbase/text/html') > -1) {
+			let content = clipboard_data.getData('textbase/text/html')
 			logger('clipboard').log('paste content: ' + content)
 			if (u(content).children().length === 0) {
 				content = u(content).first().innerHTML
@@ -80,9 +82,11 @@ export function initialize_clipboard(editor) {
 				paste_html_text(content, editor)
 			}
 		} else if (clipboard_data.types.indexOf('text/html') > -1) {
-			return 'sanitize'
-		} else if (clipboard_data.types.indexOf('internal/text/plain') > -1) {
-			let content = clipboard_data.getData('internal/text/plain')
+			let content = clipboard_data.getData('text/html')
+			content = `<div>${sanitizer.sanitize(content)}</div>`
+			paste_html_text(content, editor)
+		} else if (clipboard_data.types.indexOf('textbase/text/plain') > -1) {
+			let content = clipboard_data.getData('textbase/text/plain')
 			logger('clipboard').log('paste content: ' + content)
 			paste_plain_text(content, editor)
 		} else if (clipboard_data.types.indexOf('text/plain') > -1) {
@@ -92,11 +96,11 @@ export function initialize_clipboard(editor) {
 		}
 	}.bind(this))
 	
-	bus.on('clipboard-paste:internal/text/html', function(event, editor) {
+	bus.on('clipboard-paste:textbase/text/html', function(event, editor) {
 		return
 	}.bind(this))
 	
-	bus.on('clipboard-paste:internal/text/plain', function(event, editor) {
+	bus.on('clipboard-paste:textbase/text/plain', function(event, editor) {
 		return
 	}.bind(this))
 	
@@ -160,43 +164,4 @@ function insert_block(parent, node, editor, bus) {
 	bus.emit('content-will-insert', node, bus)
 	u(parent).after(node)
 	bus.emit('content-did-insert', node, bus)
-}
-
-function sanitize_example() {
-	
-	logger('clipboard').log('sanitized: ')
-	logger('clipboard').log(new Sanitizer().sanitize(`
-		top-text
-		<p>
-			p-text
-			<span>p-span-text</span>
-			<span>p-span-text</span>
-			<span>p-span-text</span>
-		</p>
-		<omit>
-			omit-text
-			<h1>omit-h1-text</h1>
-			omit-text
-			<span>omit-span-text</span>
-			<b>omit-bold-text</b>
-			<span>omit-span-text</span>
-		</omit>
-		<h1>h1-text</h1>
-		<h2>h2-text</h2>
-		<li>li-text</li>
-		<ul>
-			<li>li-text</li>
-			<li>li-text</li>
-		</ul>
-		<script></script>
-		<table></table>
-		<b>bold-text</b>
-		<i>italic-text</i>
-		<div contentEditable="false">
-			<script></script>
-			<table></table>
-			<b>div-bold-text</b>
-			<i>div-italic-text</i>
-		</div>
-	`))
 }
