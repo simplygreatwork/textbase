@@ -53,7 +53,7 @@ export class Bus {
 		
 		Array.from(this.contexts).reverse().forEach(function(context) {
 			if (! this.channels[context]) return 
-			if (! this.channels[context][key]) return 
+			if (! this.channels[context][key]) return
 			this.channels[context][key].forEach(function(fn_) {
 				if (! state.interrupted) fn(fn_)
 			}.bind(this))

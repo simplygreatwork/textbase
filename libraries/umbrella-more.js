@@ -1,11 +1,13 @@
 
 u.prototype.contents = function() {
+	
 	return this.map(function(node) {
 		return this.slice(node.childNodes)
 	})
 }
 
 u.prototype.clone = function(mirrors) {
+	
 	mirrors = mirrors || {}
 	return this.map(function (node, i) {
 		var clone = node.cloneNode(true)

@@ -2,7 +2,7 @@
 import { a_text_node, node_iterator } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { get_selection, set_caret, selection_edge, normalize_selection } from './selection.js'
-import { Sanitizer } from './sanitize.js'
+import { Sanitizer } from './sanitizer.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -164,20 +164,39 @@ function insert_block(parent, node, editor, bus) {
 
 function sanitize_example() {
 	
-	logger('clipboard').log('sanitized: ' + new Sanitizer().sanitize(`
-		<div>
-			<div contentEditable="true">
-				<script></script>
-				<table></table>
-				<b>bold</b>
-				<i>italic</i>
-				<div contentEditable="false">
-					<script></script>
-					<table></table>
-					<b>bold</b>
-					<i>italic</i>
-				</div>
-			</div>
+	logger('clipboard').log('sanitized: ')
+	logger('clipboard').log(new Sanitizer().sanitize(`
+		top-text
+		<p>
+			p-text
+			<span>p-span-text</span>
+			<span>p-span-text</span>
+			<span>p-span-text</span>
+		</p>
+		<omit>
+			omit-text
+			<h1>omit-h1-text</h1>
+			omit-text
+			<span>omit-span-text</span>
+			<b>omit-bold-text</b>
+			<span>omit-span-text</span>
+		</omit>
+		<h1>h1-text</h1>
+		<h2>h2-text</h2>
+		<li>li-text</li>
+		<ul>
+			<li>li-text</li>
+			<li>li-text</li>
+		</ul>
+		<script></script>
+		<table></table>
+		<b>bold-text</b>
+		<i>italic-text</i>
+		<div contentEditable="false">
+			<script></script>
+			<table></table>
+			<b>div-bold-text</b>
+			<i>div-italic-text</i>
 		</div>
 	`))
 }
