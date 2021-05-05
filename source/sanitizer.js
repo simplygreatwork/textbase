@@ -114,9 +114,9 @@ function create_inline(node, bus) {
 	let to = u(`<span>${from.nodeValue.trim()}</span>`)
 	apply_class(from, 'b', to, 'strong')
 	apply_class(from, 'i', to, 'emphasis')
-	let object = { from: from, to: to }
-	bus.emit('sanitize', object)								// for inline atom transformations: a, code, etc
-	return object.to
+	let data = { from: from, to: to.first() }
+	bus.emit('sanitize', data)										// for inline atom transformations: a, code, etc
+	return u(data.to)													// issue: <a>, <code> could contain multiple text nodes
 }
 
 function apply_class(text_node, tag, node, class_) {
