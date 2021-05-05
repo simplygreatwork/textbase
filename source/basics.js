@@ -151,3 +151,9 @@ export function decode_entities(html) {
 	textarea.innerHTML = html
 	return textarea.value
 }
+
+export function get_clipboard_data(event) {
+	
+	if (! event) return window.clipboardData
+	return event.clipboardData || window.clipboardData
+}

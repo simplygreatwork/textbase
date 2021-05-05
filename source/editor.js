@@ -19,7 +19,7 @@ export class Editor {
 		this.initialize_content()
 		this.initialize_keymap()
 		this.initialize_actions(bus)
-		this.initialize_selection()
+		this.initialize_selection(bus)
 	}
 	
 	initialize_content() {
@@ -102,17 +102,17 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	initialize_selection() {
+	initialize_selection(bus) {
 		
 		document.addEventListener('selectionchange', function(event) {
 			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
 				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
-					this.emit('selection-did-change', event, this)
+					bus.emit('selection-did-change', event, this)
 				}
 			}
 		}.bind(this))
 		
-		this.on('selection-did-change', function(event, editor) {
+		bus.on('selection-did-change', function(event, editor) {
 			normalize_selection(this)
 		}.bind(this))
 	}

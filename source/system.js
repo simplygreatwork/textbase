@@ -306,7 +306,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:clipboard', function() {
-			initialize_clipboard(editor, sanitizer)
+			initialize_clipboard(bus, editor, sanitizer)
 			bus.on('clipboard-will-cut', function() {
 				logger('system').log('clipboard-will-cut')
 			})

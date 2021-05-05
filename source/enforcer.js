@@ -14,10 +14,10 @@ export class Enforcer {
 	
 	constructor(editor) {
 		
+		this.bus = new Bus()
 		this.editor = editor
 		this.walker = new Walker()
-		this.bus = new Bus()
-		this.configure(this.walker, this.bus)
+		this.configure(this.walker, this.bus, this.editor)
 	}
 	
 	scan(begin, end) {
@@ -27,31 +27,35 @@ export class Enforcer {
 		this.walker.walk(this.editor.element, begin, end)
 	}
 	
-	configure(walker, bus) {
+	configure(walker, bus, editor) {
 		
 		walker.on('text', function(node) {
-			if (! is_editable_node(node)) return
+			if (is_editable_node(node)) {
+				walker.emit('text-editable', node)
+			}
+		})
+		
+		walker.on('text-editable', function(node) {
 			if (node.nodeValue.length === 0) {
 				bus.emit('detected:text-node-without-content', node)
 			} else {
 				bus.emit('detected:text-node-with-content', node)
 			}
-		}.bind(this))
+		})
 		
-		walker.on('text', function(node) {
-			if (! is_editable_node(node)) return
+		walker.on('text-editable', function(node) {
 			if (node.nodeValue.indexOf('\n') === -1) {
 				if (! u(node.parentElement).is('span')) {
 					bus.emit('detected:text-node-without-span-parent', node)
 				}
 			}
-		}.bind(this))
+		})
 		
 		walker.on('element', function(element) {
 			if (is_editable_node(element)) {
 				walker.emit('element-editable', element)
 			}
-		}.bind(this))
+		})
 		
 		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
@@ -59,7 +63,7 @@ export class Enforcer {
 					bus.emit('detected:span-with-no-text-content', element)
 				}
 			}
-		}.bind(this))
+		})
 		
 		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
@@ -69,7 +73,7 @@ export class Enforcer {
 					}
 				}
 			}
-		}.bind(this))
+		})
 		
 		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
@@ -79,7 +83,7 @@ export class Enforcer {
 					}
 				}
 			}
-		}.bind(this))
+		})
 		
 		walker.on('element-editable', function(element) {
 			if (element.matches('p,h1,h2,li')) {
@@ -87,7 +91,7 @@ export class Enforcer {
 					bus.emit('detected:block-element-with-no-span', element)
 				}
 			}
-		}.bind(this))
+		})
 		
 		bus.on('detected:text-node-without-content', function(node) {
 			node.textContent = zero_width_whitespace
@@ -96,17 +100,17 @@ export class Enforcer {
 		bus.on('detected:text-node-with-content', function(node) {
 			if (node.nodeValue.length > 1) {
 				if (node.nodeValue && node.nodeValue.indexOf(zero_width_whitespace) > -1) {
-					let selection = get_selection(this.editor)
+					let selection = get_selection(editor)
 					let container = selection.head.container
 					let offset = selection.head.offset
 					node.nodeValue = node.nodeValue.split(zero_width_whitespace).join('')
-					set_selection(this.editor, {
+					set_selection(editor, {
 						head: { container: container, offset: node.nodeValue.length }, 
 						tail: { container: container, offset: node.nodeValue.length }
 					})
 				}
 			}
-		}.bind(this))
+		})
 		
 		bus.on('detected:text-node-without-span-parent', function(node) {
 			logger('scanner').log('detected:text-node-without-span-parent')
@@ -119,7 +123,7 @@ export class Enforcer {
 		
 		bus.on('detected:span-requiring-concatenation', function(element, next_element) {
 			logger('scanner').log('detected:span-requiring-concatenation')
-			let selection = get_selection(this.editor)
+			let selection = get_selection(editor)
 			if (selection && selection.head) {
 				if (selection.head.container == next_element.firstChild) {
 					selection.head.container = element.firstChild
@@ -131,35 +135,35 @@ export class Enforcer {
 				}
 				element.firstChild.textContent = element.firstChild.textContent + next_element.firstChild.textContent
 				next_element.remove()
-				set_selection(this.editor, {
+				set_selection(editor, {
 					head: selection.head,
 					tail: selection.tail
 				})
 			}
-			this.editor.emit('content-did-change', element.previousSibling, element)
-		}.bind(this))
+			bus.emit('content-did-change', element.previousSibling, element)
+		})
 		
 		bus.on('detected:empty-span', function(element) {
 			logger('scanner').log('detected:empty-span')
-			let selection = get_selection(this.editor)
+			let selection = get_selection(editor)
 			let apply_selection = selection && selection.head ? element.firstChild == selection.head.container : false
-			let iterator = text_iterator(this.editor.element, element.firstChild)
+			let iterator = text_iterator(editor.element, element.firstChild)
 			let next = iterator.nextNode()
 			element.remove()
 			if (apply_selection) {
-				set_selection(this.editor, {
+				set_selection(editor, {
 					head: { container: next, offset: 0 }, 
 					tail: { container: next, offset: 0 }
 				})
 			}
-			this.editor.emit('content-did-change', next.previousSibling, next)
-		}.bind(this))
+			bus.emit('content-did-change', next.previousSibling, next)
+		})
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
 			u(element).html(`<span>&#x200B;</span>`)
 			u(element).html(`<span>${zero_width_whitespace}</span>`)
-			this.editor.emit('content-did-change')								// todo: ('content-did-change', element, element)
-		}.bind(this))
+			bus.emit('content-did-change')											// todo: ('content-did-change', element, element)
+		})
 	}
 }
