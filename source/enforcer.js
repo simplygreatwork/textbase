@@ -22,7 +22,7 @@ export class Enforcer {
 	
 	scan(begin, end) {
 		
-		logger('scanner').log('walking...')
+		logger('enforcer').log('walking...')
 		end = end ? end.nextSibling : end
 		this.walker.walk(this.editor.element, begin, end)
 	}
@@ -48,7 +48,12 @@ export class Enforcer {
 		}.bind(this))
 		
 		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
+			if (is_editable_node(element)) {
+				walker.emit('element-editable', element)
+			}
+		}.bind(this))
+		
+		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:span-with-no-text-content', element)
@@ -56,8 +61,7 @@ export class Enforcer {
 			}
 		}.bind(this))
 		
-		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
+		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
 				if (u(element.nextSibling).is(u('span'))) {
 					if (Array.from(element.classList).sort().toString() == Array.from(element.nextSibling.classList).sort().toString()) {
@@ -67,8 +71,7 @@ export class Enforcer {
 			}
 		}.bind(this))
 		
-		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
+		walker.on('element-editable', function(element) {
 			if (element.matches('span')) {
 				if (element.firstChild && element.firstChild.textContent.length === 0) {
 					if (element.parentElement && element.parentElement.childNodes.length > 1) {
@@ -78,38 +81,11 @@ export class Enforcer {
 			}
 		}.bind(this))
 		
-		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
+		walker.on('element-editable', function(element) {
 			if (element.matches('p,h1,h2,li')) {
 				if (element.childNodes.length === 0) {
 					bus.emit('detected:block-element-with-no-span', element)
 				}
-			}
-		}.bind(this))
-		
-		walker.on('element', function(element) {
-			if (element.matches('[data-atom-type]')) {
-				bus.emit('detected:atom', element)
-			}
-		}.bind(this))
-
-		walker.on('element', function(element) {
-			if (element.matches('[data-card-type]')) {
-				bus.emit('detected:card', element)
-			}
-		}.bind(this))
-		
-		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
-			if (element.matches('[content-editable=false]')) {
-				bus.emit('detected:content-editable-false', element)
-			}
-		}.bind(this))
-		
-		walker.on('element', function(element) {
-			if (! is_editable_node(element)) return
-			if (element.matches('article')) {
-				bus.emit('detected:other', element)
 			}
 		}.bind(this))
 		
@@ -184,18 +160,6 @@ export class Enforcer {
 			u(element).html(`<span>&#x200B;</span>`)
 			u(element).html(`<span>${zero_width_whitespace}</span>`)
 			this.editor.emit('content-did-change')								// todo: ('content-did-change', element, element)
-		}.bind(this))
-		
-		bus.on('detected:atom', function(data) {
-			logger('scanner').log('detected:atom')
-		}.bind(this))
-		
-		bus.on('detected:card', function(data) {
-			logger('scanner').log('detected:card')
-		}.bind(this))
-		
-		bus.on('detected:other', function(data) {
-			logger('scanner').log('detected:other')
 		}.bind(this))
 	}
 }

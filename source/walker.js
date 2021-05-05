@@ -4,9 +4,9 @@ import { node_iterator } from './basics.js'
 
 export class Walker {
 	
-	constructor() {
+	constructor(bus) {
 		
-		this.bus = new Bus()
+		this.bus = bus || new Bus()
 	}
 	
 	walk(root, begin, end) {

@@ -10,8 +10,8 @@ export class Sanitizer {
 	
 	constructor(editor) {
 		
-		this.walker = new Walker()
-		this.bus = this.walker.bus
+		this.bus = editor.bus
+		this.walker = new Walker(this.bus)
 		this.configure(this.bus)
 	}
 	
@@ -26,13 +26,13 @@ export class Sanitizer {
 			let text_node = node
 			if (! is_same_block(text_node, last_text_node)) {
 				destination.append(block).append('\n')
-				block = create_block(text_node)
+				block = create_block(text_node, this.bus)
 			}
 			let text = text_node.nodeValue.trim()
-			let inline = create_inline(text_node)
+			let inline = create_inline(text_node, this.bus)
 			block.append(inline)
 			last_text_node = text_node
-		})
+		}.bind(this))
 		destination.append(block).append('\n')
 		return destination.html()
 	}
@@ -99,7 +99,7 @@ function is_same_block(a, b) {
 	return closest_(a) == closest_(b)
 }
 
-function create_block(node) {
+function create_block(node, bus) {
 	
 	let tag = 'p'
 	let closest = closest_(node)
@@ -108,12 +108,15 @@ function create_block(node) {
 	return u(`<${tag}>`)
 }
 
-function create_inline(text_node) {
+function create_inline(node, bus) {
 	
-	let node = u(`<span>${text_node.nodeValue.trim()}</span>`)
-	apply_class(text_node, 'b', node, 'strong')
-	apply_class(text_node, 'i', node, 'emphasis')
-	return node
+	let from = node
+	let to = u(`<span>${from.nodeValue.trim()}</span>`)
+	apply_class(from, 'b', to, 'strong')
+	apply_class(from, 'i', to, 'emphasis')
+	let object = { from: from, to: to }
+	bus.emit('sanitize', object)								// for inline atom transformations: a, code, etc
+	return object.to
 }
 
 function apply_class(text_node, tag, node, class_) {
