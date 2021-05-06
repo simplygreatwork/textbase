@@ -23,31 +23,73 @@ export class Sanitizer {
 		if (false) this.print_paths(paths)
 		let tree = this.build_tree(paths)
 		if (false) this.print_tree(tree)
+		this.convert_tree(tree)
 		return tree.html()
 	}
 	
 	collect_paths(html) {
 		
 		let bus = this.bus
-		let source = u(`<div><div data-role="top">${html}</div></div>`).first()
+		let source = u(`<div><div>${html}</div></div>`).first()
 		let paths = []
 		let text_node_previous = null
 		for_each_significant_text_node(source, function(text_node) {
 			let path = []
-			let node = u(text_node).parent()
 			path.unshift(text_node)
+			let node = u(text_node).parent()
 			let seeking = true
 			while (seeking) {
 				let closest = u(node).closest('div,p,h1,h2,li,span,a,code')
-				if (closest.data('role') == 'top') closest = u('<p>')
+				if (closest.is('div')) closest = u('<p>')
 				path.unshift(closest.first())
 				if (closest.is('div,p,h1,h2,li')) seeking = false
 				node = closest.parent().first()
-				if (! u(node).parent().first()) seeking = false 
+				if (! node) seeking = false
 			}
 			paths.push(path)
 		})
 		return paths
+	}
+	
+	build_tree(paths) {
+		
+		let tree = u('<div>')
+		paths.forEach(function(path) {
+			let clone = [...path]
+			this.inject_path(clone, tree.first())
+		}.bind(this))
+		return tree
+	}
+	
+	inject_path(path, node) {
+		
+		let original = path.shift()
+		let node_ = original.cloned = original.cloned || original.cloneNode()
+		if (u(node_).is(an_element_node)) {
+			if (! node.contains(node_)) u(node).append(node_)
+		} else if (u(node_).is(a_text_node)) {
+			let text = node_.nodeValue.trim()
+			if (text.length > 0) {
+				if (u(node).is('span')) {
+					u(node).append(text)
+				} else {
+					u(node).append(node = u(`<span>${text}</span>`).first())
+				}
+				if (u(original).parent().closest('b').first()) u(node).addClass('strong')
+				if (u(original).parent().closest('i').first()) u(node).addClass('emphasis')
+			}
+		}
+		if (path.length > 0) this.inject_path(path, node_)
+	}
+	
+	convert_tree(tree) {
+		
+		let bus = this.bus
+		u(tree).find('a,code').each(function(each) {
+			let data = { node: each }
+			bus.emit('convert', data)											// for inline atom transformations: a, code, etc
+			if (data.node != each) u(each).replace(u(data.node))
+		})
 	}
 	
 	print_paths(paths) {
@@ -65,16 +107,6 @@ export class Sanitizer {
 		})
 	}
 	
-	build_tree(paths) {
-		
-		let tree = u('<div>')
-		paths.forEach(function(path) {
-			let clone = [...path]
-			this.inject_path(clone, tree.first())
-		}.bind(this))
-		return tree
-	}
-	
 	print_tree(tree) {
 		
 		tree.children().each(function(each) {
@@ -82,51 +114,8 @@ export class Sanitizer {
 		})
 	}
 	
-	inject_path(path, node) {
-		
-		let original = path.shift()
-		let node_ = original.cloneNode()
-		if (u(node_).is(an_element_node)) {
-			if (! node.contains(original)) u(node).append(node_)
-		} else if (u(node_).is(a_text_node)) {
-			let text = node_.nodeValue.trim()
-			if (text.length > 0) {
-				if (u(node).is('span')) {
-					u(node).append(text)
-				} else {
-					u(node).append(node = u(`<span>${text}</span>`).first())
-				}
-				if (u(original).parent().closest('b').first()) u(node).addClass('strong')
-				if (u(original).parent().closest('i').first()) u(node).addClass('emphasis')
-			}
-		}
-		if (path.length > 0) this.inject_path(path, node_)
-	}
-	
 	configure(bus) {
 		return
-	}
-	
-	sanitize_deprecated(html) {
-		
-		let bus = this.bus
-		let source = u(`<div><div>${html}</div></div>`)
-		let destination = u('<div>')
-		let path = [[]]
-		let text_node_previous = null
-		for_each_significant_text_node(source, function(text_node) {
-			if (! is_same_block(text_node, text_node_previous)) {
-				destination.append(path[0]).append('\n')
-				path = [create_block(text_node, bus)]
-			}
-			let closest = u(text_node).parent().closest('a,code')
-			let text = text_node.nodeValue.trim()
-			let inline = create_inline(text_node, bus)
-			path[path.length - 1].append(inline)
-			text_node_previous = text_node
-		})
-		destination.append(path[0]).append('\n')
-		return destination.html()
 	}
 	
 	example() {
@@ -179,13 +168,6 @@ function for_each_significant_text_node(source, fn) {
 		if (node.nodeValue.trim().length > 0) fn(node)
 		node = iterator.nextNode()
 	}
-}
-
-function is_same_block(a, b) {
-	
-	if (a === null) return false
-	if (b === null) return false
-	return closest_(a) == closest_(b)
 }
 
 function create_block(node, bus) {

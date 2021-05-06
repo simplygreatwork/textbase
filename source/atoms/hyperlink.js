@@ -27,11 +27,15 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 		logger('system').log('atom-did-exit:hyperlink')
 	})
 	
-	bus.on('sanitize', function(data) {
+	bus.on('convert', function(data) {
 		
-		let a = u(data.from).parent().closest('a').first()
-		if (! a) return
-		data.to = create_atom(data.to, u(a).attr('href'))
+		let node = u(data.node)
+		if (! node.is('a')) return
+		let content = document.createDocumentFragment()
+		node.children().each(function(each) {
+			content.appendChild(each)
+		})
+		data.node = create_atom(content, node.attr('href'))
 	})
 	
 	bus.emit('feature-did-enable', 'atom-hyperlink', 'Atom: Hyperlink')

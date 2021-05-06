@@ -62,6 +62,7 @@ export class System {
 		this.structure = new Structure(this.bus, this.editor)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.bus, features)
+		if (true) this.sanitizer.example()
 	}
 	
 	enable_features(bus, features) {

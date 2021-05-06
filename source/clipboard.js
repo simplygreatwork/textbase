@@ -11,7 +11,6 @@ const logger = Logger()
 export function initialize_clipboard(bus, editor, sanitizer) {
 	
 	let target = editor.element
-	if (true) sanitizer.example()
 	
 	target.addEventListener('cut', function(event) {
 		bus.emit('clipboard-will-cut', event)
@@ -79,7 +78,6 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 				paste_html_text(bus, editor, content)
 			}
 		} else if (data.types.includes('text/html')) {
-			if (true) return
 			let content = data.getData('text/html')
 			logger('clipboard').log('paste content: ' + content)
 			content = `<div>${sanitizer.sanitize(content)}</div>`
