@@ -66,11 +66,10 @@ export class Enforcer {
 		})
 		
 		walker.on('element-editable', function(element) {
-			if (element.matches('span')) {
-				if (u(element.nextSibling).is(u('span'))) {
-					if (Array.from(element.classList).sort().toString() == Array.from(element.nextSibling.classList).sort().toString()) {
-						bus.emit('detected:span-requiring-concatenation', element, element.nextSibling)
-					}
+			let [a, b] = [element, element.nextSibling]
+			if (a && a.matches('span') && b && b.matches('span')) {
+				if (Array.from(a.classList).sort().toString() == Array.from(b.classList).sort().toString()) {
+					bus.emit('detected:span-requiring-concatenation', a, b)
 				}
 			}
 		})

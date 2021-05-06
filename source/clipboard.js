@@ -79,6 +79,7 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 				paste_html_text(bus, editor, content)
 			}
 		} else if (data.types.includes('text/html')) {
+			if (true) return
 			let content = data.getData('text/html')
 			logger('clipboard').log('paste content: ' + content)
 			content = `<div>${sanitizer.sanitize(content)}</div>`

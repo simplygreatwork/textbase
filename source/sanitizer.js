@@ -1,5 +1,7 @@
 
+import { an_element_node, a_text_node } from './basics.js'
 import { is_editable_node } from './basics.js'
+import { text_iterator } from './basics.js'
 import { Bus } from './bus.js'
 import { Walker } from './walker.js'
 import { Logger } from './logger.js'
@@ -17,28 +19,113 @@ export class Sanitizer {
 	
 	sanitize(html) {
 		
-		let source = u(`<div><div>${html}</div></div>`)
-		let destination = u('<div>')
-		let block = []
-		let last_text_node = null
-		source.find().contents().each(function(node) {
-			if (! is_significant_text_node(node)) return
-			let text_node = node
-			if (! is_same_block(text_node, last_text_node)) {
-				destination.append(block).append('\n')
-				block = create_block(text_node, this.bus)
+		let paths = this.collect_paths(html)
+		if (false) this.print_paths(paths)
+		let tree = this.build_tree(paths)
+		if (false) this.print_tree(tree)
+		return tree.html()
+	}
+	
+	collect_paths(html) {
+		
+		let bus = this.bus
+		let source = u(`<div><div data-role="top">${html}</div></div>`).first()
+		let paths = []
+		let text_node_previous = null
+		for_each_significant_text_node(source, function(text_node) {
+			let path = []
+			let seeking = true
+			let node = u(text_node).parent()
+			path.unshift(text_node)
+			while (seeking) {
+				let closest = u(node).closest('div,p,h1,h2,li,span,a,code,b,i')
+				if (closest.data('role') == 'top') closest = u('<p>')
+				path.unshift(closest.first())
+				if (closest.is('div,p,h1,h2,li')) seeking = false
+				node = closest.parent().first()
+				if (! u(node).parent().first()) seeking = false 
 			}
-			let text = text_node.nodeValue.trim()
-			let inline = create_inline(text_node, this.bus)
-			block.append(inline)
-			last_text_node = text_node
+			paths.push(path)
+		})
+		return paths
+	}
+	
+	print_paths(paths) {
+		
+		paths.forEach(function(path) {
+			let tags = []
+			path.forEach(function(node) {
+				if (node.nodeType === 1) {
+					tags.push(node.tagName.toLowerCase())
+				} else {
+					tags.push('text:' + node.nodeValue.trim())
+				}
+			})
+			console.log('path: ' + tags.join(' > '))
+		})
+	}
+	
+	build_tree(paths) {
+		
+		let tree = u('<div>')
+		paths.forEach(function(path) {
+			let clone = [...path]
+			this.inject_path(clone, tree.first())
 		}.bind(this))
-		destination.append(block).append('\n')
-		return destination.html()
+		return tree
+	}
+	
+	print_tree(tree) {
+		
+		tree.children().each(function(each) {
+			console.log(each.outerHTML)
+		})
+	}
+	
+	inject_path(path, node) {
+		
+		let original = path.shift()
+		let node_ = original.cloneNode()
+		if (u(node_).is(an_element_node)) {
+			if (! u(node_).is('p,h1,h2,li,span,a,code,b,i')) node_ = u('<p>').first()
+			if (! node.contains(original)) u(node).append(node_)
+		} else if (u(node_).is(a_text_node)) {
+			let text = node_.nodeValue.trim()
+			if (text.length > 0) {
+				if (u(node).is('span')) {
+					u(node).append(text)
+				} else {
+					u(node).append(`<span>${text}</span>`)
+				}
+			}
+		}
+		if (path.length > 0) this.inject_path(path, node_)
 	}
 	
 	configure(bus) {
 		return
+	}
+	
+	sanitize_deprecated(html) {
+		
+		let bus = this.bus
+		let source = u(`<div><div>${html}</div></div>`)
+		let destination = u('<div>')
+		let path = [[]]
+		let text_node_previous = null
+		for_each_significant_text_node(source, function(text_node) {
+			if (! is_same_block(text_node, text_node_previous)) {
+				destination.append(path[0]).append('\n')
+				path = [create_block(text_node, bus)]
+			}
+			let closest = u(text_node).parent().closest('a,code')
+			let text = text_node.nodeValue.trim()
+			let inline = create_inline(text_node, bus)
+			path[path.length - 1].append(inline)
+			text_node_previous = text_node
+		})
+		destination.append(path[0]).append('\n')
+		return destination.html()
 	}
 	
 	example() {
@@ -49,8 +136,10 @@ export class Sanitizer {
 			<p>
 				p-text
 				<span>p-span-text</span>
-				<span>p-span-text</span>
-				<span>p-span-text</span>
+				<a href="http://github.com">
+					<span>p-a-span-text</span>
+					<span>p-a-span-text</span>
+				</a>
 			</p>
 			<omit>
 				omit-text
@@ -81,15 +170,14 @@ export class Sanitizer {
 	}
 }
 
-function is_significant_text_node(node) {
+function for_each_significant_text_node(source, fn) {
 	
-	if (node.nodeType == 3) {
-		let text = node.nodeValue.trim()
-		if (text.length > 0) {
-			return true
-		}
+	let iterator = text_iterator(source, source)
+	let node = iterator.nextNode()
+	while (node) {
+		if (node.nodeValue.trim().length > 0) fn(node)
+		node = iterator.nextNode()
 	}
-	return false
 }
 
 function is_same_block(a, b) {
