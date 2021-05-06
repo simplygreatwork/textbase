@@ -1,9 +1,7 @@
 
 import { an_element_node, a_text_node } from './basics.js'
-import { is_editable_node } from './basics.js'
 import { text_iterator } from './basics.js'
 import { Bus } from './bus.js'
-import { Walker } from './walker.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -13,7 +11,7 @@ export class Sanitizer {
 	constructor(editor) {
 		
 		let bus = this.bus = editor.bus
-		this.print(false, bus)
+		this.printing(false, bus)
 	}
 	
 	sanitize(html) {
@@ -29,8 +27,7 @@ export class Sanitizer {
 		
 		let paths = []
 		let source = u(`<div><div>${html}</div></div>`).first()
-		let text_node_previous = null
-		for_each_significant_text_node(source, function(text_node) {
+		each_significant_text_node(source, function(text_node) {
 			let path = []
 			path.unshift(text_node)
 			let node = u(text_node).parent()
@@ -92,16 +89,16 @@ export class Sanitizer {
 	
 	convert_tree(tree, bus) {
 		
-		u(tree).find('a,code').each(function(each) {									// for inline atom transformations: a, code, etc
+		u(tree).find('a,code').each(function(each) {									// for transformation to atoms
 			let data = { node: each }
 			let tag = each.tagName.toLowerCase()
 			bus.emit(`convert:${tag}`, data)
-			if (data.node != each) u(each).replace(u(data.node))
+			if (data.node != each) u(each).replace(data.node)
 		})
 		return tree
 	}
 	
-	print(enabled, bus) {
+	printing(enabled, bus) {
 		
 		if (! enabled) return
 		bus.on('sanitized-paths-collected', function(paths) {
@@ -120,10 +117,10 @@ export class Sanitizer {
 				if (u(node).is(an_element_node)) {
 					tags.push(node.tagName.toLowerCase())
 				} else if (u(node).is(a_text_node)) {
-					tags.push('text:' + node.nodeValue.trim())
+					tags.push(`text:${node.nodeValue.trim()}`)
 				}
 			})
-			console.log('path: ' + tags.join(' > '))
+			console.log(`path: ${tags.join(' > ')}`)
 		})
 	}
 	
@@ -179,7 +176,7 @@ export class Sanitizer {
 	}
 }
 
-function for_each_significant_text_node(source, fn) {
+function each_significant_text_node(source, fn) {
 	
 	let iterator = text_iterator(source, source)
 	let node = iterator.nextNode()
