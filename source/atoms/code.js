@@ -27,11 +27,9 @@ export function initialize_code_atoms(bus, editor, history) {
 		logger('system').log('atom-did-exit:code')
 	}.bind(this))
 	
-	bus.on('convert', function(data) {
-		let node = u(data.node)
-		if (! node.is('code')) return
+	bus.on('convert:code', function(data) {
 		let content = document.createDocumentFragment()
-		node.children().each(function(each) {
+		u(data.node).children().each(function(each) {
 			content.appendChild(each)
 		})
 		data.node = create_atom(content)

@@ -95,7 +95,8 @@ export class Sanitizer {
 		
 		u(tree).find('a,code').each(function(each) {									// for inline atom transformations: a, code, etc
 			let data = { node: each }
-			bus.emit('convert', data)
+			let tag = each.tagName.toLowerCase()
+			bus.emit(`convert:${tag}`, data)
 			if (data.node != each) u(each).replace(u(data.node))
 		})
 	}
@@ -138,6 +139,9 @@ export class Sanitizer {
 					<span>p-a-span-text</span>
 					<span>p-a-span-text</span>
 				</a>
+				<code>
+					<span>p-code-span-text</span>
+				</code>
 			</p>
 			<omit>
 				omit-text
