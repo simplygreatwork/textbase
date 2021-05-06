@@ -19,19 +19,19 @@ export class Sanitizer {
 	
 	sanitize(html) {
 		
+		let bus = this.bus
 		let paths = this.collect_paths(html)
 		if (false) this.print_paths(paths)
 		let tree = this.build_tree(paths)
 		if (false) this.print_tree(tree)
-		this.convert_tree(tree)
+		this.convert_tree(tree, bus)
 		return tree.html()
 	}
 	
 	collect_paths(html) {
 		
-		let bus = this.bus
-		let source = u(`<div><div>${html}</div></div>`).first()
 		let paths = []
+		let source = u(`<div><div>${html}</div></div>`).first()
 		let text_node_previous = null
 		for_each_significant_text_node(source, function(text_node) {
 			let path = []
@@ -64,7 +64,7 @@ export class Sanitizer {
 	inject_path(path, node) {
 		
 		let original = path.shift()
-		let node_ = original.cloned = original.cloned || original.cloneNode()
+		let node_ = original.mirror = original.mirror || this.create_element(original)
 		if (u(node_).is(an_element_node)) {
 			if (! node.contains(node_)) u(node).append(node_)
 		} else if (u(node_).is(a_text_node)) {
@@ -75,19 +75,27 @@ export class Sanitizer {
 				} else {
 					u(node).append(node = u(`<span>${text}</span>`).first())
 				}
-				if (u(original).parent().closest('b').first()) u(node).addClass('strong')
-				if (u(original).parent().closest('i').first()) u(node).addClass('emphasis')
+				apply_format(original, 'b', node, 'strong')
+				apply_format(original, 'i', node, 'emphasis')
 			}
 		}
 		if (path.length > 0) this.inject_path(path, node_)
 	}
 	
-	convert_tree(tree) {
+	create_element(original) {
 		
-		let bus = this.bus
-		u(tree).find('a,code').each(function(each) {
+		if (u(original).is(an_element_node)) {
+			return document.createElement(original.tagName)
+		} else {
+			return original.cloneNode()
+		}
+	}
+	
+	convert_tree(tree, bus) {
+		
+		u(tree).find('a,code').each(function(each) {									// for inline atom transformations: a, code, etc
 			let data = { node: each }
-			bus.emit('convert', data)											// for inline atom transformations: a, code, etc
+			bus.emit('convert', data)
 			if (data.node != each) u(each).replace(u(data.node))
 		})
 	}
@@ -170,34 +178,7 @@ function for_each_significant_text_node(source, fn) {
 	}
 }
 
-function create_block(node, bus) {
+function apply_format(original, tag, node, class_) {
 	
-	let tag = 'p'
-	let closest = closest_(node)
-	if (closest) tag = closest.tagName.toLowerCase()
-	if (! 'p h1 h2 li'.split(' ').includes(tag)) tag = 'p' 
-	return u(`<${tag}>`)
-}
-
-function create_inline(node, bus) {
-	
-	let from = node
-	let to = u(`<span>${from.nodeValue.trim()}</span>`)
-	apply_class(from, 'b', to, 'strong')
-	apply_class(from, 'i', to, 'emphasis')
-	let data = { from: from, to: to.first() }
-	bus.emit('sanitize', data)										// for inline atom transformations: a, code, etc
-	return u(data.to)													// issue: <a>, <code> could contain multiple text nodes
-}
-
-function apply_class(text_node, tag, node, class_) {
-	
-	let parent = u(text_node).parent()
-	let closest = parent.closest(tag).first()
-	if (closest) node.addClass(class_)
-}
-
-function closest_(node) {
-	
-	return u(node).parent().closest('div,p,h1,h2,li').first()
+	if (u(original).parent().closest(tag).first()) u(node).addClass(class_)
 }

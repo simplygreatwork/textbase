@@ -28,7 +28,6 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 	})
 	
 	bus.on('convert', function(data) {
-		
 		let node = u(data.node)
 		if (! node.is('a')) return
 		let content = document.createDocumentFragment()
@@ -44,12 +43,12 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 function create_atom(content, href) {																// use <slot> inline elemment?
 	
 	if (u(content).text().length === 0) content = 'hyperlink'
-	let a = u(`
+	let node = u(`
 		<a data-atom-type="hyperlink" class="atom-hyperlink" href="http://github.com" contentEditable="false">
 			<span data-role="content" contentEditable="true"></span>
 		</a>
 	`)
-	a.find('[data-role="content"]').append(content)
-	a.attr('href', href)
-	return a.first()
+	node.find('[data-role="content"]').append(content)
+	node.attr('href', href)
+	return node.first()
 }
