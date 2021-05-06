@@ -34,11 +34,11 @@ export class Sanitizer {
 		let text_node_previous = null
 		for_each_significant_text_node(source, function(text_node) {
 			let path = []
-			let seeking = true
 			let node = u(text_node).parent()
 			path.unshift(text_node)
+			let seeking = true
 			while (seeking) {
-				let closest = u(node).closest('div,p,h1,h2,li,span,a,code,b,i')
+				let closest = u(node).closest('div,p,h1,h2,li,span,a,code')
 				if (closest.data('role') == 'top') closest = u('<p>')
 				path.unshift(closest.first())
 				if (closest.is('div,p,h1,h2,li')) seeking = false
@@ -55,9 +55,9 @@ export class Sanitizer {
 		paths.forEach(function(path) {
 			let tags = []
 			path.forEach(function(node) {
-				if (node.nodeType === 1) {
+				if (u(node).is(an_element_node)) {
 					tags.push(node.tagName.toLowerCase())
-				} else {
+				} else if (u(node).is(a_text_node)) {
 					tags.push('text:' + node.nodeValue.trim())
 				}
 			})
@@ -87,7 +87,6 @@ export class Sanitizer {
 		let original = path.shift()
 		let node_ = original.cloneNode()
 		if (u(node_).is(an_element_node)) {
-			if (! u(node_).is('p,h1,h2,li,span,a,code,b,i')) node_ = u('<p>').first()
 			if (! node.contains(original)) u(node).append(node_)
 		} else if (u(node_).is(a_text_node)) {
 			let text = node_.nodeValue.trim()
@@ -95,8 +94,10 @@ export class Sanitizer {
 				if (u(node).is('span')) {
 					u(node).append(text)
 				} else {
-					u(node).append(`<span>${text}</span>`)
+					u(node).append(node = u(`<span>${text}</span>`).first())
 				}
+				if (u(original).parent().closest('b').first()) u(node).addClass('strong')
+				if (u(original).parent().closest('i').first()) u(node).addClass('emphasis')
 			}
 		}
 		if (path.length > 0) this.inject_path(path, node_)

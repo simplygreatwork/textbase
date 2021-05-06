@@ -34,7 +34,7 @@ import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
+const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer', 'clipboard-off', 'formats-off'])
 
 export class System {
 	
