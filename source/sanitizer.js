@@ -12,23 +12,20 @@ export class Sanitizer {
 	
 	constructor(editor) {
 		
-		this.bus = editor.bus
-		this.walker = new Walker(this.bus)
-		this.configure(this.bus)
+		let bus = this.bus = editor.bus
+		this.print(false, bus)
 	}
 	
 	sanitize(html) {
 		
 		let bus = this.bus
-		let paths = this.collect_paths(html)
-		if (false) this.print_paths(paths)
-		let tree = this.build_tree(paths)
-		if (false) this.print_tree(tree)
-		this.convert_tree(tree, bus)
+		let paths = this.collect_paths(html, bus)
+		let tree = this.build_tree(paths, bus)
+		tree = this.convert_tree(tree, bus)
 		return tree.html()
 	}
 	
-	collect_paths(html) {
+	collect_paths(html, bus) {
 		
 		let paths = []
 		let source = u(`<div><div>${html}</div></div>`).first()
@@ -48,16 +45,18 @@ export class Sanitizer {
 			}
 			paths.push(path)
 		})
+		bus.emit('sanitized-paths-collected', paths)
 		return paths
 	}
 	
-	build_tree(paths) {
+	build_tree(paths, bus) {
 		
 		let tree = u('<div>')
 		paths.forEach(function(path) {
 			let clone = [...path]
 			this.inject_path(clone, tree.first())
 		}.bind(this))
+		bus.emit('sanitized-tree-built', tree)
 		return tree
 	}
 	
@@ -99,6 +98,18 @@ export class Sanitizer {
 			bus.emit(`convert:${tag}`, data)
 			if (data.node != each) u(each).replace(u(data.node))
 		})
+		return tree
+	}
+	
+	print(enabled, bus) {
+		
+		if (! enabled) return
+		bus.on('sanitized-paths-collected', function(paths) {
+			this.print_paths(paths)
+		}.bind(this))
+		bus.on('sanitized-tree-built', function(tree) {
+			this.print_tree(tree)
+		}.bind(this))
 	}
 	
 	print_paths(paths) {
@@ -121,10 +132,6 @@ export class Sanitizer {
 		tree.children().each(function(each) {
 			console.log(each.outerHTML)
 		})
-	}
-	
-	configure(bus) {
-		return
 	}
 	
 	example() {
