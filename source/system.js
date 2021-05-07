@@ -61,19 +61,20 @@ export class System {
 		this.sanitizer = new Sanitizer(this.editor)
 		this.structure = new Structure(this.bus, this.editor)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
-		this.enable_features(this.bus, features)
+		this.enable_features(features, this.bus)
 		if (true) sanitizer_test(this.sanitizer)
 	}
 	
-	enable_features(bus, features) {
+	enable_features(features, bus) {
 		
 		features.forEach(function(key) {
 			this.enable_feature(key, bus)
 		}.bind(this))
 	}
 	
-	enable_feature(feature, bus) {
+	enable_feature(feature) {
 		
+		let bus = this.bus
 		bus.emit(`feature`, feature)
 		bus.emit(`feature:${feature}`)
 	}
@@ -87,11 +88,11 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:essentials', function() {
-			this.enable_feature('toolbar', bus)
-			this.enable_feature('documents', bus)
-			this.enable_feature('history', bus)
-			this.enable_feature('basics', bus)
-			this.enable_feature('clipboard', bus)
+			this.enable_feature('toolbar')
+			this.enable_feature('documents')
+			this.enable_feature('history')
+			this.enable_feature('basics')
+			this.enable_feature('clipboard')
 		}.bind(this))
 		
 		bus.on('feature:toolbar', function() {
@@ -338,13 +339,13 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:formats-all', function() {
-			this.enable_feature('format-pseudolink', bus)
-			this.enable_feature('format-strong', bus)
-			this.enable_feature('format-emphasis', bus)
-			this.enable_feature('format-underline', bus)
-			this.enable_feature('format-strikethrough', bus)
-			this.enable_feature('format-highlight', bus)
-			this.enable_feature('format-clear', bus)
+			this.enable_feature('format-pseudolink')
+			this.enable_feature('format-strong')
+			this.enable_feature('format-emphasis')
+			this.enable_feature('format-underline')
+			this.enable_feature('format-strikethrough')
+			this.enable_feature('format-highlight')
+			this.enable_feature('format-clear')
 		}.bind(this))
 		
 		bus.on('feature:format-pseudolink', function() {
@@ -437,15 +438,15 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:blocks-all', function() {
-			this.enable_feature('blocks-paragraph', bus)
-			this.enable_feature('blocks-heading-1', bus)
-			this.enable_feature('blocks-heading-2', bus)
-			this.enable_feature('blocks-list-item', bus)
-			if (false) this.enable_feature('blocks-ordered-list', bus)
-			if (false) this.enable_feature('blocks-unordered-list', bus)
-			this.enable_feature('blocks-blockquote', bus)
-			this.enable_feature('blocks-indentation', bus)
-			this.enable_feature('blocks-alignment', bus)
+			this.enable_feature('blocks-paragraph')
+			this.enable_feature('blocks-heading-1')
+			this.enable_feature('blocks-heading-2')
+			this.enable_feature('blocks-list-item')
+			if (false) this.enable_feature('blocks-ordered-list')
+			if (false) this.enable_feature('blocks-unordered-list')
+			this.enable_feature('blocks-blockquote')
+			this.enable_feature('blocks-indentation')
+			this.enable_feature('blocks-alignment')
 		}.bind(this))
 		
 		bus.on('feature:blocks-paragraph', function() {

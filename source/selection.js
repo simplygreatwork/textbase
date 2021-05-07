@@ -97,7 +97,7 @@ export function selection_each_block(editor, selection, fn) {
 	})
 }
 
-export function selection_edge(editor, selection) {
+export function selection_edge(editor, selection) {			// fixme: edges array is in reverse order here (errors if changed)
 	
 	let range, node, fragment
 	let edges = [null, null]
