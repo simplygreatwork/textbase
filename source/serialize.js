@@ -61,7 +61,7 @@ function serialize_(node, level, result) {
 				serialize_(u(each), level, result)
 				result.push(`</${tag}>`)
 			} else {
-				result.push(`\n'${level.join('')}${serialize_tag_head(each)}`)
+				result.push(`\n${level.join('')}${serialize_tag_head(each)}`)
 				serialize_(u(each), level, result)
 				let tail = serialize_tag_tail(tag)
 				if (tail) result.push(tail)
