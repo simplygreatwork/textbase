@@ -6,6 +6,9 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
+const relevant_element = 'div, p, h1, h2, li, span, a, code'
+const block_element = 'div, p, h1, h2, li'
+
 export class Sanitizer {
 	
 	constructor(editor) {
@@ -27,16 +30,16 @@ export class Sanitizer {
 		
 		let paths = []
 		let source = u(`<div><div>${html}</div></div>`).first()
-		each_significant_text_node(source, function(text_node) {
+		this.each_significant_text_node(source, function(text_node) {
 			let path = []
 			path.unshift(text_node)
 			let node = u(text_node).parent()
 			let seeking = true
 			while (seeking) {
-				let closest = u(node).closest('div,p,h1,h2,li,span,a,code')
+				let closest = u(node).closest(relevant_element)
 				if (closest.is('div')) closest = u('<p>')
 				path.unshift(closest.first())
-				if (closest.is('div,p,h1,h2,li')) seeking = false
+				if (closest.is(block_element)) seeking = false
 				node = closest.parent().first()
 				if (! node) seeking = false
 			}
@@ -71,8 +74,8 @@ export class Sanitizer {
 				} else {
 					u(node).append(node = u(`<span>${text}</span>`).first())
 				}
-				apply_format(original, 'b', node, 'strong')
-				apply_format(original, 'i', node, 'emphasis')
+				this.apply_format(original, 'b', node, 'strong')
+				this.apply_format(original, 'i', node, 'emphasis')
 			}
 		}
 		if (path.length > 0) this.inject_path(path, node_)
@@ -87,6 +90,11 @@ export class Sanitizer {
 		}
 	}
 	
+	apply_format(original, tag, node, class_) {
+		
+		if (u(original).parent().closest(tag).first()) u(node).addClass(class_)
+	}
+	
 	convert_tree(tree, bus) {
 		
 		u(tree).find('a,code').each(function(each) {									// for transformation to atoms
@@ -96,6 +104,16 @@ export class Sanitizer {
 			if (data.node != each) u(each).replace(data.node)
 		})
 		return tree
+	}
+	
+	each_significant_text_node(source, fn) {
+		
+		let iterator = text_iterator(source, source)
+		let node = iterator.nextNode()
+		while (node) {
+			if (node.nodeValue.trim().length > 0) fn(node)
+			node = iterator.nextNode()
+		}
 	}
 	
 	printing(enabled, bus) {
@@ -130,63 +148,4 @@ export class Sanitizer {
 			console.log(each.outerHTML)
 		})
 	}
-	
-	example() {
-		
-		logger('sanitizer').log('sanitized: ')
-		logger('sanitizer').log(this.sanitize(`
-			top-text
-			<p>
-				p-text
-				<span>p-span-text</span>
-				<a href="http://github.com">
-					<span>p-a-span-text</span>
-					<span>p-a-span-text</span>
-				</a>
-				<code>
-					<span>p-code-span-text</span>
-				</code>
-			</p>
-			<omit>
-				omit-text
-				<h1>omit-h1-text</h1>
-				omit-text
-				<span>omit-span-text</span>
-				<b>omit-bold-text</b>
-				<span>omit-span-text</span>
-			</omit>
-			<h1>h1-text</h1>
-			<h2>h2-text</h2>
-			<li><b>li-text</b></li>
-			<ul>
-				<li>li-text</li>
-				<li>li-text</li>
-			</ul>
-			<script></script>
-			<table></table>
-			<b>bold-text</b>
-			<i>italic-text</i>
-			<div contentEditable="false">
-				<script></script>
-				<table></table>
-				<b>div-bold-text</b>
-				<i>div-italic-text</i>
-			</div>
-		`))
-	}
-}
-
-function each_significant_text_node(source, fn) {
-	
-	let iterator = text_iterator(source, source)
-	let node = iterator.nextNode()
-	while (node) {
-		if (node.nodeValue.trim().length > 0) fn(node)
-		node = iterator.nextNode()
-	}
-}
-
-function apply_format(original, tag, node, class_) {
-	
-	if (u(original).parent().closest(tag).first()) u(node).addClass(class_)
 }

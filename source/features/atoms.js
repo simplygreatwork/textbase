@@ -200,3 +200,24 @@ function each_atom(top, begin, end, fn) {
 		node = iterator.nextNode()
 	}
 }
+
+export function is_selection_inside_atom_content(selection, type) {
+	
+	let node = u(selection.head.container)
+	if (node.is(a_text_node)) node = node.parent()
+	if (type) return u(node).closest(`[data-atom-type="${type}"]`).first()
+	else return u(node).closest(`[data-atom-type]`).first()
+}
+
+export function set_value(atom, key, value) {
+	
+	atom.data = atom.data || {}
+	atom.data[key] = value
+	return value
+}
+
+export function get_value(atom, key) {
+	
+	atom.data = atom.data || {}
+	return atom.data[key]
+}

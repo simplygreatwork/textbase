@@ -62,7 +62,7 @@ export class System {
 		this.structure = new Structure(this.bus, this.editor)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.bus, features)
-		if (true) this.sanitizer.example()
+		if (true) sanitizer_test(this.sanitizer)
 	}
 	
 	enable_features(bus, features) {
@@ -603,4 +603,48 @@ export class System {
 		u('.content').empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
 	}
+}
+
+function sanitizer_test(sanitizer) {
+	
+	logger('sanitizer').log('sanitized: ')
+	logger('sanitizer').log(sanitizer.sanitize(`
+		top-text
+		<p>
+			p-text
+			<span>p-span-text</span>
+			<a href="http://github.com">
+				<span>p-a-span-text</span>
+				<span>p-a-span-text</span>
+			</a>
+			<code>
+				<span>p-code-span-text</span>
+			</code>
+		</p>
+		<omit>
+			omit-text
+			<h1>omit-h1-text</h1>
+			omit-text
+			<span>omit-span-text</span>
+			<b>omit-bold-text</b>
+			<span>omit-span-text</span>
+		</omit>
+		<h1>h1-text</h1>
+		<h2>h2-text</h2>
+		<li><b>li-text</b></li>
+		<ul>
+			<li>li-text</li>
+			<li>li-text</li>
+		</ul>
+		<script></script>
+		<table></table>
+		<b>bold-text</b>
+		<i>italic-text</i>
+		<div contentEditable="false">
+			<script></script>
+			<table></table>
+			<b>div-bold-text</b>
+			<i>div-italic-text</i>
+		</div>
+	`))
 }

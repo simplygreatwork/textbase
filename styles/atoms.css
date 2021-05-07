@@ -22,3 +22,20 @@
 	border:1px solid #000000;
 	border-radius:4px;
 }
+.atom-hyperlink-inspector {
+	position:absolute;
+	z-index:100;
+	top:100px;
+	left:100px;
+	width:200px;
+	padding:4px;
+	margin-left:4px;
+	margin-right:4px;
+	font-family:monospace;
+	font-size:110%;
+	font-weight:900;
+	background:#AAAAAA;
+	color:white;
+	border:1px solid #777777;
+	border-radius:4px;
+}

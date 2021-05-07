@@ -35,7 +35,9 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 		consume_event(event)
 		let selection = get_selection(editor)
 		if (selection == null) return
-		let fragment = selection.range.extractContents()
+		let fragment = selection.range.cloneContents()
+		bus.emit('content-will-delete', fragment)
+		fragment = selection.range.extractContents()
 		let div = document.createElement('div')
 		div.appendChild(fragment.cloneNode(true))
 		let content = div.outerHTML
@@ -45,6 +47,8 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 		data.setData('textbase/text/html', content)
 		data.setData('text/plain', u(fragment).text())
 		data.setData('textbase/text/plain', u(fragment).text())
+		bus.emit('content-did-change', selection.head.container, selection.tail.container)
+		bus.emit('content-did-delete', fragment)
 	}.bind(this))
 	
 	bus.on('clipboard-copy', function(event) {

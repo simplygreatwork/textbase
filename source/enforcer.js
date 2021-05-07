@@ -142,7 +142,7 @@ export class Enforcer {
 			bus.emit('content-did-change', element.previousSibling, element)
 		})
 		
-		bus.on('detected:empty-span', function(element) {
+		bus.on('detected:empty-span', function(element) {				// issue: should not be removing empty spans? (insert zero width whitespace)
 			logger('scanner').log('detected:empty-span')
 			let selection = get_selection(editor)
 			let apply_selection = selection && selection.head ? element.firstChild == selection.head.container : false
