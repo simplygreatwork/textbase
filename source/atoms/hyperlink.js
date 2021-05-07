@@ -27,13 +27,6 @@ export function initialize_hyperlink_atoms(bus, editor, history) {
 		set_inspector_enabled(atom)
 	}.bind(this))
 	
-	let context = bus.context('atom-hyperlink')
-	context.unshift('action:insert-character', function(event, interrupt) {
-		editor.insert_character(event)
-		consume_event(event)
-		interrupt()
-	})
-	
 	bus.on('convert:a', function(data) {
 		let content = document.createDocumentFragment()
 		u(data.node).children().each(function(each) {
