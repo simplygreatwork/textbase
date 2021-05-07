@@ -12,7 +12,7 @@ const logger = Logger()
 
 export class Enforcer {
 	
-	constructor(editor) {
+	constructor(bus, editor) {
 		
 		this.bus = new Bus()
 		this.editor = editor

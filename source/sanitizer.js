@@ -6,14 +6,14 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-const relevant_element = 'div, p, h1, h2, li, a, code'
-const block_element = 'div, p, h1, h2, li'
+const relevant_element = 'div, p, h1, h2, h3, h4, h5, h6, li, blockquote, a, code'
+const block_element = 'div, p, h1, h2, h3, h4, h5, h6, li, blockquote'
 
 export class Sanitizer {
 	
-	constructor(editor) {
+	constructor(bus) {
 		
-		let bus = this.bus = editor.bus
+		this.bus = bus
 		this.printing(false, bus)
 	}
 	

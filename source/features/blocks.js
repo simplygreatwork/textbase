@@ -77,6 +77,8 @@ export function indent(editor, event) {
 		level = parseInt(level) + 1
 		u(node).data('indent', level)
 	})
+	set_selection(editor, selection)
+	editor.emit('block-did-change')
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
@@ -93,6 +95,8 @@ export function dedent(editor, event) {
 		u(node).data('indent', level)
 		if (level == 0) node.removeAttribute('data-indent') 
 	})
+	set_selection(editor, selection)
+	editor.emit('block-did-change')
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
@@ -109,6 +113,8 @@ export function align(editor, alignment) {
 		node.removeClass('align-justify')
 		node.addClass(class_)
 	})
+	set_selection(editor, selection)
+	editor.emit('block-did-change')
 	editor.emit('content-did-change', selection.head.container, selection.tail.container)
 }
 
