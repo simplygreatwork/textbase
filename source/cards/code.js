@@ -1,7 +1,8 @@
 
 import { a_text_node } from '../basics.js'
-import { consume_event, decode_entities } from '../basics.js'
-import { get_selection, set_selection, select_range } from '../selection.js'
+import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
+import { get_selection, with_selection, with_content_selection } from '../selection.js'
+import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
@@ -116,31 +117,33 @@ export function initialize(bus, editor, history) {
 	context.on('history-did-redo', mutated)
 	
 	context.on('clipboard-cut', function(event, interrupt) {
-		let selection = get_selection(editor)
-		if (selection == null) return
-		event.clipboardData.setData('text/plain', u(selection.range.extractContents()).text())
-		render(find_card_container(selection.head.container, 'code'))
-		consume_event(event)
-		interrupt()
+		with_content_selection(editor, function(selection) {
+			let data = get_clipboard_data(event)
+			data.setData('text/plain', u(selection.range.extractContents()).text())
+			render(find_card_container(selection.head.container, 'code'))
+			consume_event(event)
+			interrupt()
+		})
 	}.bind(this))
 	
 	context.on('clipboard-copy', function(event, interrupt) {
-		let selection = get_selection(editor)
-		if (selection == null) return
-		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
-		consume_event(event)
-		interrupt()
+		with_content_selection(editor, function(selection) {
+			let data = get_clipboard_data(event)
+			data.setData('text/plain', u(selection.range.cloneContents()).text())
+			consume_event(event)
+			interrupt()
+		})
 	}.bind(this))
 	
 	context.unshift('clipboard-paste', function(event, interrupt) {
-		let selection = get_selection(editor)
-		if (selection == null) return
-		let clipboard_data = (event.clipboardData || window.clipboardData)
-		let content = clipboard_data.getData('text/plain')
-		editor.insert_string(content)
-		render(find_card_container(selection.head.container, 'code'))
-		consume_event(event)
-		interrupt()
+		with_selection(editor, function(selection) {
+			let data = get_clipboard_data(event)
+			let content = data.getData('text/plain')
+			editor.insert_string(content)
+			render(find_card_container(selection.head.container, 'code'))
+			consume_event(event)
+			interrupt()
+		})
 	})
 	
 	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
