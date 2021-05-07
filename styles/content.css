@@ -20,12 +20,12 @@
 	padding-top:4px;
 	padding-bottom:4px;
 }
-.hyperlink {
+.pseudolink {
 	text-decoration:underline;
 	color:royalblue;
 	cursor:pointer;
 }
-.hyperlink:hover {
+.pseudolink:hover {
 	text-decoration:underline;
 	color:royalblue;
 }

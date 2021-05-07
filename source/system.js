@@ -14,25 +14,25 @@ import { extend_selection_down, extend_selection_up } from './navigation.js'
 import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
 import { toggle_block, transform_block, block_has_content } from './features/blocks.js'
 import { indent, dedent, align } from './features/blocks.js'
-import { initialize_hyperlinks, detect_hyperlinks } from './features/hyperlinks.js'
+import { initialize_pseudolinks, detect_pseudolinks } from './features/pseudolinks.js'
 import { initialize_clipboard } from './clipboard.js'
 import { initialize_platform } from './platform.js'
-import { initialize_atoms } from './features/atoms.js'
-import { initialize_cards } from './features/cards.js'
-import { initialize_sample_atoms } from './atoms/sample.js'
-import { initialize_animated_atoms } from './atoms/animated.js'
-import { initialize_mention_atoms } from './atoms/mention.js'
-import { initialize_code_atoms } from './atoms/code.js'
-import { initialize_hyperlink_atoms } from './atoms/hyperlink.js'
-import { initialize_sample_cards } from './cards/sample.js'
-import { initialize_animated_cards } from './cards/animated.js'
-import { initialize_editable_cards } from './cards/editable.js'
-import { initialize_design_block_cards } from './cards/design-block.js'
-import { initialize_image_cards } from './cards/image.js'
-import { initialize_code_cards } from './cards/code.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
+import * as atoms from './features/atoms.js'
+import * as sample_atoms from './atoms/sample.js'
+import * as animated_atoms from './atoms/animated.js'
+import * as mention_atoms from './atoms/mention.js'
+import * as code_atoms from './atoms/code.js'
+import * as hyperlink_atoms from './atoms/hyperlink.js'
+import * as cards from './features/cards.js'
+import * as sample_cards from './cards/sample.js'
+import * as animated_cards from './cards/animated.js'
+import * as editable_cards from './cards/editable.js'
+import * as design_block_cards from './cards/design-block.js'
+import * as image_cards from './cards/image.js'
+import * as code_cards from './cards/code.js'
 
 const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer', 'clipboard-off', 'formats-off'])
 
@@ -338,7 +338,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:formats-all', function() {
-			this.enable_feature('format-hyperlink', bus)
+			this.enable_feature('format-pseudolink', bus)
 			this.enable_feature('format-strong', bus)
 			this.enable_feature('format-emphasis', bus)
 			this.enable_feature('format-underline', bus)
@@ -347,21 +347,21 @@ export class System {
 			this.enable_feature('format-clear', bus)
 		}.bind(this))
 		
-		bus.on('feature:format-hyperlink', function() {
-			initialize_hyperlinks(editor, bus)
-			detect_hyperlinks(editor, bus)
-			bus.on('action:hyperlink', function() {
+		bus.on('feature:format-pseudolink', function() {
+			initialize_pseudolinks(editor, bus)
+			detect_pseudolinks(editor, bus)
+			bus.on('action:pseudolink', function() {
 				let result = window.prompt('Enter a URL', 'http://github.com')
-				if (result) toggle_format_with_data(editor, 'hyperlink', { href: result })
+				if (result) toggle_format_with_data(editor, 'pseudolink', { href: result })
 			}.bind(this))
-			bus.on('hyperlink:clicked', function(href, event) {
+			bus.on('pseudolink:clicked', function(href, event) {
 				if (event && event.ctrlKey) {
 					window.open(href)
 				} else {
 					window.location.href = href
 				}
 			}.bind(this))
-			bus.emit('feature-did-enable', 'hyperlink', 'Hyperlink')
+			bus.emit('feature-did-enable', 'pseudolink', 'Pseudo Link')
 		}.bind(this))
 		
 		bus.on('feature:format-strong', function() {
@@ -540,22 +540,22 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:atoms', function() {
-			initialize_atoms(bus, editor, history)
-			initialize_sample_atoms(bus, editor, history)
-			initialize_animated_atoms(bus, editor, history)
-			initialize_mention_atoms(bus, editor, history)
-			initialize_code_atoms(bus, editor, history)
-			initialize_hyperlink_atoms(bus, editor, history)
+			atoms.initialize(bus, editor, history)
+			sample_atoms.initialize(bus, editor, history)
+			animated_atoms.initialize(bus, editor, history)
+			mention_atoms.initialize(bus, editor, history)
+			code_atoms.initialize(bus, editor, history)
+			hyperlink_atoms.initialize(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:cards', function() {
-			initialize_cards(bus, editor, history)
-			initialize_sample_cards(bus, editor, history)
-			initialize_animated_cards(bus, editor, history)
-			initialize_image_cards(bus, editor, history)
-			initialize_editable_cards(bus, editor, history)
-			initialize_design_block_cards(bus, editor, history)
-			initialize_code_cards(bus, editor, history)
+			cards.initialize(bus, editor, history)
+			sample_cards.initialize(bus, editor, history)
+			animated_cards.initialize(bus, editor, history)
+			image_cards.initialize(bus, editor, history)
+			editable_cards.initialize(bus, editor, history)
+			design_block_cards.initialize(bus, editor, history)
+			code_cards.initialize(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:recognizers', function() {

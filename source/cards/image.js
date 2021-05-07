@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_image_cards(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('action:card-image', function() {
 		insert_card(editor, 'image', `

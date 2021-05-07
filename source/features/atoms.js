@@ -7,7 +7,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_atoms(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('document-did-install', function(document_) {
 		each_atom(editor.element, editor.element, null, function(atom) {

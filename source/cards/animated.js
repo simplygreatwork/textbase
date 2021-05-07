@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_animated_cards(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('action:card-animated', function() {
 		insert_card(editor, 'animated', `

@@ -10,7 +10,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_cards(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('document-will-install', function(document_) {
 		let content = u(`<div>${document_.content}</div>`)

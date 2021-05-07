@@ -5,28 +5,28 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_hyperlinks(editor, bus) {
+export function initialize_pseudolinks(editor, bus) {
 	
 	logger('trace').log('initialize_hyperlinks')
 	u(editor.element).on('click', function(event) {
-		invoke_hyperlink(u(event.target), editor, bus)
+		invoke_pseudolink(u(event.target), editor, bus)
 	})
 }
 
-export function detect_hyperlinks(editor, bus) {
+export function detect_pseudolinks(editor, bus) {
 	
 	bus.on('keydown:shift-space', function(event) {
 		logger('trace').log('detect_hyperlink keydown:space')
 	})
 }
 
-function invoke_hyperlink(target, editor, bus) {
+function invoke_pseudolink(target, editor, bus) {
 	
-	logger('trace').log('invoke_hyperlink')
+	logger('trace').log('invoke_pseudolink')
 	if (target.is(an_inline_element)) {
-		if (target.hasClass('hyperlink')) {
+		if (target.hasClass('pseudolink')) {
 			let href = find_href(editor, event.target)
-			bus.emit('hyperlink:clicked', href, event)
+			bus.emit('pseudolink:clicked', href, event)
 		}
 	}
 }
@@ -36,7 +36,7 @@ function find_href(editor, node) {
 	let result = null
 	let iterator = element_iterator(editor.element, node)
 	while (node) {
-		if (u(node).hasClass('hyperlink')) {
+		if (u(node).hasClass('pseudolink')) {
 			let href = u(node).data('href')
 			if (href) {
 				result = href

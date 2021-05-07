@@ -4,7 +4,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_sample_atoms(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('action:atom-sample', function() {
 		insert_atom(editor, `

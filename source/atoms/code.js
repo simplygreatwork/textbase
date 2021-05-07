@@ -5,7 +5,7 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_code_atoms(bus, editor, history) {
+export function initialize(bus, editor, history) {
 	
 	bus.on('action:atom-code', function() {
 		insert_atom(editor, create_atom(get_selected_content(editor)))
