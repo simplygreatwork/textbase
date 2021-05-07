@@ -68,7 +68,7 @@ export class System {
 	enable_features(features, bus) {
 		
 		features.forEach(function(key) {
-			this.enable_feature(key, bus)
+			this.enable_feature(key)
 		}.bind(this))
 	}
 	
