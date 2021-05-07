@@ -37,16 +37,13 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 		if (selection == null) return
 		let fragment = selection.range.cloneContents()
 		bus.emit('content-will-delete', fragment)
-		fragment = selection.range.extractContents()
-		let div = document.createElement('div')
-		div.appendChild(fragment.cloneNode(true))
-		let content = div.outerHTML
+		let content = content_from(selection.range.extractContents())
 		logger('clipboard').log('cut content: ' + content)
 		let data = get_clipboard_data(event)
 		data.setData('text/html', content)
 		data.setData('textbase/text/html', content)
-		data.setData('text/plain', u(fragment).text())
-		data.setData('textbase/text/plain', u(fragment).text())
+		data.setData('text/plain', u(content).text())
+		data.setData('textbase/text/plain', u(content).text())
 		bus.emit('content-did-change', selection.head.container, selection.tail.container)
 		bus.emit('content-did-delete', fragment)
 	}.bind(this))
@@ -56,16 +53,13 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 		consume_event(event)
 		let selection = get_selection(editor)
 		if (selection == null) return
-		let fragment = selection.range.cloneContents()
-		let div = document.createElement('div')
-		div.appendChild(fragment.cloneNode(true))
-		let content = div.outerHTML
+		let content = content_from(selection.range.cloneContents())
 		logger('clipboard').log('copy content: ' + content)
 		let data = get_clipboard_data(event)
 		data.setData('text/html', content)
 		data.setData('textbase/text/html', content)
-		data.setData('text/plain', u(fragment).text())
-		data.setData('textbase/text/plain', u(fragment).text())
+		data.setData('text/plain', u(content).text())
+		data.setData('textbase/text/plain', u(content).text())
 	}.bind(this))
 	
 	bus.on('clipboard-paste', function(event) {							// todo: need to edge selection
@@ -112,6 +106,13 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 	bus.on('clipboard-paste:text/plain', function(event, editor) {
 		return
 	}.bind(this))
+}
+
+function content_from(fragment) {
+	
+	let div = document.createElement('div')
+	div.appendChild(fragment.cloneNode(true))
+	return div.outerHTML
 }
 
 function paste_html_text(bus, editor, content) {

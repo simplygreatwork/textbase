@@ -115,7 +115,7 @@ export function initialize(bus, editor, history) {
 	context.on('history-did-undo', mutated)
 	context.on('history-did-redo', mutated)
 	
-	context.on('clipboard-cut', function(event, editor, interrupt) {
+	context.on('clipboard-cut', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
 		event.clipboardData.setData('text/plain', u(selection.range.extractContents()).text())
@@ -124,7 +124,7 @@ export function initialize(bus, editor, history) {
 		interrupt()
 	}.bind(this))
 	
-	context.on('clipboard-copy', function(event, editor, interrupt) {
+	context.on('clipboard-copy', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
 		event.clipboardData.setData('text/plain', u(selection.range.cloneContents()).text())
@@ -132,7 +132,7 @@ export function initialize(bus, editor, history) {
 		interrupt()
 	}.bind(this))
 	
-	context.unshift('clipboard-paste', function(event, editor, interrupt) {
+	context.unshift('clipboard-paste', function(event, interrupt) {
 		let selection = get_selection(editor)
 		if (selection == null) return
 		let clipboard_data = (event.clipboardData || window.clipboardData)
