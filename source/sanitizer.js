@@ -29,7 +29,7 @@ export class Sanitizer {
 	collect_paths(html, bus) {
 		
 		let paths = []
-		let source = u(`<div><div>${html}</div></div>`).first()
+		let source = u(`<div>${html}</div>`).first()
 		this.each_significant_text_node(source, function(text_node) {
 			let path = []
 			path.unshift(text_node)
@@ -84,7 +84,9 @@ export class Sanitizer {
 	create_element(original) {
 		
 		if (u(original).is(an_element_node)) {
-			return document.createElement(original.tagName)
+			let element = document.createElement(original.tagName)
+			if (u(element).is('a')) u(element).attr('href', u(original).attr('href')) 
+			return element
 		} else {
 			return original.cloneNode()
 		}
@@ -97,7 +99,7 @@ export class Sanitizer {
 	
 	convert_tree(tree, bus) {
 		
-		u(tree).find('a,code').each(function(each) {									// for transformation to atoms
+		u(tree).find('a,code').each(function(each) {										// for transformation to atoms
 			let data = { node: each }
 			let tag = each.tagName.toLowerCase()
 			bus.emit(`convert:${tag}`, data)
