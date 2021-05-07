@@ -7,17 +7,6 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export function set_selection(editor, options) {
-	
-	options = validate_selection(options, editor)
-	let selection = document.getSelection()
-	selection.removeAllRanges()
-	let range = new Range()
-	range.setStart(options.head.container, options.head.offset)
-	range.setEnd(options.tail.container, options.tail.offset)
-	selection.addRange(range)
-}
-
 export function get_selection(editor) {
 	
 	let selection = document.getSelection()
@@ -33,6 +22,29 @@ export function get_selection(editor) {
 		tail: { container: range.endContainer, offset: range.endOffset }
 	}
 	return null
+}
+
+export function with_selection(editor, fn) {
+	
+	let selection = get_selection(editor)
+	if (selection) fn(selection)
+}
+
+export function with_content_selection(editor, fn) {
+	
+	let selection = get_selection(editor)
+	if (selection && ! selection.range.collapsed) fn(selection)
+}
+
+export function set_selection(editor, options) {
+	
+	options = validate_selection(options, editor)
+	let selection = document.getSelection()
+	selection.removeAllRanges()
+	let range = new Range()
+	range.setStart(options.head.container, options.head.offset)
+	range.setEnd(options.tail.container, options.tail.offset)
+	selection.addRange(range)
 }
 
 export function set_caret(editor, options) {

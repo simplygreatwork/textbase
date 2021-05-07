@@ -2,7 +2,8 @@
 import { a_text_node, node_iterator } from './basics.js'
 import { an_inline_element, a_block_element } from './basics.js'
 import { consume_event, get_clipboard_data } from './basics.js'
-import { get_selection, set_caret, selection_edge, normalize_selection } from './selection.js'
+import { get_selection, with_content_selection, set_caret } from './selection.js'
+import { selection_edge, normalize_selection } from './selection.js'
 import { Sanitizer } from './sanitizer.js'
 import { Logger } from './logger.js'
 
@@ -32,34 +33,34 @@ export function initialize_clipboard(bus, editor, sanitizer) {
 	
 	bus.on('clipboard-cut', function(event) {
 		logger('trace').log('clipboard-cut')
-		consume_event(event)
-		let selection = get_selection(editor)
-		if (selection == null) return
-		let fragment = selection.range.cloneContents()
-		bus.emit('content-will-delete', fragment)
-		let content = content_from(selection.range.extractContents())
-		logger('clipboard').log('cut content: ' + content)
-		let data = get_clipboard_data(event)
-		data.setData('text/html', content)
-		data.setData('textbase/text/html', content)
-		data.setData('text/plain', u(content).text())
-		data.setData('textbase/text/plain', u(content).text())
-		bus.emit('content-did-change', selection.head.container, selection.tail.container)
-		bus.emit('content-did-delete', fragment)
+		with_content_selection(editor, function(selection) {
+			consume_event(event)
+			let fragment = selection.range.cloneContents()
+			bus.emit('content-will-delete', fragment)
+			let content = content_from(selection.range.extractContents())
+			logger('clipboard').log('cut content: ' + content)
+			let data = get_clipboard_data(event)
+			data.setData('text/html', content)
+			data.setData('textbase/text/html', content)
+			data.setData('text/plain', u(content).text())
+			data.setData('textbase/text/plain', u(content).text())
+			bus.emit('content-did-change', selection.head.container, selection.tail.container)
+			bus.emit('content-did-delete', fragment)
+		})
 	}.bind(this))
 	
 	bus.on('clipboard-copy', function(event) {
 		logger('trace').log('clipboard-copy')
-		consume_event(event)
-		let selection = get_selection(editor)
-		if (selection == null) return
-		let content = content_from(selection.range.cloneContents())
-		logger('clipboard').log('copy content: ' + content)
-		let data = get_clipboard_data(event)
-		data.setData('text/html', content)
-		data.setData('textbase/text/html', content)
-		data.setData('text/plain', u(content).text())
-		data.setData('textbase/text/plain', u(content).text())
+		with_content_selection(editor, function(selection) {
+			consume_event(event)
+			let content = content_from(selection.range.cloneContents())
+			logger('clipboard').log('copy content: ' + content)
+			let data = get_clipboard_data(event)
+			data.setData('text/html', content)
+			data.setData('textbase/text/html', content)
+			data.setData('text/plain', u(content).text())
+			data.setData('textbase/text/plain', u(content).text())
+		})
 	}.bind(this))
 	
 	bus.on('clipboard-paste', function(event) {							// todo: need to edge selection
