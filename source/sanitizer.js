@@ -6,7 +6,7 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-const relevant_element = 'div, p, h1, h2, li, span, a, code'
+const relevant_element = 'div, p, h1, h2, li, a, code'
 const block_element = 'div, p, h1, h2, li'
 
 export class Sanitizer {
