@@ -15,6 +15,7 @@ import { initialize_clipboard } from './clipboard.js'
 import { initialize_platform } from './platform.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
+import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
 
 const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer', 'clipboard-off', 'formats-off'])
@@ -93,6 +94,7 @@ export class System {
 				this.enforcer.scan(document.querySelector('.content'))
 				this.history.enable()
 				this.structure.render()
+				if (false) dump_bus(bus)
 			}.bind(this))
 			bus.on('document-did-uninstall', function(document_) {
 				logger('system').log('document-did-uninstall')

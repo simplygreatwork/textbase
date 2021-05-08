@@ -92,4 +92,22 @@ export class Bus {
 			remap: (from, to) => this.remap(from, to, context_)
 		}
 	}
+	
+	print() {
+		
+		let count = 0
+		Object.keys(this.channels).forEach(function(context) {
+			Object.keys(this.channels[context]).forEach(function(channel) {
+				count++
+				let size = this.channels[context][channel].length
+				console.log(`bus channel: ${context}/${channel}[${size}]`)
+				this.channels[context][channel].forEach(function(fn) {
+					console.log(`fn: ${fn}`)
+					if (false) console.log(`fn.toSource(): ${fn.toSource()}`)
+					if (true) console.log(`fn.toSource(): ${fn.toString()}`)
+				}.bind(this))
+			}.bind(this))
+		}.bind(this))
+		console.log(`total bus channels: ${count}`)
+	}
 }
