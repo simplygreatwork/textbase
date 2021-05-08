@@ -6,81 +6,62 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history) {
+export function initialize(bus, editor, history, blocks) {
 	
-	bus.on('feature:blocks', function() {
-		bus.on('block-did-change', function(event) {
-			history.capture()
-		}.bind(this))
-		bus.on('content-did-split', function(a, b) {
-			if (block_has_content(a)) return
-			if (block_has_content(b)) return
-			transform_block(editor, b, 'p')
-		}.bind(this))
-	}.bind(this))
+	blocks = blocks || ['paragraph', 'heading-1', 'heading-2', 'list-item', 'blockquote', 'indentation', 'alignment']
+	if (false) blocks.append('ordered-list') 
+	if (false) blocks.append('unordered-list') 
 	
-	bus.on('feature:blocks-all', function() {
-		bus.emit(`feature`, 'blocks-paragraph')
-		bus.emit(`feature`, 'blocks-heading-1')
-		bus.emit(`feature`, 'blocks-heading-2')
-		bus.emit(`feature`, 'blocks-list-item')
-		if (false) bus.emit(`feature`, 'blocks-ordered-list')
-		if (false) bus.emit(`feature`, 'blocks-unordered-list')
-		bus.emit(`feature`, 'blocks-blockquote')
-		bus.emit(`feature`, 'blocks-indentation')
-		bus.emit(`feature`, 'blocks-alignment')
-	}.bind(this))
-	
-	bus.on('feature:blocks-paragraph', function() {
+	bus.on('feature:block-paragraph', function() {
 		bus.on('action:paragraph', function() {
 			toggle_block(editor, 'p')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'paragraph', 'Paragraph', 'block', 'p')
 	}.bind(this))
 	
-	bus.on('feature:blocks-heading-1', function() {
+	bus.on('feature:block-heading-1', function() {
 		bus.on('action:heading-1', function() {
 			toggle_block(editor, 'h1')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'heading-1', 'Heading 1', 'block', 'h1')
 	}.bind(this))
 	
-	bus.on('feature:blocks-heading-2', function() {
+	bus.on('feature:block-heading-2', function() {
 		bus.on('action:heading-2', function() {
 			toggle_block(editor, 'h2')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'heading-2', 'Heading 2', 'block', 'h2')
 	}.bind(this))
 	
-	bus.on('feature:blocks-list-item', function() {
+	bus.on('feature:block-list-item', function() {
 		bus.on('action:list-item', function() {
 			toggle_block(editor, 'li')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'list-item', 'List Item', 'block', 'li')
 	}.bind(this))
 	
-	bus.on('feature:blocks-ordered-list', function() {
+	bus.on('feature:block-ordered-list', function() {
 		bus.on('action:ordered-list', function() {
 			toggle_block(editor, 'ol')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'ordered-list', 'Ordered List', 'block', 'ol')
 	}.bind(this))
 	
-	bus.on('feature:blocks-unordered-list', function() {
+	bus.on('feature:block-unordered-list', function() {
 		bus.on('action:unordered-list', function() {
 			toggle_block(editor, 'ul')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'unordered-list', 'Unordered List', 'block', 'ul')
 	}.bind(this))
 	
-	bus.on('feature:blocks-blockquote', function() {
+	bus.on('feature:block-blockquote', function() {
 		bus.on('action:blockquote', function() {
 			toggle_block(editor, 'blockquote')
 		}.bind(this))
 		bus.emit('feature-did-enable', 'blockquote', 'Blockquote', 'block', 'blockquote')
 	}.bind(this))
 	
-	bus.on('feature:blocks-indentation', function() {
+	bus.on('feature:block-indentation', function() {
 		bus.on('action:indent', function(event) {
 			indent(editor, event)
 		}.bind(this))
@@ -103,7 +84,7 @@ export function initialize(bus, editor, history) {
 		bus.emit('feature-did-enable', 'dedent', 'Dedent')
 	}.bind(this))
 	
-	bus.on('feature:blocks-alignment', function() {
+	bus.on('feature:block-alignment', function() {
 		bus.on('action:align-left', function() {
 			align(editor, 'left')
 		}.bind(this))
@@ -122,8 +103,19 @@ export function initialize(bus, editor, history) {
 		bus.emit('feature-did-enable', 'align-justified', 'Align Justify')
 	}.bind(this))
 	
-	bus.emit(`feature:blocks`)
-	bus.emit(`feature:blocks-all`)
+	bus.on('block-did-change', function(event) {
+		history.capture()
+	}.bind(this))
+	
+	bus.on('content-did-split', function(a, b) {
+		if (block_has_content(a)) return
+		if (block_has_content(b)) return
+		transform_block(editor, b, 'p')
+	}.bind(this))
+	
+	blocks.forEach(function(block) {
+		bus.emit(`feature`, `block-${block}`)
+	})
 }
 
 export function toggle_block(editor, type) {						// todo: consolidate with transform_block below

@@ -7,26 +7,9 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history) {
+export function initialize(bus, editor, history, formats) {
 	
-	bus.on('feature:formats', function() {
-		bus.on('format-did-apply', function(event) {
-			history.capture()
-		}.bind(this))
-		bus.on('format-did-remove', function(event) {
-			history.capture()
-		}.bind(this))
-	}.bind(this))
-	
-	bus.on('feature:formats-all', function() {
-		bus.emit(`feature`, 'format-pseudolink')
-		bus.emit(`feature`, 'format-strong')
-		bus.emit(`feature`, 'format-emphasis')
-		bus.emit(`feature`, 'format-underline')
-		bus.emit(`feature`, 'format-strikethrough')
-		bus.emit(`feature`, 'format-highlight')
-		bus.emit(`feature`, 'format-clear')
-	}.bind(this))
+	formats = formats || ['pseudolink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight', 'clear']
 	
 	bus.on('feature:format-pseudolink', function() {
 		initialize_pseudolinks(editor, bus)
@@ -106,8 +89,17 @@ export function initialize(bus, editor, history) {
 		bus.emit('feature-did-enable', 'clear-formatting', 'Clear Formatting')
 	}.bind(this))
 	
-	bus.emit(`feature:formats`)
-	bus.emit(`feature:formats-all`)
+	bus.on('format-did-apply', function(event) {
+		history.capture()
+	}.bind(this))
+	
+	bus.on('format-did-remove', function(event) {
+		history.capture()
+	}.bind(this))
+	
+	formats.forEach(function(format) {
+		bus.emit(`feature`, `format-${format}`)
+	})
 }
 
 export function toggle_format(editor, format, event) {
