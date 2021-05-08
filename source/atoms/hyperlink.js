@@ -71,6 +71,24 @@ function watch(atom, enabled) {
 function set_inspector_enabled(atom) {
 	
 	let enabled = atom ? true : false
+	let inspector = get_inspector()
+	if (enabled) {
+		inspector.atom = atom
+		var bounds = atom.getBoundingClientRect()
+		inspector.style.top = `${bounds.top + 30}px`
+		inspector.style.left = `${bounds.left}px`
+		inspector.style.display = 'block'
+		inspector = u(inspector)
+		let href = u(atom).attr('href')
+		inspector.find('input').first().value = href
+	} else {
+		inspector.atom = null
+		inspector.style.display = 'none'
+	}
+}
+
+function get_inspector() {
+	
 	let inspector = window.inspector
 	if (! inspector) {
 		inspector = u(`
@@ -85,17 +103,5 @@ function set_inspector_enabled(atom) {
 		inspector = window.inspector = inspector.first()
 		u(document.body).append(inspector)
 	}
-	if (enabled) {
-		inspector.atom = atom
-		var bounds = atom.getBoundingClientRect()
-		inspector.style.top = `${bounds.top + 30}px`
-		inspector.style.left = `${bounds.left}px`
-		inspector.style.display = 'block'
-		inspector = u(inspector)
-		let href = u(atom).attr('href')
-		inspector.find('input').first().value = href
-	} else {
-		inspector.atom = null
-		inspector.style.display = 'none'
-	}
+	return inspector
 }
