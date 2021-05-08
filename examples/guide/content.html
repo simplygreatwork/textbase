@@ -1,0 +1,66 @@
+	<h1><span>TextBase</span></h1>
+		<h2><span>Listen for events</span></h2>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('action:split-content', function(event, editor) {
+	return
+}.bind(this))</code></pre></div></div>
+		<h2><span></span></h2>
+		<h2><span>Listen for events contextually</span></h2>
+		<p><span>You can add message handlers to the bus to fire only when the state of the bus is set with that context. In the example below, if the document selection is inside the code card's content,</span><span class="strong">keydown:enter</span><span>will fire and override (interrupt) the default handling.</span></p>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('selection-did-change', function(event, editor) {
+	if (is_selection_inside_card_container_content(get_selection(editor), 'code'))
+		bus.contexts.add('card-code')
+	else
+		bus.contexts.delete('card-code')
+}.bind(this))
+
+bus.context('card-code').unshift('keydown:enter', function(event, interrupt) {
+	editor.insert_string('\n')
+	history.capture()
+	consume_event(event)
+	interrupt()
+})</code></pre></div></div>
+		<h2><span></span></h2>
+		<h2><span>Insert custom block content as cards</span></h2>
+		<p><span>Insert custom content types using basic html.</span></p>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('action:my-card', function() {
+	insert_card(editor, 'my-card', `
+		&lt;div class="image-card"&gt;
+			&lt;img src="images/cosmic.jpg"&gt;
+		&lt;/div&gt;
+	`)
+}.bind(this))</code></pre></div></div>
+		<p><span>Attach and detach additional event listeners as needed.</span></p>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('card-will-enter:my-card', function(card) {
+	return
+}.bind(this))
+
+bus.on('card-did-enter:my-card', function(card) {
+	return
+}.bind(this))
+
+bus.on('card-will-exit:my-card', function(card) {
+	return
+}.bind(this))
+
+bus.on('card-did-exit:my-card', function(card) {
+	return
+}.bind(this))</code></pre></div></div>
+		<h2><span>Extend list item behavior</span></h2>
+		<p><span>Allow the user to break out of the list and return to paragraph mode when the user presses enter on an empty list item. This is one example of how you can use the message bus to extend the behavior of the system.</span></p>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+	if (block_has_content(a)) return
+	if (block_has_content(b)) return
+	transform_block(editor, b, 'p')
+}.bind(this))</code></pre></div></div>
+		<h2><span>Example</span></h2>
+		<div class="code-card" data-card-type="code">
+			<div class="code-source"><pre><code contenteditable="true">bus.on('content-did-split', function(a, b) {
+	if (block_has_content(a)) return
+	if (block_has_content(b)) return
+	transform_block(editor, b, 'p')
+}.bind(this))</code></pre></div></div>

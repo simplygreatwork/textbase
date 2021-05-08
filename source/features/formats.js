@@ -2,9 +2,113 @@
 import { a_text_node } from '../basics.js'
 import { get_selection } from '../selection.js'
 import { selection_edge, selection_each_node, selection_each_text, selection_each_block, normalize_selection } from '../selection.js'
+import { initialize_pseudolinks, detect_pseudolinks } from './pseudolinks.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
+
+export function initialize(bus, editor, history) {
+	
+	bus.on('feature:formats', function() {
+		bus.on('format-did-apply', function(event) {
+			history.capture()
+		}.bind(this))
+		bus.on('format-did-remove', function(event) {
+			history.capture()
+		}.bind(this))
+	}.bind(this))
+	
+	bus.on('feature:formats-all', function() {
+		bus.emit(`feature`, 'format-pseudolink')
+		bus.emit(`feature`, 'format-strong')
+		bus.emit(`feature`, 'format-emphasis')
+		bus.emit(`feature`, 'format-underline')
+		bus.emit(`feature`, 'format-strikethrough')
+		bus.emit(`feature`, 'format-highlight')
+		bus.emit(`feature`, 'format-clear')
+	}.bind(this))
+	
+	bus.on('feature:format-pseudolink', function() {
+		initialize_pseudolinks(editor, bus)
+		detect_pseudolinks(editor, bus)
+		bus.on('action:pseudolink', function() {
+			let result = window.prompt('Enter a URL', 'http://github.com')
+			if (result) toggle_format_with_data(editor, 'pseudolink', { href: result })
+		}.bind(this))
+		bus.on('pseudolink:clicked', function(href, event) {
+			if (event && event.ctrlKey) {
+				window.open(href)
+			} else {
+				window.location.href = href
+			}
+		}.bind(this))
+		bus.emit('feature-did-enable', 'pseudolink', 'Pseudo Link')
+	}.bind(this))
+	
+	bus.on('feature:format-strong', function() {
+		bus.on('action:strong', function(event, interrupt) {
+			toggle_format(editor, 'strong', event)
+		}.bind(this))
+		bus.unshift('keydown:control-b', function(event, interrupt) {
+			bus.emit('action:strong', event)
+			interrupt()
+		}.bind(this))
+		bus.emit('feature-did-enable', 'strong', 'Strong', 'format', 'strong')
+	}.bind(this))
+	
+	bus.on('feature:format-emphasis', function() {
+		bus.on('action:emphasis', function(event) {
+			toggle_format(editor, 'emphasis', event)
+		}.bind(this))
+		bus.unshift('keydown:control-i', function(event, interrupt) {
+			bus.emit('action:emphasis', event)
+			interrupt()
+		}.bind(this))
+		bus.emit('feature-did-enable', 'emphasis', 'Emphasis', 'format', 'emphasis')
+	}.bind(this))
+	
+	bus.on('feature:format-underline', function() {
+		bus.on('action:underline', function(event) {
+			toggle_format(editor, 'underline', event)
+		}.bind(this))
+		bus.unshift('keydown:control-u', function(event, interrupt) {
+			bus.emit('action:underline', event)
+			interrupt()
+		}.bind(this))
+		bus.emit('feature-did-enable', 'underline', 'Underline', 'format', 'underline')
+	}.bind(this))
+	
+	bus.on('feature:format-strikethrough', function() {
+		bus.on('action:strikethrough', function() {
+			toggle_format(editor, 'strikethrough')
+		}.bind(this))
+		bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough', 'format', 'strikethrough')
+	}.bind(this))
+	
+	bus.on('feature:format-code', function() {
+		bus.on('action:code', function() {
+			toggle_format(editor, 'code')
+		}.bind(this))
+		bus.emit('feature-did-enable', 'code', 'Code', 'format', 'code')
+	}.bind(this))
+	
+	bus.on('feature:format-highlight', function() {
+		bus.on('action:highlight', function() {
+			toggle_format(editor, 'highlight')
+		}.bind(this))
+		bus.emit('feature-did-enable', 'highlight', 'Highlight', 'format', 'highlight')
+	}.bind(this))
+	
+	bus.on('feature:format-clear', function() {
+		bus.on('action:clear-formatting', function() {
+			remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
+		}.bind(this))
+		bus.emit('feature-did-enable', 'clear-formatting', 'Clear Formatting')
+	}.bind(this))
+	
+	bus.emit(`feature:formats`)
+	bus.emit(`feature:formats-all`)
+}
 
 export function toggle_format(editor, format, event) {
 	

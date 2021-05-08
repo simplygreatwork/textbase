@@ -11,28 +11,11 @@ import { get_selection, set_selection, select_all, selection_to_string } from '.
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './navigation.js'
 import { extend_selection_right, extend_selection_left } from './navigation.js'
 import { extend_selection_down, extend_selection_up } from './navigation.js'
-import { toggle_format, toggle_format_with_data, remove_formats } from './features/formats.js'
-import { toggle_block, transform_block, block_has_content } from './features/blocks.js'
-import { indent, dedent, align } from './features/blocks.js'
-import { initialize_pseudolinks, detect_pseudolinks } from './features/pseudolinks.js'
 import { initialize_clipboard } from './clipboard.js'
 import { initialize_platform } from './platform.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { Logger } from './logger.js'
-import * as atoms from './features/atoms.js'
-import * as sample_atoms from './atoms/sample.js'
-import * as animated_atoms from './atoms/animated.js'
-import * as mention_atoms from './atoms/mention.js'
-import * as code_atoms from './atoms/code.js'
-import * as hyperlink_atoms from './atoms/hyperlink.js'
-import * as cards from './features/cards.js'
-import * as sample_cards from './cards/sample.js'
-import * as animated_cards from './cards/animated.js'
-import * as editable_cards from './cards/editable.js'
-import * as design_block_cards from './cards/design-block.js'
-import * as image_cards from './cards/image.js'
-import * as code_cards from './cards/code.js'
 
 const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer', 'clipboard-off', 'formats-off'])
 
@@ -42,12 +25,6 @@ export class System {
 		
 		features = features || [
 			'essentials',
-			'formats',
-			'formats-all',
-			'blocks',
-			'blocks-all',
-			'atoms',
-			'cards',
 			'other',
 			'recognizers',
 			'platform'
@@ -60,9 +37,17 @@ export class System {
 		this.enforcer = new Enforcer(this.bus, this.editor)
 		this.sanitizer = new Sanitizer(this.bus)
 		this.structure = new Structure(this.bus, this.editor)
+		this.initiize_features(this.bus)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(features, this.bus)
 		if (true) sanitizer_test(this.sanitizer)
+	}
+	
+	initiize_features(bus) {
+		
+		bus.on('feature', function(feature) {
+			bus.emit(`feature:${feature}`)
+		})
 	}
 	
 	enable_features(features, bus) {
@@ -76,7 +61,6 @@ export class System {
 		
 		let bus = this.bus
 		bus.emit(`feature`, feature)
-		bus.emit(`feature:${feature}`)
 	}
 	
 	offer_features(bus, editor, history, toolbar, enforcer, sanitizer, structure) {
@@ -327,236 +311,6 @@ export class System {
 			bus.on('clipboard-did-paste', function() {
 				logger('system').log('clipboard-did-paste')
 			})
-		}.bind(this))
-		
-		bus.on('feature:formats', function() {
-			bus.on('format-did-apply', function(event) {
-				this.history.capture()
-			}.bind(this))
-			bus.on('format-did-remove', function(event) {
-				this.history.capture()
-			}.bind(this))
-		}.bind(this))
-		
-		bus.on('feature:formats-all', function() {
-			this.enable_feature('format-pseudolink')
-			this.enable_feature('format-strong')
-			this.enable_feature('format-emphasis')
-			this.enable_feature('format-underline')
-			this.enable_feature('format-strikethrough')
-			this.enable_feature('format-highlight')
-			this.enable_feature('format-clear')
-		}.bind(this))
-		
-		bus.on('feature:format-pseudolink', function() {
-			initialize_pseudolinks(editor, bus)
-			detect_pseudolinks(editor, bus)
-			bus.on('action:pseudolink', function() {
-				let result = window.prompt('Enter a URL', 'http://github.com')
-				if (result) toggle_format_with_data(editor, 'pseudolink', { href: result })
-			}.bind(this))
-			bus.on('pseudolink:clicked', function(href, event) {
-				if (event && event.ctrlKey) {
-					window.open(href)
-				} else {
-					window.location.href = href
-				}
-			}.bind(this))
-			bus.emit('feature-did-enable', 'pseudolink', 'Pseudo Link')
-		}.bind(this))
-		
-		bus.on('feature:format-strong', function() {
-			bus.on('action:strong', function(event, interrupt) {
-				toggle_format(editor, 'strong', event)
-			}.bind(this))
-			bus.unshift('keydown:control-b', function(event, interrupt) {
-				bus.emit('action:strong', event)
-				interrupt()
-			}.bind(this))
-			bus.emit('feature-did-enable', 'strong', 'Strong', 'format', 'strong')
-		}.bind(this))
-		
-		bus.on('feature:format-emphasis', function() {
-			bus.on('action:emphasis', function(event) {
-				toggle_format(editor, 'emphasis', event)
-			}.bind(this))
-			bus.unshift('keydown:control-i', function(event, interrupt) {
-				bus.emit('action:emphasis', event)
-				interrupt()
-			}.bind(this))
-			bus.emit('feature-did-enable', 'emphasis', 'Emphasis', 'format', 'emphasis')
-		}.bind(this))
-		
-		bus.on('feature:format-underline', function() {
-			bus.on('action:underline', function(event) {
-				toggle_format(editor, 'underline', event)
-			}.bind(this))
-			bus.unshift('keydown:control-u', function(event, interrupt) {
-				bus.emit('action:underline', event)
-				interrupt()
-			}.bind(this))
-			bus.emit('feature-did-enable', 'underline', 'Underline', 'format', 'underline')
-		}.bind(this))
-		
-		bus.on('feature:format-strikethrough', function() {
-			bus.on('action:strikethrough', function() {
-				toggle_format(editor, 'strikethrough')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'strikethrough', 'Strikethrough', 'format', 'strikethrough')
-		}.bind(this))
-		
-		bus.on('feature:format-code', function() {
-			bus.on('action:code', function() {
-				toggle_format(editor, 'code')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'code', 'Code', 'format', 'code')
-		}.bind(this))
-		
-		bus.on('feature:format-highlight', function() {
-			bus.on('action:highlight', function() {
-				toggle_format(editor, 'highlight')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'highlight', 'Highlight', 'format', 'highlight')
-		}.bind(this))
-		
-		bus.on('feature:format-clear', function() {
-			bus.on('action:clear-formatting', function() {
-				remove_formats(editor, ['hyperlink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight'])
-			}.bind(this))
-			bus.emit('feature-did-enable', 'clear-formatting', 'Clear Formatting')
-		}.bind(this))
-		
-		bus.on('feature:blocks', function() {
-			bus.on('block-did-change', function(event) {
-				this.history.capture()
-			}.bind(this))
-			bus.on('content-did-split', function(a, b) {
-				if (block_has_content(a)) return
-				if (block_has_content(b)) return
-				transform_block(editor, b, 'p')
-			}.bind(this))
-		}.bind(this))
-		
-		bus.on('feature:blocks-all', function() {
-			this.enable_feature('blocks-paragraph')
-			this.enable_feature('blocks-heading-1')
-			this.enable_feature('blocks-heading-2')
-			this.enable_feature('blocks-list-item')
-			if (false) this.enable_feature('blocks-ordered-list')
-			if (false) this.enable_feature('blocks-unordered-list')
-			this.enable_feature('blocks-blockquote')
-			this.enable_feature('blocks-indentation')
-			this.enable_feature('blocks-alignment')
-		}.bind(this))
-		
-		bus.on('feature:blocks-paragraph', function() {
-			bus.on('action:paragraph', function() {
-				toggle_block(editor, 'p')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'paragraph', 'Paragraph', 'block', 'p')
-		}.bind(this))
-		
-		bus.on('feature:blocks-heading-1', function() {
-			bus.on('action:heading-1', function() {
-				toggle_block(editor, 'h1')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'heading-1', 'Heading 1', 'block', 'h1')
-		}.bind(this))
-		
-		bus.on('feature:blocks-heading-2', function() {
-			bus.on('action:heading-2', function() {
-				toggle_block(editor, 'h2')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'heading-2', 'Heading 2', 'block', 'h2')
-		}.bind(this))
-		
-		bus.on('feature:blocks-list-item', function() {
-			bus.on('action:list-item', function() {
-				toggle_block(editor, 'li')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'list-item', 'List Item', 'block', 'li')
-		}.bind(this))
-		
-		bus.on('feature:blocks-ordered-list', function() {
-			bus.on('action:ordered-list', function() {
-				toggle_block(editor, 'ol')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'ordered-list', 'Ordered List', 'block', 'ol')
-		}.bind(this))
-		
-		bus.on('feature:blocks-unordered-list', function() {
-			bus.on('action:unordered-list', function() {
-				toggle_block(editor, 'ul')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'unordered-list', 'Unordered List', 'block', 'ul')
-		}.bind(this))
-		
-		bus.on('feature:blocks-blockquote', function() {
-			bus.on('action:blockquote', function() {
-				toggle_block(editor, 'blockquote')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'blockquote', 'Blockquote', 'block', 'blockquote')
-		}.bind(this))
-		
-		bus.on('feature:blocks-indentation', function() {
-			bus.on('action:indent', function(event) {
-				indent(editor, event)
-			}.bind(this))
-			bus.on('keydown:tab', function(event) {
-				bus.emit('action:indent', event)
-			}.bind(this))
-			bus.on('keydown:control-]', function(event) {
-				bus.emit('action:indent', event)
-			}.bind(this))
-			bus.emit('feature-did-enable', 'indent', 'Indent')
-			bus.on('action:dedent', function(event) {
-				dedent(editor, event)
-			}.bind(this))
-			bus.on('keydown:shift-tab', function(event) {
-				bus.emit('action:dedent', event)
-			}.bind(this))
-			bus.on('keydown:control-[', function(event) {
-				bus.emit('action:dedent', event)
-			}.bind(this))
-			bus.emit('feature-did-enable', 'dedent', 'Dedent')
-		}.bind(this))
-		
-		bus.on('feature:blocks-alignment', function() {
-			bus.on('action:align-left', function() {
-				align(editor, 'left')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'align-left', 'Align Left')
-			bus.on('action:align-right', function() {
-				align(editor, 'right')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'align-right', 'Align Right')
-			bus.on('action:align-center', function() {
-				align(editor, 'center')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'align-center', 'Align Center')
-			bus.on('action:align-justify', function() {
-				align(editor, 'justify')
-			}.bind(this))
-			bus.emit('feature-did-enable', 'align-justified', 'Align Justify')
-		}.bind(this))
-		
-		bus.on('feature:atoms', function() {
-			atoms.initialize(bus, editor, history)
-			sample_atoms.initialize(bus, editor, history)
-			animated_atoms.initialize(bus, editor, history)
-			mention_atoms.initialize(bus, editor, history)
-			code_atoms.initialize(bus, editor, history)
-			hyperlink_atoms.initialize(bus, editor, history)
-		}.bind(this))
-		
-		bus.on('feature:cards', function() {
-			cards.initialize(bus, editor, history)
-			sample_cards.initialize(bus, editor, history)
-			animated_cards.initialize(bus, editor, history)
-			image_cards.initialize(bus, editor, history)
-			editable_cards.initialize(bus, editor, history)
-			design_block_cards.initialize(bus, editor, history)
-			code_cards.initialize(bus, editor, history)
 		}.bind(this))
 		
 		bus.on('feature:recognizers', function() {
