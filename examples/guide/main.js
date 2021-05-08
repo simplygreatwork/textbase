@@ -84,7 +84,7 @@ export class Application {
 		} else {
 			return {
 				mutable: false,
-				path: './examples/docs/content.html'
+				path: './examples/guide/content.html'
 			}
 		}
 	}
