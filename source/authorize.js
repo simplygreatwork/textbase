@@ -3,10 +3,10 @@ import { Logger } from '.source/logger.js'
 
 const logger = Logger()
 
-export function can(key) {
+export function can() {
 	
 	let data = {}
-	bus.emit(key, data)
+	bus.emit(`can:${key}`, ...Array.from(arguments).slice(1))
 	return data.result
 }
 
