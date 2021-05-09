@@ -73,9 +73,11 @@ export class Editor {
 		}.bind(this))
 		
 		bus.on('action:split-content', function(event, interrupt) {
-			this.split_content(a_block_element, event)
 			consume_event(event)
 			interrupt()
+			if (! this.can_split_content(event)) return
+			if (! allow('split-content', bus, editor, event)) return
+			this.split_content(a_block_element, event)
 		}.bind(this))
 		
 		bus.on('action:delete', function(event, interrupt) {
@@ -189,6 +191,10 @@ export class Editor {
 	
 	request_to_split_content(event) {
 		this.emit('action:split-content', event)
+	}
+	
+	can_split_content(event) {
+		return this.is_editable()
 	}
 	
 	split_content(limit) {
