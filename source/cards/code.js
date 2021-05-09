@@ -1,20 +1,21 @@
 
 import { a_text_node } from '../basics.js'
 import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
+import { inject_stylesheet } from '../basics.js'
 import { get_selection, with_selection, with_content_selection } from '../selection.js'
 import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
 import { each_card } from '../features/cards.js'
 import { find_card_container } from '../features/cards.js'
 import { is_selection_inside_card_container_content } from '../features/cards.js'
-import { inject_css, get_placeholder_code } from './code-support.js'
+import { get_placeholder_code } from './code-support.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
 
 export function initialize(bus, editor, history) {
 	
-	if (false) inject_css()
+	inject_stylesheet('card-code', './source/cards/code.css')
 	
 	bus.on('action:card-code', function() {
 		let code = get_placeholder_code()

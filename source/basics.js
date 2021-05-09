@@ -157,3 +157,27 @@ export function get_clipboard_data(event) {
 	if (! event) return window.clipboardData
 	return event.clipboardData || window.clipboardData
 }
+
+export function inject_css(id, css) {
+	
+	if (u(document).find(`style #${id}`).length === 0) {
+		let element = u('<style>')
+		element.attr('id', id)
+		element.attr('type', 'text/css')
+		element = element.first()
+		element.innerHTML = css
+		document.querySelector('head').appendChild(element)
+	}
+}
+
+export function inject_stylesheet(id, href) {
+	
+	if (u(document).find(`link #${id}`).length === 0) {
+		let element = u('<link>')
+		element.attr('id', id)
+		element.attr('rel', 'stylesheet')
+		element.attr('href', href)
+		element = element.first()
+		document.querySelector('head').appendChild(element)
+	}
+}

@@ -1,4 +1,5 @@
 
+import { inject_stylesheet } from '../basics.js'
 import { insert_card } from '../features/cards.js'
 import { Logger } from '../logger.js'
 
@@ -6,7 +7,7 @@ const logger = Logger()
 
 export function initialize(bus, editor, history) {
 	
-	inject_css()
+	inject_stylesheet('card-design-block', './source/cards/design-block.css')
 	
 	bus.on('action:card-designed', function() {
 		insert_card(editor, 'designed', `
@@ -35,27 +36,4 @@ export function initialize(bus, editor, history) {
 	}.bind(this))
 	
 	bus.emit('feature-did-enable', 'card-designed', 'Card: Design Block')
-}
-
-export function inject_css() {
-	
-	let style = document.createElement('style')
-	style.type = 'text/css'
-	style.innerHTML = `
-		.hero {
-			border-radius:10px;
-			background:royalblue;
-			text-align:center;
-			padding-top:50px;
-			padding-bottom:50px;
-		}
-		.hero-text {
-			padding-top:50px;
-			padding-bottom:50px;
-			color:white;
-			font-weight:900;
-			font-size:500%;
-		}
-	`
-	document.querySelector('head').appendChild(style)
 }

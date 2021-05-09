@@ -1,10 +1,13 @@
 
+import { inject_stylesheet } from '../basics.js'
 import { insert_card } from '../features/cards.js'
 import { Logger } from '../logger.js'
 
 const logger = Logger()
 
 export function initialize(bus, editor, history) {
+	
+	inject_stylesheet('card-image', './source/cards/image.css')
 	
 	bus.on('action:card-image', function() {
 		insert_card(editor, 'image', `
