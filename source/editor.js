@@ -17,19 +17,19 @@ export class Editor {
 		
 		this.bus = bus
 		this.element = element
-		this.initialize_content()
-		this.initialize_keymap()
-		this.initialize_actions(bus)
-		this.initialize_selection(bus)
-		this.initialize_allowances(bus)
+		this.initialize_content(bus, this)
+		this.initialize_keymap(bus, this)
+		this.initialize_actions(bus, this)
+		this.initialize_allowances(bus, this)
+		this.initialize_selection(bus, this)
 	}
 	
-	initialize_content() {
+	initialize_content(bus, editor) {
 		
 		this.content = this.element.querySelector('.content')
 	}
 	
-	initialize_keymap() {
+	initialize_keymap(bus, editor) {
 		
 		u(this.content).on('keydown', function(event) {
 			this.process_key_event('keydown', event)
@@ -62,12 +62,14 @@ export class Editor {
 		}
 	}
 	
-	initialize_actions(bus) {
+	initialize_actions(bus, editor) {
 		
 		bus.on('action:insert-character', function(event, interrupt) {
-			this.insert_character(event)
 			consume_event(event)
 			interrupt()
+			if (! this.can_insert_character(event)) return
+			if (! allow('insert-character', bus, editor, event)) return
+			this.insert_character(event)
 		}.bind(this))
 		
 		bus.on('action:split-content', function(event, interrupt) {
@@ -104,25 +106,10 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	initialize_selection(bus) {
+	initialize_allowances(bus, editor) {
 		
-		document.addEventListener('selectionchange', function(event) {
-			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
-				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
-					bus.emit('selection-did-change', event, this)
-				}
-			}
-		}.bind(this))
-		
-		bus.on('selection-did-change', function(event, editor) {
-			normalize_selection(this)
-		}.bind(this))
-	}
-	
-	initialize_allowances(bus) {
-		
-		bus.on('allow:insert-character', function(response, editor, event) {
-			response.allow = editor.is_editable()
+		bus.on('allow:insert-character', function(response, bus, editor, event) {
+			response.allow = true
 		})
 		
 		bus.on('allow:split-content', function(response, editor, event) {
@@ -142,8 +129,27 @@ export class Editor {
 		})
 	}
 	
+	initialize_selection(bus) {
+		
+		document.addEventListener('selectionchange', function(event) {
+			if (document.getSelection() && document.getSelection().anchorNode && document.getSelection().anchorNode.parentElement) {
+				if (u(document.getSelection().anchorNode.parentElement).closest('.editor').first()) {
+					bus.emit('selection-did-change', event, this)
+				}
+			}
+		}.bind(this))
+		
+		bus.on('selection-did-change', function(event, editor) {
+			normalize_selection(this)
+		}.bind(this))
+	}
+	
 	request_to_insert_character(event) {
 		this.emit('action:insert-character', event)
+	}
+	
+	can_insert_character(event) {
+		return this.is_editable()
 	}
 	
 	insert_character(event) {
@@ -215,14 +221,15 @@ export class Editor {
 	can_delete_character(selection) {
 		
 		let result = false
+		let editor = this
 		if (selection.range.collapsed) {
 			if ((u(selection.head.container).is(a_text_node)) && (selection.head.offset > 0)) {
 				result = { node: selection.head.container, offset: selection.head.offset }
 			} else {
-				let previous = find_previous_inline_sibling(this, selection)
+				let previous = find_previous_inline_sibling(editor, selection)
 				if (previous) result = { node: previous, offset: previous.textContent.length }
 			}
-			if (! this.is_editable()) result = false
+			if (! editor.is_editable()) result = false
 		}
 		return result
 	}
@@ -250,9 +257,10 @@ export class Editor {
 	can_delete_block(selection) {
 		
 		let result = false
+		let editor = this
 		if (selection.range.collapsed) {
 			if (selection.head.offset === 0) {
-				let iterator = text_iterator(this.element, selection.head.container)
+				let iterator = text_iterator(editor.element, selection.head.container)
 				let previous = iterator.previousNode()
 				if (u(previous).parent().is(an_inline_element)) {
 					if (u(selection.head.container).parent().parent().first() == u(previous).parent().parent().first()) {
@@ -262,7 +270,7 @@ export class Editor {
 					}
 				}
 			}
-			if (! this.is_editable()) result = false
+			if (! editor.is_editable()) result = false
 		}
 		return result
 	}
@@ -296,8 +304,9 @@ export class Editor {
 	can_delete_content(selection) {
 		
 		let result = false
+		let editor = this
 		if (! selection.range.collapsed) result = true
-		if (! this.is_editable()) result = false
+		if (! editor.is_editable()) result = false
 		return result
 	}
 	

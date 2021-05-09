@@ -4,10 +4,9 @@ import { Logger } from './logger.js'
 
 const logger = Logger()
 
-export function allow(key, editor) {
+export function allow(key, bus) {
 	
 	let arguments_ = Array.from(arguments)
-	let bus = editor.bus
 	key = arguments_.shift()
 	let response = { allow : true }
 	bus.emit(`allow:${key}`, response,  ...arguments_)

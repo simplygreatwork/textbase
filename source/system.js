@@ -119,10 +119,7 @@ export class System {
 			}
 			
 			bus.on('keydown:alphanumeric', function(event) {
-				if (allow('insert-character', editor, event)) {
-					editor.request_to_insert_character(event)
-				}
-				consume_event(event)
+				editor.request_to_insert_character(event)
 			}.bind(this))
 			
 			bus.on('keydown:enter', function(event) {
