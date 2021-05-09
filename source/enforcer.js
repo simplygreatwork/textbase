@@ -14,7 +14,7 @@ export class Enforcer {
 	
 	constructor(bus, editor) {
 		
-		this.bus = new Bus()
+		this.bus = bus
 		this.editor = editor
 		this.walker = new Walker()
 		this.configure(this.walker, this.bus, this.editor)
