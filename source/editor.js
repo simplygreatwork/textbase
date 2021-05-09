@@ -220,7 +220,6 @@ export class Editor {
 	}
 	
 	request_to_delete(event) {
-		
 		this.bus.emit('action:delete', event)
 	}
 	

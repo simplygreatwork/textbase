@@ -9,7 +9,7 @@ export function allow(key, bus) {
 	let arguments_ = Array.from(arguments)
 	key = arguments_.shift()
 	let response = { allow : true }
-	bus.emit(`allow:${key}`, response,  ...arguments_)
+	bus.emit(`allow:${key}`, response, ...arguments_)
 	return response.allow
 }
 
