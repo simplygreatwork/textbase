@@ -96,7 +96,6 @@ export class System {
 				this.history.enable()
 				this.structure.render()
 				if (false) dump_bus(bus)
-				bus.emit('magic', 'test')
 			}.bind(this))
 			bus.on('document-did-uninstall', function(document_) {
 				logger('system').log('document-did-uninstall')
