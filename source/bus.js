@@ -5,8 +5,9 @@ const logger = Logger()
 
 export class Bus {
 	
-	constructor() {
+	constructor(warn) {
 		
+		this.warn = warn || false
 		this.contexts = new Set()
 		this.contexts.add('main')
 		this.channels = {}
@@ -51,13 +52,16 @@ export class Bus {
 	
 	iterate(key, state, fn) {
 		
+		let found = false
 		Array.from(this.contexts).reverse().forEach(function(context) {
 			if (! this.channels[context]) return 
 			if (! this.channels[context][key]) return
 			this.channels[context][key].forEach(function(fn_) {
+				found = true
 				if (! state.interrupted) fn(fn_)
 			}.bind(this))
 		}.bind(this))
+		if (this.warn && ! found) console.warn(`The bus could not find any handler for key: ${key}`)
 	}
 	
 	interruptable(state) {
@@ -91,23 +95,5 @@ export class Bus {
 			replace: (key, index, fn) => this.replace(key, index, fn, context_),
 			remap: (from, to) => this.remap(from, to, context_)
 		}
-	}
-	
-	print() {
-		
-		let count = 0
-		Object.keys(this.channels).forEach(function(context) {
-			Object.keys(this.channels[context]).forEach(function(channel) {
-				count++
-				let size = this.channels[context][channel].length
-				console.log(`bus channel: ${context}/${channel}[${size}]`)
-				this.channels[context][channel].forEach(function(fn) {
-					console.log(`fn: ${fn}`)
-					if (false) console.log(`fn.toSource(): ${fn.toSource()}`)
-					if (true) console.log(`fn.toSource(): ${fn.toString()}`)
-				}.bind(this))
-			}.bind(this))
-		}.bind(this))
-		console.log(`total bus channels: ${count}`)
 	}
 }

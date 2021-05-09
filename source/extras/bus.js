@@ -24,8 +24,8 @@ export function dump(bus) {
 		Object.keys(index[key]).forEach(function(context) {
 			array.push(`(${context}:${index[key][context].length})`)
 			size = size + index[key][context].length
-			index[key][context].forEach(function(fn) {
-				if (false) console.log(`source: ${fn}`)
+			if (false) index[key][context].forEach(function(fn) {
+				console.log(`source: ${fn}`)
 			})
 		})
 		array.push(`(total:${size})`)

@@ -6,6 +6,7 @@ import { is_editable_node, is_alphanumeric } from './basics.js'
 import { find_previous_inline_sibling, find_next_block } from './basics.js'
 import { consume_event, decode_entities } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection } from './selection.js'
+import { allow } from './allowance.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -20,6 +21,7 @@ export class Editor {
 		this.initialize_keymap()
 		this.initialize_actions(bus)
 		this.initialize_selection(bus)
+		this.initialize_allowances(bus)
 	}
 	
 	initialize_content() {
@@ -117,8 +119,27 @@ export class Editor {
 		}.bind(this))
 	}
 	
-	can_insert_character(event) {
-		return this.is_editable()
+	initialize_allowances(bus) {
+		
+		bus.on('allow:insert-character', function(response, editor, event) {
+			response.allow = editor.is_editable()
+		})
+		
+		bus.on('allow:split-content', function(response, editor, event) {
+			response.allow = true
+		})
+		
+		bus.on('allow:delete-character', function(response, editor, event) {
+			response.allow = true
+		})
+		
+		bus.on('allow:delete-block', function(response, editor, event) {
+			response.allow = true
+		})
+		
+		bus.on('allow:delete-content', function(response, editor, event) {
+			response.allow = true
+		})
 	}
 	
 	request_to_insert_character(event) {

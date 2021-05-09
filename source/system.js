@@ -15,6 +15,7 @@ import { initialize_clipboard } from './clipboard.js'
 import { initialize_platform } from './platform.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
+import { allow } from './allowance.js'
 import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
 
@@ -95,6 +96,7 @@ export class System {
 				this.history.enable()
 				this.structure.render()
 				if (false) dump_bus(bus)
+				bus.emit('magic', 'test')
 			}.bind(this))
 			bus.on('document-did-uninstall', function(document_) {
 				logger('system').log('document-did-uninstall')
@@ -118,9 +120,10 @@ export class System {
 			}
 			
 			bus.on('keydown:alphanumeric', function(event) {
-				if (editor.can_insert_character(event)) {
+				if (allow('insert-character', editor, event)) {
 					editor.request_to_insert_character(event)
 				}
+				consume_event(event)
 			}.bind(this))
 			
 			bus.on('keydown:enter', function(event) {
