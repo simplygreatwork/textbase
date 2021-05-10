@@ -256,16 +256,26 @@ function dehydrate(container) {
 
 function load_resources(bus, fn) {
 	
+	inject_stylesheets()
+	inject_scripts(bus, fn)
+}
+
+function inject_stylesheets(bus, fn) {
+	
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
-	let scripts = [
-		'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js',
-		`https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js`
-	]
+}
+
+function inject_scripts(bus, fn) {
+	
 	let counter = 0
-	bus.on(`resource-loaded:${scripts[0]}`, () => { if ( ++counter === scripts.length ) fn(); return })
-	bus.on(`resource-loaded:${scripts[1]}`, () => { if ( ++counter === scripts.length ) fn(); return })
-	inject_script(bus, scripts[0], { 'data-manual' : null})
-	inject_script(bus, scripts[1])
+	let scripts = [
+		{ src: 'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js', attributes: { 'data-manual' : null }},
+		{ src: 'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js'},
+	]
+	scripts.forEach(function(item) {
+		bus.on(`resource-loaded:${item.src}`, () => { if ( ++counter === scripts.length ) fn(); return })
+		inject_script(bus, item.src, item.attributes)
+	})
 }
