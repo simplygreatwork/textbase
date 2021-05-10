@@ -96,7 +96,7 @@ export class System {
 		
 		bus.on('feature:toolbar', function() {
 			bus.on('feature-did-enable', function(name, label, kind, value) {
-				if (! name ) return
+				if (! name && ! label) return
 				let element = u(`<button data-action="${name}">${label}</button>`)
 				if (kind) element.data(kind, value)
 				toolbar.append(element.first())
