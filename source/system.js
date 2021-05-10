@@ -54,14 +54,14 @@ export class System {
 			bus.emit(`feature:${feature}`)
 		})
 		
-		let list = new Set()
+		let enabling = new Set()
 		bus.on('feature-will-enable', function(feature) {
-			list.add(feature)
+			enabling.add(feature)
 		})
 		
 		bus.on('feature-did-enable', function(feature) {
-			list.delete(feature)
-			if (list.size === 0) bus.emit('ready')
+			enabling.delete(feature)
+			if (enabling.size === 0) bus.emit('ready')
 		})
 	}
 	

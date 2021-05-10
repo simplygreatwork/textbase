@@ -7,7 +7,7 @@ const logger = Logger()
 
 export function initialize_pseudolinks(editor, bus) {
 	
-	logger('trace').log('initialize_hyperlinks')
+	logger('trace').log('initialize_pseudolinks')
 	u(editor.element).on('click', function(event) {
 		invoke_pseudolink(u(event.target), editor, bus)
 	})
@@ -16,7 +16,7 @@ export function initialize_pseudolinks(editor, bus) {
 export function detect_pseudolinks(editor, bus) {
 	
 	bus.on('keydown:shift-space', function(event) {
-		logger('trace').log('detect_hyperlink keydown:space')
+		logger('trace').log('detect_pseudolink keydown:space')
 	})
 }
 

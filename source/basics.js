@@ -163,18 +163,21 @@ export function inject_stylesheet(html) {
 	document.querySelector('head').appendChild(u(html).first())
 }
 
-export function inject_script(bus, src, attributes) {
+export function inject_script(bus, basis) {
 	
+	basis = u(basis).first()
 	let script = document.createElement('script')
-	if (attributes) Object.keys(attributes).forEach(function(key) {
-		script.setAttribute(key, attributes[key] || '')
+	let attributes = basis.attributes
+	Object.keys(attributes).forEach(function(i) {
+		script.setAttribute(attributes[i].name, attributes[i].value)
 	})
 	script.addEventListener('load', function(event) {
-		bus.emit(`resource-loaded`, src)
-		bus.emit(`resource-loaded:${src}`)
+		bus.emit(`resource-did-load`, src)
+		bus.emit(`resource-did-load:${src}`)
 	})
-	script.src = src
-	bus.emit('resource-loading', src)
-	bus.emit(`resource-loading:${src}`)
+	let src = u(script).attr('src')
+	bus.emit('resource-will-load', src)
+	bus.emit(`resource-will-load:${src}`)
+	console.log('script.outerHTML: ' + script.outerHTML)
 	document.body.appendChild(script)
 }

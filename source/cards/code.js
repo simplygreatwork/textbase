@@ -271,11 +271,11 @@ function inject_scripts(bus, fn) {
 	
 	let counter = 0
 	let scripts = [
-		{ src: 'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js', attributes: { 'data-manual' : null }},
-		{ src: 'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js'},
+		`<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`,
+		`<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js">`
 	]
-	scripts.forEach(function(item) {
-		let off = bus.on(`resource-loaded:${item.src}`, () => { if ( ++counter === scripts.length ) { fn(); } off(); return; })
-		inject_script(bus, item.src, item.attributes)
+	scripts.forEach(function(script) {
+		let off = bus.on(`resource-did-load:${u(script).attr('src')}`, () => { if ( ++counter === scripts.length ) { fn(); } off(); return; })
+		inject_script(bus, script)
 	})
 }
