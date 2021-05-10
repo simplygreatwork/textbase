@@ -9,8 +9,8 @@ export function initialize(bus, editor, history) {
 	
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/design-block.css"/>`)
 	
-	bus.on('action:card-designed', function() {
-		insert_card(editor, 'designed', `
+	bus.on('action:card-design-block', function() {
+		insert_card(editor, 'design-block', `
 			<div class="hero">
 				<span class="hero-text" contenteditable="true">
 					<span>Hero</span>
@@ -19,21 +19,21 @@ export function initialize(bus, editor, history) {
 		`)
 	}.bind(this))
 	
-	bus.on('card-will-enter:designed', function(card) {
-		logger('system').log('card-will-enter:designed')
+	bus.on('card-will-enter:design-block', function(card) {
+		logger('system').log('card-will-enter:design-block')
 	}.bind(this))
 	
-	bus.on('card-did-enter:designed', function(card) {
-		logger('system').log('card-did-enter:designed')
+	bus.on('card-did-enter:design-block', function(card) {
+		logger('system').log('card-did-enter:design-block')
 	}.bind(this))
 	
-	bus.on('card-will-exit:designed', function(card) {
-		logger('system').log('card-will-exit:designed')
+	bus.on('card-will-exit:design-block', function(card) {
+		logger('system').log('card-will-exit:design-block')
 	}.bind(this))
 	
-	bus.on('card-did-exit:designed', function(card) {
-		logger('system').log('card-did-exit:designed')
+	bus.on('card-did-exit:design-block', function(card) {
+		logger('system').log('card-did-exit:design-block')
 	}.bind(this))
 	
-	bus.emit('feature-did-enable', 'card-designed', 'Card: Design Block')
+	bus.emit('feature-did-enable', 'card-design-block', 'Card: Design Block')
 }
