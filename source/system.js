@@ -81,8 +81,8 @@ export class System {
 	
 	ensure_ready() {
 		
-		this.bus.emit('feature-will-enable', 'system');					// forces ready state, in the case that no resources were ever loaded
-		this.bus.emit('feature-did-enable', 'system')
+		this.bus.emit('feature-will-enable', null);						// forces ready state, in the case that no resources were ever loaded
+		this.bus.emit('feature-did-enable', null)							// review: interferes with toolbar item rendering
 	}
 	
 	offer_features(bus, editor, history, toolbar, enforcer, sanitizer, structure) {
@@ -103,6 +103,7 @@ export class System {
 		
 		bus.on('feature:toolbar', function() {
 			bus.on('feature-did-enable', function(name, label, kind, value) {
+				if (! name ) return
 				let element = u(`<button data-action="${name}">${label}</button>`)
 				if (kind) element.data(kind, value)
 				toolbar.append(element.first())
