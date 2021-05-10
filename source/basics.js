@@ -158,26 +158,23 @@ export function get_clipboard_data(event) {
 	return event.clipboardData || window.clipboardData
 }
 
-export function inject_css(id, css) {
+export function inject_stylesheet(html) {
 	
-	if (u(document).find(`style #${id}`).length === 0) {
-		let element = u('<style>')
-		element.attr('id', id)
-		element.attr('type', 'text/css')
-		element = element.first()
-		element.innerHTML = css
-		document.querySelector('head').appendChild(element)
-	}
+	document.querySelector('head').appendChild(u(html).first())
 }
 
-export function inject_stylesheet(id, href) {
+export function inject_script(bus, src, attributes) {
 	
-	if (u(document).find(`link #${id}`).length === 0) {
-		let element = u('<link>')
-		element.attr('id', id)
-		element.attr('rel', 'stylesheet')
-		element.attr('href', href)
-		element = element.first()
-		document.querySelector('head').appendChild(element)
-	}
+	let script = document.createElement('script')
+	if (attributes) Object.keys(attributes).forEach(function(key) {
+		script.setAttribute(key, attributes[key] || '')
+	})
+	script.addEventListener('load', function(event) {
+		bus.emit(`resource-loaded`, src)
+		bus.emit(`resource-loaded:${src}`)
+	})
+	script.src = src
+	bus.emit('resource-loading', src)
+	bus.emit(`resource-loading:${src}`)
+	document.body.appendChild(script)
 }

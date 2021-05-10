@@ -7,7 +7,7 @@ const logger = Logger()
 
 export function initialize(bus, editor, history) {
 	
-	inject_stylesheet('card-design-block', './source/cards/design-block.css')
+	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/design-block.css"/>`)
 	
 	bus.on('action:card-designed', function() {
 		insert_card(editor, 'designed', `

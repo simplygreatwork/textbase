@@ -1,4 +1,5 @@
 
+import { Bus } from '../../source/bus.js'
 import { System } from '../../source/system.js'
 import { Storage } from '../../source/storage.js'
 import { Logger } from '../../source/logger.js'
@@ -12,12 +13,15 @@ export class Application {
 	
 	constructor() {
 		
-		let system = new System()
-		let bus = system.bus
+		let bus = new Bus()
+		let system = new System(bus)
 		let storage = new Storage(bus)
-		this.configure(system.bus, system.editor, system.history)
 		this.listen(bus, system, storage)
-		storage.load(this.options())
+		bus.on('ready', function() {
+			storage.load(this.options())
+		}.bind(this))
+		system.initialize()
+		this.configure(bus, system.editor, system.history)
 	}
 	
 	configure(bus, editor, history) {

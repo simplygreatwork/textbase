@@ -7,7 +7,7 @@ const logger = Logger()
 
 export function initialize(bus, editor, history) {
 	
-	inject_stylesheet('card-image', './source/cards/image.css')
+	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/image.css"/>`)
 	
 	bus.on('action:card-image', function() {
 		insert_card(editor, 'image', `

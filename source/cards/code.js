@@ -1,7 +1,7 @@
 
 import { a_text_node } from '../basics.js'
 import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
-import { inject_stylesheet } from '../basics.js'
+import { inject_stylesheet, inject_script } from '../basics.js'
 import { get_selection, with_selection, with_content_selection } from '../selection.js'
 import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
@@ -15,139 +15,142 @@ const logger = Logger()
 
 export function initialize(bus, editor, history) {
 	
-	inject_stylesheet('card-code', './source/cards/code.css')
+	bus.emit('feature-will-enable', 'card-code')
 	
-	bus.on('action:card-code', function() {
-		let code = get_placeholder_code()
-		insert_card(editor, 'code', `
-			<div class="code-card">
-				<div class="code-source"><pre><code contentEditable="true">${code}</code></pre></div>
-				<div class="code-highlighted"><pre><code></code></pre></div>
-			</div>
-		`)
-	}.bind(this))
-	
-	bus.on('card-will-deserialize:code', function(card) {
-		hydrate(card)
-	}.bind(this))
-	
-	bus.on('card-will-serialize:code', function(container) {
-		dehydrate(container)
-	}.bind(this))
-	
-	bus.on('card-will-enter:code', function(card) {
-		render(find_card_container(card, 'code'))
-	}.bind(this))
-	
-	bus.on('card-did-enter:code', function(card) {
-		return
-	}.bind(this))
-	
-	bus.on('card-will-exit:code', function(card) {
-		return
-	}.bind(this))
-	
-	bus.on('card-did-exit:code', function(card) {
-		return
-	}.bind(this))
-	
-	bus.on('selection-did-change', function(event, editor) {
-		if (is_selection_inside_card_container_content(get_selection(editor), 'code')) bus.contexts.add('card-code')
-		else bus.contexts.delete('card-code')
-	}.bind(this))
-	
-	let context = bus.context('card-code')
-	context.unshift('action:insert-character', function(event, interrupt) {
-		editor.insert_character(event)
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('keydown:space', function(event, interrupt) {
-		editor.insert_character(event)
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('action:split-content', function(event, interrupt) {
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('keydown:enter', function(event, interrupt) {
-		editor.insert_string('\n')
-		history.capture()
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('action:select-all', function(event, interrupt) {
-		let selection = get_selection(editor)
-		let container = find_card_container(selection.head.container, 'code')
-		let content = u(container).find('.code-source code').first()
-		select_range(editor, content, content)
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('action:indent', function(event, interrupt) {
-		let selection = get_selection(editor)
-		if (selection.range.collapsed) {
-			editor.insert_string('\t')
-		} else {
-			indent_lines(editor, history)
-		}
-		consume_event(event)
-		interrupt()
-	})
-	
-	context.unshift('action:dedent', function(event, interrupt) {
-		dedent_lines(editor, history)
-		consume_event(event)
-		interrupt()
-	})
-	
-	disable_default_input_behavior(context, 'action:caret-right',)
-	disable_default_input_behavior(context, 'action:caret-left')
-	
-	context.on('content-did-change', function(head, tail) {
-		render(find_card_container(head, 'code'))
-	}.bind(this))
-	
-	context.on('history-did-undo', mutated)
-	context.on('history-did-redo', mutated)
-	
-	context.on('clipboard-cut', function(event, interrupt) {
-		with_content_selection(editor, function(selection) {
-			let data = get_clipboard_data(event)
-			data.setData('text/plain', u(selection.range.extractContents()).text())
-			render(find_card_container(selection.head.container, 'code'))
+	load_resources(bus, function() {
+		
+		bus.on('action:card-code', function() {
+			let code = get_placeholder_code()
+			insert_card(editor, 'code', `
+				<div class="code-card">
+					<div class="code-source"><pre><code contentEditable="true">${code}</code></pre></div>
+					<div class="code-highlighted"><pre><code></code></pre></div>
+				</div>
+			`)
+		}.bind(this))
+		
+		bus.on('card-will-deserialize:code', function(card) {
+			hydrate(card)
+		}.bind(this))
+		
+		bus.on('card-will-serialize:code', function(container) {
+			dehydrate(container)
+		}.bind(this))
+		
+		bus.on('card-will-enter:code', function(card) {
+			render(find_card_container(card, 'code'))
+		}.bind(this))
+		
+		bus.on('card-did-enter:code', function(card) {
+			return
+		}.bind(this))
+		
+		bus.on('card-will-exit:code', function(card) {
+			return
+		}.bind(this))
+		
+		bus.on('card-did-exit:code', function(card) {
+			return
+		}.bind(this))
+		
+		bus.on('selection-did-change', function(event, editor) {
+			if (is_selection_inside_card_container_content(get_selection(editor), 'code')) bus.contexts.add('card-code')
+			else bus.contexts.delete('card-code')
+		}.bind(this))
+		
+		let context = bus.context('card-code')
+		context.unshift('action:insert-character', function(event, interrupt) {
+			editor.insert_character(event)
 			consume_event(event)
 			interrupt()
 		})
-	}.bind(this))
-	
-	context.on('clipboard-copy', function(event, interrupt) {
-		with_content_selection(editor, function(selection) {
-			let data = get_clipboard_data(event)
-			data.setData('text/plain', u(selection.range.cloneContents()).text())
+		
+		context.unshift('keydown:space', function(event, interrupt) {
+			editor.insert_character(event)
 			consume_event(event)
 			interrupt()
 		})
-	}.bind(this))
-	
-	context.unshift('clipboard-paste', function(event, interrupt) {
-		with_selection(editor, function(selection) {
-			let data = get_clipboard_data(event)
-			let content = data.getData('text/plain')
-			editor.insert_string(content)
-			render(find_card_container(selection.head.container, 'code'))
+		
+		context.unshift('action:split-content', function(event, interrupt) {
 			consume_event(event)
 			interrupt()
 		})
+		
+		context.unshift('keydown:enter', function(event, interrupt) {
+			editor.insert_string('\n')
+			history.capture()
+			consume_event(event)
+			interrupt()
+		})
+		
+		context.unshift('action:select-all', function(event, interrupt) {
+			let selection = get_selection(editor)
+			let container = find_card_container(selection.head.container, 'code')
+			let content = u(container).find('.code-source code').first()
+			select_range(editor, content, content)
+			consume_event(event)
+			interrupt()
+		})
+		
+		context.unshift('action:indent', function(event, interrupt) {
+			let selection = get_selection(editor)
+			if (selection.range.collapsed) {
+				editor.insert_string('\t')
+			} else {
+				indent_lines(editor, history)
+			}
+			consume_event(event)
+			interrupt()
+		})
+		
+		context.unshift('action:dedent', function(event, interrupt) {
+			dedent_lines(editor, history)
+			consume_event(event)
+			interrupt()
+		})
+		
+		disable_default_input_behavior(context, 'action:caret-right',)
+		disable_default_input_behavior(context, 'action:caret-left')
+		
+		context.on('content-did-change', function(head, tail) {
+			render(find_card_container(head, 'code'))
+		}.bind(this))
+		
+		context.on('history-did-undo', mutated)
+		context.on('history-did-redo', mutated)
+		
+		context.on('clipboard-cut', function(event, interrupt) {
+			with_content_selection(editor, function(selection) {
+				let data = get_clipboard_data(event)
+				data.setData('text/plain', u(selection.range.extractContents()).text())
+				render(find_card_container(selection.head.container, 'code'))
+				consume_event(event)
+				interrupt()
+			})
+		}.bind(this))
+		
+		context.on('clipboard-copy', function(event, interrupt) {
+			with_content_selection(editor, function(selection) {
+				let data = get_clipboard_data(event)
+				data.setData('text/plain', u(selection.range.cloneContents()).text())
+				consume_event(event)
+				interrupt()
+			})
+		}.bind(this))
+		
+		context.unshift('clipboard-paste', function(event, interrupt) {
+			with_selection(editor, function(selection) {
+				let data = get_clipboard_data(event)
+				let content = data.getData('text/plain')
+				editor.insert_string(content)
+				render(find_card_container(selection.head.container, 'code'))
+				consume_event(event)
+				interrupt()
+			})
+		})
+		
+		bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 	})
-	
-	bus.emit('feature-did-enable', 'card-code', 'Card: Code')
 }
 
 function disable_default_input_behavior(context, key) {
@@ -249,4 +252,20 @@ function dehydrate(container) {
 	let source = u(container).find('.code-source code')
 	source.text(source.html())										// encode html entities
 	u(container).find('.code-highlighted').remove()
+}
+
+function load_resources(bus, fn) {
+	
+	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
+	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
+	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
+	let scripts = [
+		'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js',
+		`https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js`
+	]
+	let counter = 0
+	bus.on(`resource-loaded:${scripts[0]}`, () => { if ( ++counter === scripts.length ) fn(); return })
+	bus.on(`resource-loaded:${scripts[1]}`, () => { if ( ++counter === scripts.length ) fn(); return })
+	inject_script(bus, scripts[0], { 'data-manual' : null})
+	inject_script(bus, scripts[1])
 }

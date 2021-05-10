@@ -19,33 +19,53 @@ import { allow } from './allowance.js'
 import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer', 'clipboard-off', 'formats-off'])
+const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
 
 export class System {
 	
-	constructor(features) {
+	constructor(bus, features) {
 		
-		features = features || [
+		this.bus = bus || new Bus()
+		this.features = features || [
 			'essentials',
 			'other',
 			'recognizers',
 			'platform'
 		]
+	}
+	
+	initialize() {
 		
-		this.bus = new Bus()
 		this.editor = new Editor(this.bus, document.querySelector('.editor'))
 		this.history = new History(this.bus, document.querySelector('.content'))
 		this.toolbar = new Toolbar(this.bus)
 		this.enforcer = new Enforcer(this.bus, this.editor)
 		this.sanitizer = new Sanitizer(this.bus)
 		this.structure = new Structure(this.bus, this.editor)
-		this.initiize_features(this.bus)
+		this.initialize_readiness(this.bus)
+		this.initialize_features(this.bus)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
-		this.enable_features(features, this.bus)
+		this.enable_features(this.features, this.bus)
 		if (true) sanitizer_test(this.sanitizer)
 	}
 	
-	initiize_features(bus) {
+	initialize_readiness(bus) {
+		
+		let list = new Set()
+		bus.on('feature-will-enable', function(feature) {
+			list.add(feature)
+		})
+		
+		bus.on('feature-did-enable', function(feature) {
+			list.delete(feature)
+			if (list.size === 0) bus.emit('ready')
+		})
+		
+		this.bus.emit('feature-will-enable', 'system')					// forces ready state, in the case that no resources are ever loaded
+		this.bus.emit('feature-did-enable', 'system')
+	}
+	
+	initialize_features(bus) {
 		
 		bus.on('feature', function(feature) {
 			bus.emit(`feature:${feature}`)
