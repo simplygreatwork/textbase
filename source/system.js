@@ -45,7 +45,6 @@ export class System {
 		this.initialize_features(this.bus)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.features, this.bus)
-		this.ensure_ready()
 		if (true) sanitizer_test(this.sanitizer)
 	}
 	
@@ -77,12 +76,6 @@ export class System {
 		
 		let bus = this.bus
 		bus.emit(`feature`, feature)
-	}
-	
-	ensure_ready() {
-		
-		this.bus.emit('feature-will-enable', null);						// forces ready state, in the case that no resources were ever loaded
-		this.bus.emit('feature-did-enable', null)							// review: interferes with toolbar item rendering
 	}
 	
 	offer_features(bus, editor, history, toolbar, enforcer, sanitizer, structure) {
@@ -212,6 +205,8 @@ export class System {
 				bus.emit('action:caret-up-extend-selection', event)
 			}.bind(this))
 			
+			bus.emit('feature-will-enable', 'undo', 'Undo')			// will force system ready state, in the case that no other resources require loading
+			
 			bus.on('action:undo', function() {
 				this.history.undo(event)
 			}.bind(this))
@@ -221,6 +216,7 @@ export class System {
 			}.bind(this))
 			
 			bus.emit('feature-did-enable', 'undo', 'Undo')
+			bus.emit('feature-will-enable', 'redo', 'Redo')
 			
 			bus.on('action:redo', function() {
 				this.history.redo(event)
