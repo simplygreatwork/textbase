@@ -275,7 +275,7 @@ function inject_scripts(bus, fn) {
 		{ src: 'https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js'},
 	]
 	scripts.forEach(function(item) {
-		bus.on(`resource-loaded:${item.src}`, () => { if ( ++counter === scripts.length ) fn(); return })
+		let off = bus.on(`resource-loaded:${item.src}`, () => { if ( ++counter === scripts.length ) { fn(); } off(); return; })
 		inject_script(bus, item.src, item.attributes)
 	})
 }
