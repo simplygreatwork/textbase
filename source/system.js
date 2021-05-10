@@ -42,14 +42,18 @@ export class System {
 		this.enforcer = new Enforcer(this.bus, this.editor)
 		this.sanitizer = new Sanitizer(this.bus)
 		this.structure = new Structure(this.bus, this.editor)
-		this.initialize_readiness(this.bus)
 		this.initialize_features(this.bus)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.features, this.bus)
+		this.ensure_ready()
 		if (true) sanitizer_test(this.sanitizer)
 	}
 	
-	initialize_readiness(bus) {
+	initialize_features(bus) {
+		
+		bus.on('feature', function(feature) {
+			bus.emit(`feature:${feature}`)
+		})
 		
 		let list = new Set()
 		bus.on('feature-will-enable', function(feature) {
@@ -59,16 +63,6 @@ export class System {
 		bus.on('feature-did-enable', function(feature) {
 			list.delete(feature)
 			if (list.size === 0) bus.emit('ready')
-		})
-		
-		this.bus.emit('feature-will-enable', 'system')					// forces ready state, in the case that no resources are ever loaded
-		this.bus.emit('feature-did-enable', 'system')
-	}
-	
-	initialize_features(bus) {
-		
-		bus.on('feature', function(feature) {
-			bus.emit(`feature:${feature}`)
 		})
 	}
 	
@@ -83,6 +77,12 @@ export class System {
 		
 		let bus = this.bus
 		bus.emit(`feature`, feature)
+	}
+	
+	ensure_ready() {
+		
+		this.bus.emit('feature-will-enable', 'system');					// forces ready state, in the case that no resources were ever loaded
+		this.bus.emit('feature-did-enable', 'system')
 	}
 	
 	offer_features(bus, editor, history, toolbar, enforcer, sanitizer, structure) {
