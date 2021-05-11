@@ -260,7 +260,7 @@ function load_resources(bus, fn) {
 	inject_scripts(bus, fn)
 }
 
-function inject_stylesheets(bus, fn) {
+function inject_stylesheets() {
 	
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
 	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
