@@ -1,4 +1,8 @@
 
+import { Logger } from './logger.js'
+
+const logger = Logger()
+
 export let a_block_element = 'div,p,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote'
 export let an_inline_element = 'span,a'
 export let zero_width_whitespace = '\u200b'
@@ -145,6 +149,11 @@ export function debounce(fn, timeout = 300) {
 	}
 }
 
+export function invoke_later(fn, ms) {
+	
+	window.setTimeout(fn, ms || 1)
+}
+
 export function decode_entities(html) {
 	
 	let textarea = document.createElement('textarea')
@@ -158,13 +167,28 @@ export function get_clipboard_data(event) {
 	return event.clipboardData || window.clipboardData
 }
 
-export function inject_stylesheet(html) {
+export function inject_stylesheet(bus, basis) {
 	
-	document.querySelector('head').appendChild(u(html).first())
+	let href = u(basis).attr('href')
+	bus.emit(`resource-will-load`, href)
+	bus.emit(`resource-will-load:${href}`)
+	basis = u(basis).first()	
+	let link = document.createElement('link')
+	Object.keys(basis.attributes).forEach(function(i) {
+		link.setAttribute(basis.attributes[i].name, basis.attributes[i].value)
+	})
+	link.addEventListener('load', function(event) {
+		bus.emit(`resource-did-load`, href)
+		bus.emit(`resource-did-load:${href}`)
+	})
+	document.body.appendChild(link)
 }
 
 export function inject_script(bus, basis) {
 	
+	let src = u(basis).attr('src')
+	bus.emit(`resource-will-load`, src)
+	bus.emit(`resource-will-load:${src}`)
 	basis = u(basis).first()
 	let script = document.createElement('script')
 	Object.keys(basis.attributes).forEach(function(i) {
@@ -174,8 +198,19 @@ export function inject_script(bus, basis) {
 		bus.emit(`resource-did-load`, src)
 		bus.emit(`resource-did-load:${src}`)
 	})
-	let src = u(script).attr('src')
-	bus.emit('resource-will-load', src)
-	bus.emit(`resource-will-load:${src}`)
 	document.body.appendChild(script)
+}
+
+export function resources_did_load(bus, fn) {
+	
+	let loading = new Set()
+	bus.on('resource-will-load', function(resource) {
+		logger('resources').log(`resource-will-load:${resource}`)
+		loading.add(resource)
+	})
+	bus.on('resource-did-load', function(resource) {
+		logger('resources').log(`resource-did-load:${resource}`)
+		loading.delete(resource)
+		if (loading.size === 0) fn()
+	})
 }

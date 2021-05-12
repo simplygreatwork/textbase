@@ -6,7 +6,7 @@ import { Toolbar } from './toolbar.js'
 import { Enforcer } from './enforcer.js'
 import { Sanitizer } from './sanitizer.js'
 import { Structure } from './structure.js'
-import { a_block_element, consume_event, debounce } from './basics.js'
+import { a_block_element, consume_event, debounce, invoke_later } from './basics.js'
 import { get_selection, set_selection, select_all, selection_to_string } from './selection.js'
 import { skip_left_over_zero_width_whitespace, skip_right_over_zero_width_whitespace } from './navigation.js'
 import { extend_selection_right, extend_selection_left } from './navigation.js'
@@ -19,7 +19,7 @@ import { allow } from './allowance.js'
 import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
 
-const logger = Logger(['trace-off', 'bus-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
+const logger = Logger(['trace-off', 'bus-off', 'resources-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
 
 export class System {
 	
@@ -60,8 +60,10 @@ export class System {
 		})
 		
 		bus.on('feature-did-enable', function(feature) {
-			enabling.delete(feature)
-			if (enabling.size === 0) bus.emit('ready')
+			invoke_later(function() {												// allows the enabling set to queue up instead of: 0-1-0-1-0-1-0
+				enabling.delete(feature)
+				if (enabling.size === 0) bus.emit('ready')
+			})
 		})
 	}
 	

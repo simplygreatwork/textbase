@@ -1,7 +1,8 @@
 
+import { Bus } from '../bus.js'
 import { a_text_node } from '../basics.js'
 import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
-import { inject_stylesheet, inject_script } from '../basics.js'
+import { resources_did_load, inject_stylesheet, inject_script } from '../basics.js'
 import { get_selection, with_selection, with_content_selection } from '../selection.js'
 import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
@@ -17,7 +18,7 @@ export function initialize(bus, editor, history) {
 	
 	bus.emit('feature-will-enable', 'card-code')
 	
-	load_resources(bus, function() {
+	load_resources(function() {
 		
 		bus.on('action:card-code', function() {
 			let code = get_placeholder_code()
@@ -254,28 +255,13 @@ function dehydrate(container) {
 	u(container).find('.code-highlighted').remove()
 }
 
-function load_resources(bus, fn) {
+function load_resources(fn) {
 	
-	inject_stylesheets()
-	inject_scripts(bus, fn)
-}
-
-function inject_stylesheets() {
-	
-	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
-	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
-	inject_stylesheet(`<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
-}
-
-function inject_scripts(bus, fn) {
-	
-	let counter = 0
-	let scripts = [
-		`<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`,
-		`<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js">`
-	]
-	scripts.forEach(function(script) {
-		let off = bus.on(`resource-did-load:${u(script).attr('src')}`, () => { if ( ++counter === scripts.length ) { fn(); } off(); return; })
-		inject_script(bus, script)
-	})
+	let bus = new Bus()
+	resources_did_load(bus, fn)
+	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
+	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
+	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
+	inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`)
+	inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js">`)
 }
