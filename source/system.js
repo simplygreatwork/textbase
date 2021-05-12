@@ -60,7 +60,7 @@ export class System {
 		})
 		
 		bus.on('feature-did-enable', function(feature) {
-			invoke_later(function() {												// allows the enabling set to queue up instead of: 0-1-0-1-0-1-0
+			invoke_later(function() {												// ensures that the enabling set to queue up instead of: 0-1-0-1-0-1-0
 				enabling.delete(feature)
 				if (enabling.size === 0) bus.emit('ready')
 			})
