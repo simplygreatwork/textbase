@@ -88,7 +88,7 @@ export class Application {
 		} else {
 			return {
 				mutable: false,
-				path: './examples/full/content.html'
+				path: './examples/savable/content.html'
 			}
 		}
 	}
