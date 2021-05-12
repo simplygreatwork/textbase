@@ -2,7 +2,7 @@
 import { Bus } from '../bus.js'
 import { a_text_node } from '../basics.js'
 import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
-import { load_resources, inject_stylesheet, inject_script } from '../basics.js'
+import { load_resources as load_resources_, inject_stylesheet, inject_script } from '../basics.js'
 import { get_selection, with_selection, with_content_selection } from '../selection.js'
 import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
@@ -18,7 +18,7 @@ export function initialize(bus, editor, history) {
 	
 	bus.emit('feature-will-enable', 'card-code')
 	
-	load_resources_(function() {
+	load_resources(function() {
 		
 		bus.on('action:card-code', function() {
 			let code = get_placeholder_code()
@@ -255,9 +255,9 @@ function dehydrate(container) {
 	u(container).find('.code-highlighted').remove()
 }
 
-function load_resources_(then) {
+function load_resources(then) {
 	
-	load_resources(function(bus) {
+	load_resources_(function(bus) {
 		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
 		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
 		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
