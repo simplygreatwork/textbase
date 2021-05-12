@@ -1,4 +1,5 @@
 
+import { Bus } from './bus.js'
 import { Logger } from './logger.js'
 
 const logger = Logger()
@@ -215,4 +216,22 @@ export function resources_did_load(bus, fn) {
 			if (loading.size === 0) fn()
 		})
 	})
+}
+
+export function load_resources(fn, then) {
+	
+	let bus = new Bus()
+	let loading = new Set()
+	bus.on('resource-will-load', function(resource) {
+		logger('resources').log(`resource-will-load:${resource}`)
+		loading.add(resource)
+	})
+	bus.on('resource-did-load', function(resource) {
+		invoke_later(function() {														// ensure that the loading set will queue up instead of deflating too soon
+			logger('resources').log(`resource-did-load:${resource}`)
+			loading.delete(resource)
+			if (loading.size === 0) then()
+		})
+	})
+	fn(bus)
 }

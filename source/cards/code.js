@@ -2,7 +2,7 @@
 import { Bus } from '../bus.js'
 import { a_text_node } from '../basics.js'
 import { consume_event, get_clipboard_data, decode_entities } from '../basics.js'
-import { resources_did_load, inject_stylesheet, inject_script } from '../basics.js'
+import { load_resources, inject_stylesheet, inject_script } from '../basics.js'
 import { get_selection, with_selection, with_content_selection } from '../selection.js'
 import { set_selection, select_range } from '../selection.js'
 import { insert_card } from '../features/cards.js'
@@ -18,7 +18,7 @@ export function initialize(bus, editor, history) {
 	
 	bus.emit('feature-will-enable', 'card-code')
 	
-	load_resources(function() {
+	load_resources_(function() {
 		
 		bus.on('action:card-code', function() {
 			let code = get_placeholder_code()
@@ -255,13 +255,13 @@ function dehydrate(container) {
 	u(container).find('.code-highlighted').remove()
 }
 
-function load_resources(fn) {
+function load_resources_(then) {
 	
-	let bus = new Bus()
-	resources_did_load(bus, fn)
-	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
-	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
-	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
-	inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`)
-	inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js">`)
+	load_resources(function(bus) {
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
+		inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`)
+		inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js">`)
+	}, then)
 }

@@ -1,6 +1,6 @@
 
 import { Bus } from '../bus.js'
-import { resources_did_load, inject_stylesheet } from '../basics.js'
+import { load_resources, inject_stylesheet } from '../basics.js'
 import { insert_card } from '../features/cards.js'
 import { Logger } from '../logger.js'
 
@@ -10,7 +10,7 @@ export function initialize(bus, editor, history) {
 	
 	bus.emit('feature-will-enable', 'card-image')
 	
-	load_resources(function() {
+	load_resources_(function() {
 		
 		bus.on('action:card-image', function() {
 			insert_card(editor, 'image', `
@@ -40,9 +40,9 @@ export function initialize(bus, editor, history) {
 	})
 }
 
-function load_resources(fn) {
+function load_resources_(then) {
 	
-	let bus = new Bus()
-	resources_did_load(bus, fn)
-	inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/image.css"/>`)
+	load_resources(function(bus) {
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/image.css"/>`)
+	}, then)
 }
