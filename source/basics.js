@@ -181,7 +181,7 @@ export function inject_stylesheet(bus, basis) {
 		bus.emit(`resource-did-load`, href)
 		bus.emit(`resource-did-load:${href}`)
 	})
-	document.body.appendChild(link)
+	document.head.appendChild(link)
 }
 
 export function inject_script(bus, basis) {
