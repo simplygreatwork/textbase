@@ -209,7 +209,7 @@ export function resources_did_load(bus, fn) {
 		loading.add(resource)
 	})
 	bus.on('resource-did-load', function(resource) {
-		invoke_later(function() {														// ensures that the loading set to queue up instead of: 0-1-0-1-0-1-0
+		invoke_later(function() {														// ensure that the loading set will queue up instead of deflating too soon
 			logger('resources').log(`resource-did-load:${resource}`)
 			loading.delete(resource)
 			if (loading.size === 0) fn()
