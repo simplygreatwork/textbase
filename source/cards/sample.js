@@ -6,7 +6,7 @@ const logger = Logger()
 
 export function initialize(system) {
 	
-	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	
 	bus.on('action:card-sample', function() {
 		insert_card(editor, 'sample', `

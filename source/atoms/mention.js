@@ -7,7 +7,7 @@ const logger = Logger()
 
 export function initialize(system) {
 	
-	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	
 	bus.on('action:atom-mention', function() {
 		let content = get_selected_content(editor)

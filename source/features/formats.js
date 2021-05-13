@@ -9,7 +9,7 @@ const logger = Logger()
 
 export function initialize(system, formats) {
 	
-	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	formats = formats || ['pseudolink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight', 'clear']
 	
 	bus.on('feature:format-pseudolink', function() {

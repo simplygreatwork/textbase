@@ -9,7 +9,7 @@ const logger = Logger()
 
 export function initialize(system) {
 	
-	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	
 	bus.on('document-did-install', function(document_) {
 		each_atom(editor.element, editor.element, null, function(atom) {

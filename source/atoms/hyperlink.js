@@ -10,7 +10,7 @@ const logger = Logger()
 
 export function initialize(system) {
 	
-	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	
 	bus.on('action:atom-hyperlink', function() {
 		insert_atom(editor, create_atom(get_selected_content(editor), 'http://github.com'))
