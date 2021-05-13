@@ -333,7 +333,7 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:recognizers', function() {
-			initialize_recognizers(system)
+			initialize_recognizers(this)
 		}.bind(this))
 		
 		bus.on('feature:platform', function() {
