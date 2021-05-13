@@ -37,6 +37,7 @@ export class Storage {
 	
 	load_immutable(options) {
 		
+		if (typeof options == 'string') options = { path: options }
 		fetch(options.path)
 		.then(function(response) {
 			return response.text()

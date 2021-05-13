@@ -202,7 +202,7 @@ export function inject_script(bus, basis) {
 	document.body.appendChild(script)
 }
 
-export function load_resources(fn, then) {
+export function load_resources(resources, then) {
 	
 	let bus = new Bus()
 	let loading = new Set()
@@ -217,5 +217,5 @@ export function load_resources(fn, then) {
 			if (loading.size === 0) then()
 		})
 	})
-	fn(bus)
+	resources(bus)
 }

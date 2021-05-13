@@ -2,7 +2,6 @@
 import { Bus } from '../../source/bus.js'
 import { System } from '../../source/system.js'
 import { Storage } from '../../source/storage.js'
-import { Logger } from '../../source/logger.js'
 
 import * as formats from '../../source/features/formats.js'
 import * as blocks from '../../source/features/blocks.js'
@@ -20,8 +19,6 @@ import * as design_block_cards from '../../source/cards/design-block.js'
 import * as image_cards from '../../source/cards/image.js'
 import * as code_cards from '../../source/cards/code.js'
 
-const logger = Logger()
-
 export class Application {
 	
 	constructor() {
@@ -30,9 +27,9 @@ export class Application {
 		let system = new System(bus)
 		let storage = new Storage(bus)
 		this.listen(bus, system, storage)
-		bus.on('ready', function() {
+		bus.on('system-ready', function() {
 			storage.load(this.options())
-		}.bind(this))
+		})
 		system.initialize()
 		this.configure(bus, system.editor, system.history)
 	}
@@ -77,6 +74,8 @@ export class Application {
 	}
 	
 	options() {
+		
+		// e.g. http://127.0.0.1:8080/textbase/?path=https://jsonbin.org/user-id/path-to-resource&token=token-id
 		
 		let parameters = new URLSearchParams(document.location.search.substring(1))
 		if (parameters.get('path')) {

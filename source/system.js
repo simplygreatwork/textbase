@@ -15,7 +15,6 @@ import { initialize_clipboard } from './clipboard.js'
 import { initialize_platform } from './platform.js'
 import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
-import { allow } from './allowance.js'
 import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
 
@@ -62,7 +61,7 @@ export class System {
 		bus.on('feature-did-enable', function(feature) {
 			invoke_later(function() {												// ensure that the enabling set will queue up instead of deflating too soon
 				enabling.delete(feature)
-				if (enabling.size === 0) bus.emit('ready')
+				if (enabling.size === 0) bus.emit('system-ready')
 			})
 		})
 	}

@@ -2,27 +2,14 @@
 import { Bus } from '../../source/bus.js'
 import { System } from '../../source/system.js'
 import { Storage } from '../../source/storage.js'
-import { Logger } from '../../source/logger.js'
 
-const logger = Logger()
-
-export class Application {
-	
-	constructor() {
-		
-		let bus = new Bus()
-		let system = new System(bus)
-		let storage = new Storage(bus)
-		bus.on('ready', function() {
-			bus.on('storage-did-load', function(document_) {
-				system.install_document(document_)
-			})
-			storage.load({
-				path: './examples/minimal/content.html'
-			})
-		}.bind(this))
-		system.initialize()
-	}
-}
-
-new Application()
+let bus = new Bus()
+let system = new System(bus)
+let storage = new Storage(bus)
+bus.on('storage-did-load', function(document_) {
+	system.install_document(document_)
+})
+bus.on('system-ready', function() {
+	storage.load('./examples/minimal/content.html')
+})
+system.initialize()
