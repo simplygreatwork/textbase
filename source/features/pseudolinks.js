@@ -5,16 +5,18 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize_pseudolinks(editor, bus) {
+export function initialize_pseudolinks(system) {
 	
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	logger('trace').log('initialize_pseudolinks')
 	u(editor.element).on('click', function(event) {
 		invoke_pseudolink(u(event.target), editor, bus)
 	})
 }
 
-export function detect_pseudolinks(editor, bus) {
+export function detect_pseudolinks(system) {
 	
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	bus.on('keydown:shift-space', function(event) {
 		logger('trace').log('detect_pseudolink keydown:space')
 	})

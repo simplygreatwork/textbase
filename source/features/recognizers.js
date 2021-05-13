@@ -2,7 +2,9 @@
 import { a_text_node } from '../basics.js'
 import { get_selection } from '../selection.js'
 
-export function initialize_recognizers(editor, bus) {
+export function initialize_recognizers(system) {
+	
+	let [bus, editor, history] = [system.bus, system.editor, system.history]
 	
 	bus.on('keydown:shift-space', function(event) {
 		let selection = get_selection(editor)

@@ -13,8 +13,8 @@ export function initialize(system, formats) {
 	formats = formats || ['pseudolink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight', 'clear']
 	
 	bus.on('feature:format-pseudolink', function() {
-		initialize_pseudolinks(editor, bus)
-		detect_pseudolinks(editor, bus)
+		initialize_pseudolinks(system)
+		detect_pseudolinks(system)
 		bus.on('action:pseudolink', function() {
 			let result = window.prompt('Enter a URL', 'http://github.com')
 			if (result) toggle_format_with_data(editor, 'pseudolink', { href: result })
