@@ -15,6 +15,5 @@ bus.on('system-ready', function() {
 	storage.load('./examples/partial/content.html')
 })
 system.initialize()
-let [editor, history] = [system.editor, system.history]
-formats.initialize(bus, editor, history, ['strong', 'emphasis'])
-blocks.initialize(bus, editor, history, ['paragraph', 'heading-1', 'heading-2'])
+formats.initialize(system, ['strong', 'emphasis'])
+blocks.initialize(system, ['paragraph', 'heading-1', 'heading-2'])

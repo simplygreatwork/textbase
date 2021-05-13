@@ -15,6 +15,5 @@ bus.on('system-ready', function() {
 	storage.load('./examples/basic/content.html')
 })
 system.initialize()
-let [editor, history] = [system.editor, system.history]
-formats.initialize(bus, editor, history)
-blocks.initialize(bus, editor, history)
+formats.initialize(system)
+blocks.initialize(system)

@@ -10,7 +10,9 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history) {
+export function initialize(system) {
+	
+	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
 	
 	bus.on('document-will-install', function(document_) {
 		let content = u(`<div>${document_.content}</div>`)

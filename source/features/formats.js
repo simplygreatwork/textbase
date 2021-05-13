@@ -7,8 +7,9 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history, formats) {
+export function initialize(system, formats) {
 	
+	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
 	formats = formats || ['pseudolink', 'strong', 'emphasis', 'underline', 'strikethrough', 'highlight', 'clear']
 	
 	bus.on('feature:format-pseudolink', function() {

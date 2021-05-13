@@ -6,8 +6,9 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history, blocks) {
+export function initialize(system, blocks) {
 	
+	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
 	blocks = blocks || ['paragraph', 'heading-1', 'heading-2', 'list-item', 'blockquote', 'indentation', 'alignment']
 	if (false) blocks.append('ordered-list') 
 	if (false) blocks.append('unordered-list') 

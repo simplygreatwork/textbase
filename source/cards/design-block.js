@@ -6,7 +6,9 @@ import { Logger } from '../logger.js'
 
 const logger = Logger()
 
-export function initialize(bus, editor, history) {
+export function initialize(system) {
+	
+	let [ bus, editor, history ] = [ system.bus, system.editor, system.history ]
 	
 	bus.emit('feature-will-enable', 'card-design-block')
 	
