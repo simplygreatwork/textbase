@@ -17,29 +17,23 @@ export class Editor {
 		
 		this.bus = bus
 		this.element = element
-		this.initialize_content(bus, this)
 		this.initialize_keymap(bus, this)
 		this.initialize_actions(bus, this)
 		this.initialize_allowances(bus, this)
 		this.initialize_selection(bus, this)
 	}
 	
-	initialize_content(bus, editor) {
-		
-		this.content = this.element.querySelector('.content')
-	}
-	
 	initialize_keymap(bus, editor) {
 		
-		u(this.content).on('keydown', function(event) {
+		u(this.element).on('keydown', function(event) {
 			this.process_key_event('keydown', event)
 		}.bind(this))
 		
-		u(this.content).on('keyup', function(event) {
+		u(this.element).on('keyup', function(event) {
 			this.process_key_event('keyup', event)
 		}.bind(this))
 		
-		u(this.content).on('mousedown', function(event) {
+		u(this.element).on('mousedown', function(event) {
 			this.emit('editor:mousedown', event)
 		}.bind(this))
 	}

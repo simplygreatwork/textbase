@@ -7,9 +7,10 @@ const logger = Logger()
 
 export class Structure {
 	
-	constructor(bus, editor) {
+	constructor(bus, element, editor) {
 		
 		this.bus = bus
+		this.element = element
 		this.editor = editor
 		this.should_render = true
 	}
@@ -19,9 +20,9 @@ export class Structure {
 		this.should_render = ! this.should_render
 		if (this.should_render) {
 			this.render()
-			u('.structure').removeClass('structure-off')
+			u(this.element).removeClass('structure-off')
 		} else {
-			u('.structure').addClass('structure-off')
+			u(this.element).addClass('structure-off')
 		}
 	}
 	
@@ -29,6 +30,6 @@ export class Structure {
 		
 		if (this.should_render === false) return
 		let content = this.should_render ? serialize(this.editor) : ''
-		document.querySelector('.structure-html').textContent = content
+		this.element.textContent = content
 	}
 }

@@ -25,6 +25,10 @@ export class System {
 	constructor(bus, features) {
 		
 		this.bus = bus || new Bus()
+		this.selectors = this.selectors || {}
+		this.selectors.editor = '.editor'
+		this.selectors.toolbar = '.toolbar'
+		this.selectors.structure = '.structure'
 		this.features = features || [
 			'essentials',
 			'other',
@@ -35,12 +39,12 @@ export class System {
 	
 	initialize() {
 		
-		this.editor = new Editor(this.bus, document.querySelector('.editor'))
-		this.history = new History(this.bus, document.querySelector('.content'))
-		this.toolbar = new Toolbar(this.bus)
+		this.editor = new Editor(this.bus, document.querySelector(this.selectors.editor))
+		this.history = new History(this.bus, document.querySelector(this.selectors.editor))
+		this.toolbar = new Toolbar(this.bus, document.querySelector(this.selectors.toolbar))
+		this.structure = new Structure(this.bus, document.querySelector(this.selectors.structure), this.editor)
 		this.enforcer = new Enforcer(this.bus, this.editor)
 		this.sanitizer = new Sanitizer(this.bus)
-		this.structure = new Structure(this.bus, this.editor)
 		this.initialize_features(this.bus)
 		this.offer_features(this.bus, this.editor, this.history, this.toolbar, this.enforcer, this.sanitizer, this.structure)
 		this.enable_features(this.features, this.bus)
@@ -107,7 +111,7 @@ export class System {
 		bus.on('feature:documents', function() {
 			bus.on('document-did-install', function(document_) {
 				logger('system').log('document-did-install')
-				this.enforcer.scan(document.querySelector('.content'))
+				this.enforcer.scan(document.querySelector('.editor'))
 				this.history.enable()
 				this.structure.render()
 				if (false) dump_bus(bus)
@@ -342,7 +346,7 @@ export class System {
 		
 		bus.on('feature:other', function() {
 			bus.on('action:validate', function() {
-				this.enforcer.scan(document.querySelector('.content'))
+				this.enforcer.scan(document.querySelector('.editor'))
 			}.bind(this))
 			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
@@ -374,7 +378,7 @@ export class System {
 		
 		this.document_ = document_
 		this.bus.emit('document-will-install', document_)
-		u('.content').empty().append(u(document_.content))
+		u('.editor').empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
 	}
 }

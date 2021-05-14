@@ -65,11 +65,6 @@ button:focus {
 	overflow-y:scroll;
 	height:100%;
 	background-color:white;
-}
-.structure-off {
-	display:none;
-}
-.structure-html {
 	white-space: pre-wrap;
 	font-size:100%;
 	tab-size: 2;
@@ -79,7 +74,9 @@ button:focus {
 	overflow:scroll;
 	padding-left:10px;
 	white-space:pre;
-	background-color:white;
+}
+.structure-off {
+	display:none;
 }
 .invalid {
 	border-top:10px solid red;

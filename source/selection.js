@@ -14,8 +14,8 @@ export function get_selection(editor) {
 	if (! selection.rangeCount) return null 
 	if (selection.rangeCount === 0) return null 
 	let range = selection.getRangeAt(0)
-	if (! u(range.startContainer).closest(u('.content'))) return null
-	if (! u(range.endContainer).closest(u('.content'))) return null
+	if (! u(range.startContainer).closest(u('.editor'))) return null
+	if (! u(range.endContainer).closest(u('.editor'))) return null
 	return {
 		range: range,
 		head: { container: range.startContainer, offset: range.startOffset },
@@ -140,7 +140,7 @@ export function select_range(editor, from, to) {
 export function select_all(editor, event) {
 	
 	event.preventDefault()
-	select_range(editor, editor.content, editor.content)
+	select_range(editor, editor.editor, editor.editor)
 }
 
 export function normalize_selection(editor) {
