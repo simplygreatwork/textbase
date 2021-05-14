@@ -111,7 +111,7 @@ export class System {
 		bus.on('feature:documents', function() {
 			bus.on('document-did-install', function(document_) {
 				logger('system').log('document-did-install')
-				this.enforcer.scan(document.querySelector('.editor'))
+				this.enforcer.scan(this.editor.element)
 				this.history.enable()
 				this.structure.render()
 				if (false) dump_bus(bus)
@@ -346,7 +346,7 @@ export class System {
 		
 		bus.on('feature:other', function() {
 			bus.on('action:validate', function() {
-				this.enforcer.scan(document.querySelector('.editor'))
+				this.enforcer.scan(this.editor.element)
 			}.bind(this))
 			bus.emit('feature-did-enable', 'validate', 'Validate')
 			bus.on('selection-did-change', function(event, editor) {
@@ -378,7 +378,7 @@ export class System {
 		
 		this.document_ = document_
 		this.bus.emit('document-will-install', document_)
-		u('.editor').empty().append(u(document_.content))
+		u(this.editor.element).empty().append(u(document_.content))
 		this.bus.emit('document-did-install', document_)
 	}
 }
