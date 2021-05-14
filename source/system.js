@@ -26,9 +26,9 @@ export class System {
 		
 		this.bus = bus || new Bus()
 		this.selectors = this.selectors || {}
-		this.selectors.editor = '.editor'
-		this.selectors.toolbar = '.toolbar'
-		this.selectors.structure = '.structure'
+		this.selectors.editor = '[data-role="system"] [data-role="editor"]'
+		this.selectors.toolbar = '[data-role="system"] [data-role="toolbar"]'
+		this.selectors.structure = '[data-role="system"] [data-role="structure"]'
 		this.features = features || [
 			'essentials',
 			'other',
