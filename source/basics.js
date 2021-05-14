@@ -189,7 +189,6 @@ export function inject_script(bus, basis) {
 	
 	let src = u(basis).attr('src')
 	bus.emit(`resource-will-load`, src)
-	bus.emit(`resource-will-load:${src}`)
 	basis = u(basis).first()
 	let script = document.createElement('script')
 	Object.keys(basis.attributes).forEach(function(i) {
@@ -197,7 +196,6 @@ export function inject_script(bus, basis) {
 	})
 	script.addEventListener('load', function(event) {
 		bus.emit(`resource-did-load`, src)
-		bus.emit(`resource-did-load:${src}`)
 	})
 	document.body.appendChild(script)
 }
