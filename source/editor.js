@@ -13,10 +13,10 @@ const logger = Logger()
 
 export class Editor {
 	
-	constructor(bus, element) {
+	constructor(element, bus) {
 		
-		this.bus = bus
 		this.element = element
+		this.bus = bus
 		this.initialize_keymap(bus, this)
 		this.initialize_actions(bus, this)
 		this.initialize_allowances(bus, this)

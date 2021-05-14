@@ -39,10 +39,10 @@ export class System {
 	
 	initialize() {
 		
-		this.editor = new Editor(this.bus, document.querySelector(this.selectors.editor))
-		this.history = new History(this.bus, document.querySelector(this.selectors.editor))
-		this.toolbar = new Toolbar(this.bus, document.querySelector(this.selectors.toolbar))
-		this.structure = new Structure(this.bus, document.querySelector(this.selectors.structure), this.editor)
+		this.editor = new Editor(document.querySelector(this.selectors.editor), this.bus)
+		this.history = new History(document.querySelector(this.selectors.editor), this.bus)
+		this.toolbar = new Toolbar(document.querySelector(this.selectors.toolbar), this.bus)
+		this.structure = new Structure(document.querySelector(this.selectors.structure), this.bus, this.editor)
 		this.enforcer = new Enforcer(this.bus, this.editor)
 		this.sanitizer = new Sanitizer(this.bus)
 		this.initialize_features(this.bus)

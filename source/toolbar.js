@@ -8,16 +8,18 @@ const logger = Logger()
 
 export class Toolbar {
 	
-	constructor(bus) {
+	constructor(element, bus) {
 		
+		this.element = element
 		this.bus = bus
+		
 		bus.on('selection-did-change', function(event, editor) {
 			logger('toolbar').log('toolbar:selection-did-change')
 			let active_formats = find_active_formats(editor)
 			let applicable_formats = find_applicable_formats(editor)
 			let active_block = find_active_block(editor, a_block_element)
 			let applicable_blocks = find_applicable_blocks(editor, a_block_element)
-			let toolbar = u('.toolbar')
+			let toolbar = u(this.element)
 			toolbar.find('button').each(function(each) {
 				u(each).removeClass('active')
 			}.bind(this))
@@ -29,7 +31,7 @@ export class Toolbar {
 	}
 	
 	append(html) {
-		u('.toolbar').append(this.create_element(html))
+		u(this.element).append(this.create_element(html))
 	}
 	
 	before(html, node) {

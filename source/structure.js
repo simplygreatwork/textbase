@@ -7,10 +7,10 @@ const logger = Logger()
 
 export class Structure {
 	
-	constructor(bus, element, editor) {
+	constructor(element, bus, editor) {
 		
-		this.bus = bus
 		this.element = element
+		this.bus = bus
 		this.editor = editor
 		this.should_render = true
 	}

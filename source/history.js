@@ -10,7 +10,7 @@ const MutationObserver = window.MutationObserver || window.WebKitMutationObserve
 
 export class History {
 	
-	constructor(bus, element) {
+	constructor(element, bus) {
 		
 		if (! MutationObserver) throw Error('MutationObserver could not be found.')
 		
