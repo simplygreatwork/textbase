@@ -172,7 +172,6 @@ export function inject_stylesheet(bus, basis) {
 	
 	let href = u(basis).attr('href')
 	bus.emit(`resource-will-load`, href)
-	bus.emit(`resource-will-load:${href}`)
 	basis = u(basis).first()	
 	let link = document.createElement('link')
 	Object.keys(basis.attributes).forEach(function(i) {
@@ -180,7 +179,6 @@ export function inject_stylesheet(bus, basis) {
 	})
 	link.addEventListener('load', function(event) {
 		bus.emit(`resource-did-load`, href)
-		bus.emit(`resource-did-load:${href}`)
 	})
 	document.head.appendChild(link)
 }

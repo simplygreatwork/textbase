@@ -157,7 +157,7 @@ export class Enforcer {
 					tail: { container: next, offset: 0 }
 				})
 			}
-			bus.emit('content-did-change', next.previousSibling, next)
+			bus.emit('content-did-change', next ? next.previousSibling : element.parentElement, next)
 		})
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
