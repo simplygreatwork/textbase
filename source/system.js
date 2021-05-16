@@ -30,6 +30,7 @@ export class System {
 		this.selectors.editor = '[data-role="system"] [data-role="editor"]'
 		this.selectors.toolbar = '[data-role="system"] [data-role="toolbar"]'
 		this.selectors.structure = '[data-role="system"] [data-role="structure"]'
+		this.root = './'
 		this.features = features || [
 			'essentials',
 			'validation',

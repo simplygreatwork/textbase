@@ -21,7 +21,7 @@ export function initialize(system) {
 	
 	bus.emit('feature-will-enable', 'card-code')
 	
-	load_resources(function() {
+	load_resources(system.root, function() {
 		
 		bus.on('action:card-code', function() {
 			let code = get_placeholder_code()
@@ -258,10 +258,10 @@ function dehydrate(container) {
 	u(container).find('.code-highlighted').remove()
 }
 
-function load_resources(then) {
+function load_resources(root, then) {
 	
 	load_resources_(function(bus) {
-		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/code.css"/>`)
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="${root}source/cards/code.css"/>`)
 		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css"/>`)
 		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-tomorrow.css"/>`)
 		inject_script(bus, `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js" data-manual>`)

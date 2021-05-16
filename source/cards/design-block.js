@@ -13,7 +13,7 @@ export function initialize(system) {
 	
 	bus.emit('feature-will-enable', 'card-design-block')
 	
-	load_resources(function() {
+	load_resources(system.root, function() {
 		
 		bus.on('action:card-design-block', function() {
 			insert_card(editor, 'design-block', `
@@ -45,9 +45,9 @@ export function initialize(system) {
 	})
 }
 
-function load_resources(then) {
+function load_resources(root, then) {
 	
 	load_resources_(function(bus) {
-		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="./source/cards/design-block.css"/>`)
+		inject_stylesheet(bus, `<link rel="stylesheet" type="text/css" href="${root}source/cards/design-block.css"/>`)
 	}, then)
 }
