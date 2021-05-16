@@ -795,17 +795,17 @@ if (typeof module === 'object' && module.exports) {
 /**
  * Clone passing mirrors as arguments. (added by simplygreatwork)
  */
-u.prototype.clone_with_mirrors = function(mirrors) {
+u.prototype.clone = function(mirror) {
 	
-	mirrors = mirrors || {}
+	mirror = mirror || this.mirror
 	return this.map(function (node, i) {
 		var clone = node.cloneNode(true)
 		var dest = this.getAll(clone)
-		Object.assign(mirrors, this.mirrors)
+		Object.assign(mirror, this.mirror)
 		this.getAll(node).each(function (src, i) {
-			for (var key in mirrors) {
-				if (mirrors[key]) {
-					mirrors[key](src, dest.nodes[i])
+			for (var key in mirror) {
+				if (mirror[key]) {
+					mirror[key](src, dest.nodes[i])
 				}
 			}
 		})
