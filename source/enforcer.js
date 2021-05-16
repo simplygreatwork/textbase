@@ -38,7 +38,9 @@ export class Enforcer {
 		
 		walker.on('text-editable', function(node) {
 			if (node.nodeValue.length === 0) {
-				bus.emit('detected:text-node-without-content', node)
+				bus.emit('detected:text-node-with-no-content', node)
+			} else if (node.nodeValue == zero_width_whitespace) {
+				bus.emit('detected:text-node-with-zero-width-whitespace-content', node)
 			} else {
 				bus.emit('detected:text-node-with-content', node)
 			}
@@ -95,8 +97,12 @@ export class Enforcer {
 			}
 		})
 		
-		bus.on('detected:text-node-without-content', function(node) {
+		bus.on('detected:text-node-with-no-content', function(node) {
 			node.textContent = zero_width_whitespace
+		})
+		
+		bus.on('detected:text-node-with-zero-width-whitespace-content', function(node) {
+			return
 		})
 		
 		bus.on('detected:text-node-with-content', function(node) {
@@ -145,8 +151,9 @@ export class Enforcer {
 			bus.emit('content-did-change', element.previousSibling, element)
 		})
 		
-		bus.on('detected:empty-span', function(element) {				// issue: should not be removing empty spans? (insert zero width whitespace)
+		bus.on('detected:empty-span', function(element) {
 			logger('scanner').log('detected:empty-span')
+			if (element.parentElement.childNodes.length == 1) return
 			let selection = get_selection(editor)
 			let apply_selection = selection && selection.head ? element.firstChild == selection.head.container : false
 			let iterator = text_iterator(editor.element, element.firstChild)
@@ -163,7 +170,6 @@ export class Enforcer {
 		
 		bus.on('detected:block-element-with-no-span', function(element) {
 			logger('scanner').log('detected:block-element-with-no-span')
-			u(element).html(`<span>&#x200B;</span>`)
 			u(element).html(`<span>${zero_width_whitespace}</span>`)
 			bus.emit('content-did-change')											// todo: ('content-did-change', element, element)
 		})

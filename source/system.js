@@ -32,7 +32,7 @@ export class System {
 		this.selectors.structure = '[data-role="system"] [data-role="structure"]'
 		this.features = features || [
 			'essentials',
-			'other',
+			'validation',
 			'recognizers',
 			'platform'
 		]
@@ -124,6 +124,22 @@ export class System {
 		}.bind(this))
 		
 		bus.on('feature:basics', function() {
+			
+			bus.on('selection-did-change', function(event, editor) {
+				logger('system').log('selection-did-change')
+				this.debounce_selection_did_change = this.debounce_selection_did_change || debounce(function() {
+					this.structure.render()
+				}.bind(this), 10)
+				this.debounce_selection_did_change()
+			}.bind(this))
+			bus.on('content-did-change', function(begin, end) {
+				logger('system').log('content-did-change')
+				this.debounce_content_did_change = this.debounce_content_did_change || debounce(function(begin, end) {
+					this.enforcer.scan(begin, end)
+					this.structure.render()
+				}.bind(this), 10)
+				this.debounce_content_did_change(begin, end)
+			}.bind(this))
 			
 			bus.on('action:toggle-structure', function() {
 				this.structure.toggle()
@@ -345,26 +361,11 @@ export class System {
 			initialize_platform(bus)
 		}.bind(this))
 		
-		bus.on('feature:other', function() {
+		bus.on('feature:validation', function() {
 			bus.on('action:validate', function() {
 				this.enforcer.scan(this.editor.element)
 			}.bind(this))
 			bus.emit('feature-did-enable', 'validate', 'Validate')
-			bus.on('selection-did-change', function(event, editor) {
-				logger('system').log('selection-did-change')
-				this.debounce_selection_did_change = this.debounce_selection_did_change || debounce(function() {
-					this.structure.render()
-				}.bind(this), 10)
-				this.debounce_selection_did_change()
-			}.bind(this))
-			bus.on('content-did-change', function(begin, end) {
-				logger('system').log('content-did-change')
-				this.debounce_content_did_change = this.debounce_content_did_change || debounce(function(begin, end) {
-					this.enforcer.scan(begin, end)
-					this.structure.render()
-				}.bind(this), 10)
-				this.debounce_content_did_change(begin, end)
-			}.bind(this))
 			bus.on('content-valid', function(html) {
 				return
 			}.bind(this))

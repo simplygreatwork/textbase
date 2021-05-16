@@ -131,17 +131,11 @@ export class History {
 	
 	will_undo(record) {
 		
-		let added = []
-		let removed = []
-		let changed = []
+		let [added, removed, changed] = [[], [], []]
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
 			if (mutation.type == 'childList') {
-				Array.from(mutation.removedNodes).forEach(function(node) {
-					added.push(node)
-				})
-				Array.from(mutation.addedNodes).forEach(function(node) {
-					removed.push(node)
-				})
+				added = added.concat(Array.from(mutation.removedNodes))
+				removed = removed.concat(Array.from(mutation.addedNodes))
 			}
 		})
 		this.bus.emit('history-will-undo', added, removed, changed)
@@ -149,17 +143,11 @@ export class History {
 	
 	will_redo(record) {
 		
-		let added = []
-		let removed = []
-		let changed = []
+		let [added, removed, changed] = [[], [], []]
 		record.mutations.forEach(function(mutation) {
 			if (mutation.type == 'childList') {
-				Array.from(mutation.addedNodes).forEach(function(node) {
-					added.push(node)
-				})
-				Array.from(mutation.removedNodes).forEach(function(node) {
-					removed.push(node)
-				})
+				added = added.concat(Array.from(mutation.addedNodes))
+				removed = removed.concat(Array.from(mutation.removedNodes))
 			}
 		})
 		this.bus.emit('history-will-redo', added, removed, changed)
@@ -168,9 +156,7 @@ export class History {
 	perform_undo(record) {
 		
 		logger('history').log('--- PERFORM UNDO ---')
-		let added = []
-		let removed = []
-		let changed = []
+		let [added, removed, changed] = [[], [], []]
 		record.mutations.slice(0).reverse().forEach(function(mutation) {
 			switch (mutation.type) {
 				case 'characterData':
@@ -190,9 +176,7 @@ export class History {
 	perform_redo(record) {
 		
 		logger('history').log('--- PERFORM REDO ---')
-		let added = []
-		let removed = []
-		let changed = []
+		let [added, removed, changed] = [[], [], []]
 		record.mutations.forEach(function(mutation) {
 			switch (mutation.type) {
 				case 'characterData':

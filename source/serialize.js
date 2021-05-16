@@ -18,7 +18,7 @@ export function serialize(editor) {
 	bus.emit('document-will-serialize', content)
 	apply_selection(selection)
 	serialize_(content, [], result)
-	bus.emit('document-did-serialize', content)
+	bus.emit('document-did-serialize', content, result)
 	return result.join('')
 }
 
@@ -47,7 +47,7 @@ function apply_selection_(component, string) {
 	if (u(node).is(a_text_node)) {
 		node.nodeValue = node.nodeValue.substring(0, offset) + string + node.nodeValue.substring(offset)
 	} else if (u(node).is(an_element_node)) {
-		return													// todo: insert brackets before or after the element
+		return													// todo: insert brackets before or after the element as a text node
 	}
 }
 

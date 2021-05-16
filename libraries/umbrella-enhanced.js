@@ -790,7 +790,7 @@ if (typeof module === 'object' && module.exports) {
   module.exports.u = u;
 }
 
-// All code below was added by simplygreatwork.
+// All code below was added for simplygreatwork/textbase/
 
 /**
  * Clone passing mirrors as arguments. (added by simplygreatwork)
