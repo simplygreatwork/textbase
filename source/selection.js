@@ -4,6 +4,7 @@ import { an_element_node, a_text_node } from './basics.js'
 import { node_iterator, text_iterator } from './basics.js'
 import { is_editable_node } from './basics.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

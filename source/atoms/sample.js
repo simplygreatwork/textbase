@@ -1,6 +1,7 @@
 
 import { insert_atom } from '../features/atoms.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

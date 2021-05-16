@@ -3,6 +3,7 @@ import { a_text_node } from '../basics.js'
 import { zero_width_whitespace } from '../basics.js'
 import { get_selection, set_selection, selection_each_block } from '../selection.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

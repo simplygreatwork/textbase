@@ -17,6 +17,7 @@ import { initialize_recognizers } from './features/recognizers.js'
 import { serialize } from './serialize.js'
 import { dump as dump_bus } from './extras/bus.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger(['trace-off', 'bus-off', 'resources-off', 'system-off', 'editor-off', 'history-off', 'toolbar-off', 'enforcer-off', 'sanitizer-off', 'clipboard-off', 'formats-off'])
 

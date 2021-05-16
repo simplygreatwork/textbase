@@ -2,6 +2,7 @@
 import { an_inline_element } from '../basics.js'
 import { element_iterator, an_element_node, a_text_node } from '../basics.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

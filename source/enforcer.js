@@ -7,6 +7,7 @@ import { get_selection, set_selection } from './selection.js'
 import { Bus } from './bus.js'
 import { Walker } from './walker.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

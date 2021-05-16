@@ -3,6 +3,7 @@ import { Bus } from '../bus.js'
 import { load_resources as load_resources_, inject_stylesheet } from '../basics.js'
 import { insert_card } from '../features/cards.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

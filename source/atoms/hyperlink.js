@@ -5,6 +5,7 @@ import { insert_atom } from '../features/atoms.js'
 import { is_selection_inside_atom_content } from '../features/atoms.js'
 import { set_value, get_value } from '../features/atoms.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

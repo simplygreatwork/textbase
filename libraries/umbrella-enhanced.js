@@ -789,3 +789,38 @@ if (typeof module === 'object' && module.exports) {
   module.exports = u;
   module.exports.u = u;
 }
+
+// All code below was added by simplygreatwork.
+
+/**
+ * Clone passing mirrors as arguments. (added by simplygreatwork)
+ */
+u.prototype.clone_with_mirrors = function(mirrors) {
+	
+	mirrors = mirrors || {}
+	return this.map(function (node, i) {
+		var clone = node.cloneNode(true)
+		var dest = this.getAll(clone)
+		Object.assign(mirrors, this.mirrors)
+		this.getAll(node).each(function (src, i) {
+			for (var key in mirrors) {
+				if (mirrors[key]) {
+					mirrors[key](src, dest.nodes[i])
+				}
+			}
+		})
+		return clone
+	})
+}
+
+/**
+ * Iterate throught contents: elemnts and text nodes. (added by simplygreatwork)
+ */
+u.prototype.contents = function() {
+	
+	return this.map(function(node) {
+		return this.slice(node.childNodes)
+	})
+}
+
+export { u as umbrella }

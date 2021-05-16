@@ -3,6 +3,7 @@ import { an_element_node, a_text_node } from './basics.js'
 import { text_iterator } from './basics.js'
 import { Bus } from './bus.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

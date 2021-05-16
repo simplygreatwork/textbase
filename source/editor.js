@@ -8,6 +8,7 @@ import { consume_event, decode_entities } from './basics.js'
 import { get_selection, set_selection, set_caret, normalize_selection } from './selection.js'
 import { allow } from './allowance.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

@@ -11,6 +11,7 @@ import { find_card_container } from '../features/cards.js'
 import { is_selection_inside_card_container_content } from '../features/cards.js'
 import { get_placeholder_code } from './code-support.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

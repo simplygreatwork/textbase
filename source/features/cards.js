@@ -7,6 +7,7 @@ import { consume_event } from '../basics.js'
 import { get_selection, set_caret } from '../selection.js'
 import { is_node_atom_descendant } from './atoms.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

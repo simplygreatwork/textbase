@@ -6,6 +6,7 @@ import { get_selection, with_content_selection, set_caret } from './selection.js
 import { selection_edge, normalize_selection } from './selection.js'
 import { Sanitizer } from './sanitizer.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

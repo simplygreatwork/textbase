@@ -4,6 +4,7 @@ import { get_selection } from '../selection.js'
 import { selection_edge, selection_each_node, selection_each_text, selection_each_block, normalize_selection } from '../selection.js'
 import { initialize_pseudolinks, detect_pseudolinks } from './pseudolinks.js'
 import { Logger } from '../logger.js'
+import { umbrella as u } from '../../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 

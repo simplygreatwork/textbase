@@ -3,6 +3,7 @@ import { an_inline_element, a_block_element } from './basics.js'
 import { toggle_format, remove_formats, find_active_formats, find_applicable_formats } from './features/formats.js'
 import { toggle_block, find_active_block, find_applicable_blocks } from './features/blocks.js'
 import { Logger } from './logger.js'
+import { umbrella as u } from '../libraries/umbrella-enhanced.js'
 
 const logger = Logger()
 
